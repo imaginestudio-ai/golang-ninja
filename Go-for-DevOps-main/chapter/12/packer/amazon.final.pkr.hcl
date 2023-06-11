@@ -26,7 +26,7 @@ source "amazon-ebs" "ubuntu" {
 }
 
 build {
-  name = "goBook"
+  name = "goCourse"
   sources = [
     "source.amazon-ebs.ubuntu"
   ]

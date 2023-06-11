@@ -1,3 +1,3 @@
-module github.com/DylanMeeus/Book-FP
+module github.com/DylanMeeus/Course-FP
 
 go 1.18

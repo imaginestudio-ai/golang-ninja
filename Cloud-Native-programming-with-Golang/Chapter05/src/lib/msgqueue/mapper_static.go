@@ -18,8 +18,8 @@ func (e *StaticEventMapper) MapEvent(eventName string, serialized interface{}) (
 		event = &contracts.EventCreatedEvent{}
 	case "locationCreated":
 		event = &contracts.LocationCreatedEvent{}
-	case "eventBooked":
-		event = &contracts.EventBookedEvent{}
+	case "eventCourseed":
+		event = &contracts.EventCourseedEvent{}
 	default:
 		return nil, fmt.Errorf("unknown event type %s", eventName)
 	}

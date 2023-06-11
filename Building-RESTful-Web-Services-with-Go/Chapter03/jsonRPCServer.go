@@ -15,7 +15,7 @@ type Args struct {
 	Id string
 }
 
-type Book struct {
+type Course struct {
 	Id     string `"json:string,omitempty"`
 	Name   string `"json:name,omitempty"`
 	Author string `"json:author,omitempty"`
@@ -23,8 +23,8 @@ type Book struct {
 
 type JSONServer struct{}
 
-func (t *JSONServer) GiveBookDetail(r *http.Request, args *Args, reply *Book) error {
-	var books []Book
+func (t *JSONServer) GiveCourseDetail(r *http.Request, args *Args, reply *Course) error {
+	var books []Course
 	raw, readerr := ioutil.ReadFile("./books.json")
 	if readerr != nil {
 		log.Println("error:", readerr)

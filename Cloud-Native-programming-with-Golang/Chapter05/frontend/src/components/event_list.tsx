@@ -4,13 +4,13 @@ import {Event} from "../model/event";
 
 export interface EventListProps {
     events: Event[]
-    onEventBooked: (e: Event) => any
+    onEventCourseed: (e: Event) => any
 }
 
 export class EventList extends React.Component<EventListProps, {}> {
     public render() {
         const items = this.props.events.map(event =>
-            <EventListItem key={event.ID} event={event} onBooked={() => this.props.onEventBooked(event)}/>
+            <EventListItem key={event.ID} event={event} onCourseed={() => this.props.onEventCourseed(event)}/>
         );
 
         return <table className="table">

@@ -3,17 +3,17 @@ import {ChangeEvent} from "react";
 import {Event} from "../model/event";
 import {FormRow} from "./form_row";
 
-export interface EventBookingFormProps {
+export interface EventCourseingFormProps {
     event: Event;
     onSubmit: (seats: number) => any
 }
 
-export interface EventBookingFormState {
+export interface EventCourseingFormState {
     selectedAmount: number;
 }
 
-export class EventBookingForm extends React.Component<EventBookingFormProps, EventBookingFormState> {
-    constructor(p: EventBookingFormProps) {
+export class EventCourseingForm extends React.Component<EventCourseingFormProps, EventCourseingFormState> {
+    constructor(p: EventCourseingFormProps) {
         super(p);
 
         this.state = {
@@ -22,7 +22,7 @@ export class EventBookingForm extends React.Component<EventBookingFormProps, Eve
     }
 
     private handleNewAmount(event: ChangeEvent<HTMLSelectElement>) {
-        const newState: EventBookingFormState = {
+        const newState: EventCourseingFormState = {
             selectedAmount: parseInt(event.target.value)
         };
 
@@ -31,7 +31,7 @@ export class EventBookingForm extends React.Component<EventBookingFormProps, Eve
 
     render() {
         return <div>
-            <h2>Book tickets for {this.props.event.Name}!</h2>
+            <h2>Course tickets for {this.props.event.Name}!</h2>
             <form className="form-horizontal">
                 <FormRow label="Event">
                     <p className="form-control-static">{this.props.event.Name}</p>

@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-type Book struct {
+type Course struct {
 	Title  string `xml:"title"`
 	Author string `xml:"author"`
 }
@@ -21,7 +21,7 @@ func main() {
 	decoder := xml.NewDecoder(f)
 
 	// Read the book one by one
-	books := make([]Book, 0)
+	books := make([]Course, 0)
 	for {
 		tok, err := decoder.Token()
 		if err != nil {
@@ -34,7 +34,7 @@ func main() {
 		case xml.StartElement:
 			if tp.Name.Local == "book" {
 				// Decode the element to struct
-				var b Book
+				var b Course
 				decoder.DecodeElement(&b, &tp)
 				books = append(books, b)
 			}

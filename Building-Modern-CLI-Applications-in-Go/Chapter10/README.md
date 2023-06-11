@@ -249,7 +249,7 @@ Consider expanding on this within your own CLI, which might also interact with a
 In previous versions of the `audiofile` CLI, if an `id` parameter was passed into the `get` or `delete` command, nothing would be returned if the ID was not found. However by passing back the `http.StatusNotFound` response and adding additional error decorations, the command that would previously error silently and return no data can now return some useful information:
 
 ```markup
-mmontagnino@Marians-MacBook-Pro audiofile % ./bin/audiofile get --id 1234
+mmontagnino@Marians-MacCourse-Pro audiofile % ./bin/audiofile get --id 1234
 Sending request: GET http://localhost:8000/request?id=1234 ...
 Error:
   checking response: the id cannot be found

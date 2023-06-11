@@ -114,7 +114,7 @@ func (s *serverSheet) render() error {
 		return fmt.Errorf("problem creating CPU chart: %w", err)
 	}
 
-	return s.xlsx.SaveAs("./Book1.xlsx")
+	return s.xlsx.SaveAs("./Course1.xlsx")
 }
 
 func (s *serverSheet) writeSummaries() {

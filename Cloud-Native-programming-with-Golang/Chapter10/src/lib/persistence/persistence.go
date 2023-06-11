@@ -3,10 +3,10 @@ package persistence
 type DatabaseHandler interface {
 	AddUser(User) ([]byte, error)
 	AddEvent(Event) ([]byte, error)
-	AddBookingForUser([]byte, Booking) error
+	AddCourseingForUser([]byte, Courseing) error
 	AddLocation(Location) (Location, error)
 	FindUser(string, string) (User, error)
-	FindBookingsForUser([]byte) ([]Booking, error)
+	FindCourseingsForUser([]byte) ([]Courseing, error)
 	FindEvent([]byte) (Event, error)
 	FindEventByName(string) (Event, error)
 	FindAllAvailableEvents() ([]Event, error)

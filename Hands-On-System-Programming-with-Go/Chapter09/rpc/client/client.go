@@ -18,7 +18,7 @@ func main() {
 	}
 	defer client.Close()
 	const hp = "H.P. Lovecraft"
-	var books = []common.Book{
+	var books = []common.Course{
 		{ISBN: "1540335534", Author: hp, Title: "The Call of Cthulhu", Pages: 36},
 		{ISBN: "1980722803", Author: hp, Title: "The Dunwich Horror ", Pages: 53},
 		{ISBN: "197620299X", Author: hp, Title: "The Shadow Over Innsmouth", Pages: 40},
@@ -26,12 +26,12 @@ func main() {
 	}
 
 	callClient(client, "ReadingService.GetProgress", books[0].ISBN, new(int))
-	callClient(client, "ReadingService.AddBook", books[0], new(bool))
-	callClient(client, "ReadingService.AddBook", books[0], new(bool))
+	callClient(client, "ReadingService.AddCourse", books[0], new(bool))
+	callClient(client, "ReadingService.AddCourse", books[0], new(bool))
 	callClient(client, "ReadingService.GetProgress", books[0].ISBN, new(int))
-	callClient(client, "ReadingService.AddBook", books[1], new(bool))
-	callClient(client, "ReadingService.AddBook", books[2], new(bool))
-	callClient(client, "ReadingService.AddBook", books[3], new(bool))
+	callClient(client, "ReadingService.AddCourse", books[1], new(bool))
+	callClient(client, "ReadingService.AddCourse", books[2], new(bool))
+	callClient(client, "ReadingService.AddCourse", books[3], new(bool))
 	callClient(client, "ReadingService.SetProgress", common.Progress{
 		ISBN:  books[3].ISBN,
 		Pages: 10,

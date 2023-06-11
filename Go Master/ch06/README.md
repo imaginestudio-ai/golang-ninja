@@ -2179,7 +2179,7 @@ The `list` command lists the contents in the phone book application. It requires
 
 ```markup
 func list() {
-    sort.Sort(PhoneBook(data))
+    sort.Sort(PhoneCourse(data))
     text, err := PrettyPrintJSONstream(data)
     if err != nil {
         fmt.Println(err)

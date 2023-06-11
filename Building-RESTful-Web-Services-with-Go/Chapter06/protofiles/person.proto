@@ -21,6 +21,6 @@ message Person {
 }
 
 // Our address book file is just one of these.
-message AddressBook {
+message AddressCourse {
   repeated Person people = 1;
 }

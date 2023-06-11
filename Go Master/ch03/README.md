@@ -679,9 +679,9 @@ As explained earlier, this version of the phone book application has support for
 
 The previous process is called a high-level design of the application. For such a simple application, you do not have to be too analytic about the capabilities of the application—stating the supported commands and the location of the CSV data file is enough. However, for a RESTful server that implements a REST API, the design phase or the dependencies of the program are as important as the development phase itself.
 
-The entire code of the updated phone book utility can be found in `ch03` as `phoneBook.go`—as always, we are referring to the GitHub repository of the book. This is the last time we make this clarification—from now on, we will only tell you the name of the source file unless there is a specific reason to do otherwise.
+The entire code of the updated phone book utility can be found in `ch03` as `phoneCourse.go`—as always, we are referring to the GitHub repository of the book. This is the last time we make this clarification—from now on, we will only tell you the name of the source file unless there is a specific reason to do otherwise.
 
-The most interesting parts of the `phoneBook.go` file are presented here, starting from the implementation of the `main()` function, which is presented in two parts. The first part is about getting a command to execute and having a valid CSV file to work with.
+The most interesting parts of the `phoneCourse.go` file are presented here, starting from the implementation of the `main()` function, which is presented in two parts. The first part is about getting a command to execute and having a valid CSV file to work with.
 
 ```markup
 func main() {
@@ -900,31 +900,31 @@ Mihalis,Tsoukalos,2109416771,1600665563
 Efipanios,Savva,2101231234,1600665582
 ```
 
-As long at the telephone number is unique, the name and surname fields can exist multiple times. Running `phoneBook.go` produces the following kind of output:
+As long at the telephone number is unique, the name and surname fields can exist multiple times. Running `phoneCourse.go` produces the following kind of output:
 
 ```markup
-$ go run phoneBook.go list
+$ go run phoneCourse.go list
 {Dimitris Tsoukalos 2101112223 1600665563}
 {Mihalis Tsoukalos 2109416471 1600665563}
 {Mihalis Tsoukalos 2109416771 1600665563}
 {Efipanios Savva 2101231234 1600665582}
-$ go run phoneBook.go delete 2109416771
-$ go run phoneBook.go search 2101231234
+$ go run phoneCourse.go delete 2109416771
+$ go run phoneCourse.go search 2101231234
 {Efipanios Savva 2101231234 1608559833}
-$ go run phoneBook.go search 210-1231-234
+$ go run phoneCourse.go search 210-1231-234
 {Efipanios Savva 2101231234 1608559840}
 ```
 
 Due to our code, `210-1231-234` is converted to `2101231234`.
 
 ```markup
-$ go run phoneBook.go delete 210-1231-234
-$ go run phoneBook.go search 210-1231-234
+$ go run phoneCourse.go delete 210-1231-234
+$ go run phoneCourse.go search 210-1231-234
 Number not found: 2101231234
-$ go run phoneBook.go insert Jane Doe 0800-123-456
-$ go run phoneBook.go insert Jane Doe 0800-123-456
+$ go run phoneCourse.go insert Jane Doe 0800-123-456
+$ go run phoneCourse.go insert Jane Doe 0800-123-456
 0800123456 already exists
-$ go run phoneBook.go search 2101112223 
+$ go run phoneCourse.go search 2101112223 
 {Dimitris Tsoukalos 2101112223 1608559928}
 ```
 
@@ -957,7 +957,7 @@ Just Imagine
 -   Change the code of `intRE.go` to process multiple command-line arguments and display totals of `true` and `false` results at the end.
 -   Make changes to `csvData.go` to separate the fields of a record based on the `#` character.
 -   Write a Go utility that converts `os.Args` into a slice of structures with fields for storing the index and the value of each command-line argument—you should define the structure that is going to be used on your own.
--   Make the necessary changes to `phoneBook.go` in order to create the index based on the `LastAccess` field. Is this practical? Does it work? Why?
+-   Make the necessary changes to `phoneCourse.go` in order to create the index based on the `LastAccess` field. Is this practical? Does it work? Why?
 -   Make changes to `csvData.go` in order to separate the fields of a record with a character that is given as a command-line argument.
 
 Just Imagine

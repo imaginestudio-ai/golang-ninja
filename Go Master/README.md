@@ -1,9 +1,6 @@
-# Mastering Go
-This is the code repository for [Mastering Go](https://www.imaginedevops.io/golang-ninja/mastering-go), published by [ImagineDevOps ](https://www.imaginedevops.io/?utm_source=github). 
+# Go Masterclass
 
-
-
-## About the Book
+## About the Course
 The Go programming language, often referred to as Golang (albeit wrongly), is really making strides, with some masterclass developments, architected by the greatest programming minds.  
 
 The growth of the Go language has seen it become the means by which systems, networking, web, and cloud applications are implemented. Comfortable with syntax, you’ll benefit by mastering the use of the libraries and utilise its features, speed, and efficiency, for which the Go ecology is justly famous.

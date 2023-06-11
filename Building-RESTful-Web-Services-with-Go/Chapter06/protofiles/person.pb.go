@@ -9,7 +9,7 @@ It is generated from these files:
 
 It has these top-level messages:
 	Person
-	AddressBook
+	AddressCourse
 */
 package protofiles
 
@@ -117,16 +117,16 @@ func (m *Person_PhoneNumber) GetType() Person_PhoneType {
 }
 
 // Our address book file is just one of these.
-type AddressBook struct {
+type AddressCourse struct {
 	People []*Person `protobuf:"bytes,1,rep,name=people" json:"people,omitempty"`
 }
 
-func (m *AddressBook) Reset()                    { *m = AddressBook{} }
-func (m *AddressBook) String() string            { return proto.CompactTextString(m) }
-func (*AddressBook) ProtoMessage()               {}
-func (*AddressBook) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
+func (m *AddressCourse) Reset()                    { *m = AddressCourse{} }
+func (m *AddressCourse) String() string            { return proto.CompactTextString(m) }
+func (*AddressCourse) ProtoMessage()               {}
+func (*AddressCourse) Descriptor() ([]byte, []int) { return fileDescriptor0, []int{1} }
 
-func (m *AddressBook) GetPeople() []*Person {
+func (m *AddressCourse) GetPeople() []*Person {
 	if m != nil {
 		return m.People
 	}
@@ -136,7 +136,7 @@ func (m *AddressBook) GetPeople() []*Person {
 func init() {
 	proto.RegisterType((*Person)(nil), "protofiles.Person")
 	proto.RegisterType((*Person_PhoneNumber)(nil), "protofiles.Person.PhoneNumber")
-	proto.RegisterType((*AddressBook)(nil), "protofiles.AddressBook")
+	proto.RegisterType((*AddressCourse)(nil), "protofiles.AddressCourse")
 	proto.RegisterEnum("protofiles.Person_PhoneType", Person_PhoneType_name, Person_PhoneType_value)
 }
 

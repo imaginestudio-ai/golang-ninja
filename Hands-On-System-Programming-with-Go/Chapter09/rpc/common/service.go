@@ -10,12 +10,12 @@ type ReadingService struct {
 	ReadingList
 }
 
-func (r *ReadingService) AddBook(b Book, success *bool) error {
-	return setSuccess(r.ReadingList.AddBook(b), success)
+func (r *ReadingService) AddCourse(b Course, success *bool) error {
+	return setSuccess(r.ReadingList.AddCourse(b), success)
 }
 
-func (r *ReadingService) RemoveBook(isbn string, success *bool) error {
-	return setSuccess(r.ReadingList.RemoveBook(isbn), success)
+func (r *ReadingService) RemoveCourse(isbn string, success *bool) error {
+	return setSuccess(r.ReadingList.RemoveCourse(isbn), success)
 }
 
 func (r *ReadingService) GetProgress(isbn string, pages *int) (err error) {

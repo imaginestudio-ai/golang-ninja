@@ -4,7 +4,7 @@
 # Go Standard Library Cookbook
 This is the code repository for [Go Standard Library Cookbook](https://www.imaginedevops.io/application-development/go-standard-library-cookbook?utm_source=github&utm_medium=repository&utm_campaign=9781788475273), published by [ImagineDevOps ](https://www.imaginedevops.io/?utm_source=github). 
 
-## About the Book
+## About the Course
 The book begins with exploring the functionalities available for interaction with the environment and the operating system. We will explore common string operations, date/time manipulations, and numerical problems. We’ll then move on to working with the database, accessing the filesystem, and performing I/O operations. From a networking perspective, we will touch client and server-side solutions. The basics of concurrency are also covered before we wrap up with a few tips and tricks.
 
 By the end of the book, you will have a good overview of the features of the Golang standard library and what you can achieve with them. Finally, you will be proficient in implementing solutions with powerful standard libraries.

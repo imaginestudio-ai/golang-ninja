@@ -25,7 +25,7 @@ func main() {
 	xlsx.SetCellValue(sheet, "D3", "AMD")
 
 	// Save xlsx file by the given path.
-	if err := xlsx.SaveAs("./Book1.xlsx"); err != nil {
+	if err := xlsx.SaveAs("./Course1.xlsx"); err != nil {
 		panic(err)
 	}
 }

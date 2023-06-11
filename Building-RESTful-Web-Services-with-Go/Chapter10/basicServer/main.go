@@ -1,19 +1,19 @@
 package main
 
 import (
-	"fmt"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 )
 
-type Book struct {
-   ID int
-   ISBN string
-   Author string
-   PublishedYear string
+type Course struct {
+	ID            int
+	ISBN          string
+	Author        string
+	PublishedYear string
 }
 
 func main() {
@@ -26,7 +26,7 @@ func main() {
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("%q", r.UserAgent())
-		book := Book{ID: 123, ISBN: "0-201-03801-3", Author: "Donald Knuth", PublishedYear: "1968"}
+		book := Course{ID: 123, ISBN: "0-201-03801-3", Author: "Donald Knuth", PublishedYear: "1968"}
 		jsonData, _ := json.Marshal(book)
 		w.Header().Set("Content-Type", "application/json")
 		w.Write(jsonData)

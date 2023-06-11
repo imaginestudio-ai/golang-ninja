@@ -1207,7 +1207,7 @@ The implementation has many shortcomings, including the following:
     The chapters that follow enhance the functionality of the phone book application in order to be fully functional, versatile, and powerful.
     
 
-The code of `phoneBook.go` can be briefly described as follows:
+The code of `phoneCourse.go` can be briefly described as follows:
 
 -   There exists a new user-defined data type for holding the records of the phone book that is a Go structure with three fields named `Name`, `Surname`, and `Tel`. Structures group a set of values into a **single data type**, which allows you to pass and receive this set of values as a single entity.
 -   There exists a global variable that holds the data of the phone book, which is a slice of structures named `data`.
@@ -1215,7 +1215,7 @@ The code of `phoneBook.go` can be briefly described as follows:
 -   The contents of the `data` global variable are defined in the `main()` function using multiple `append()` calls. You can change, add, or delete the contents of the `data` slice according to your needs.
 -   Lastly, the program can only serve one task at a time. This means that to perform multiple queries, you have to run the program multiple times.
 
-Let us now see `phoneBook.go` in more detail, beginning with its preamble:
+Let us now see `phoneCourse.go` in more detail, beginning with its preamble:
 
 ```markup
 package main
@@ -1307,25 +1307,25 @@ The rest of the `main()` function implementation is as follows:
 
 This code uses a `case` block, which is really handy when you want to write readable code and avoid using multiple and nested `if` blocks. That `case` block differentiates between the two supported commands by examining the value of `arguments[1]`. If the given command is not recognized, the `default` branch is executed instead. For the `search` command, `arguments[2]` is also examined.
 
-Working with `phoneBook.go` looks as follows:
+Working with `phoneCourse.go` looks as follows:
 
 ```markup
-$ go build phoneBook.go
-$ ./phoneBook list
+$ go build phoneCourse.go
+$ ./phoneCourse list
 {Mihalis Tsoukalos 2109416471}
 {Mary Doe 2109416871}
 {John Black 2109416123}
-$ ./phoneBook search Tsoukalos
+$ ./phoneCourse search Tsoukalos
 {Mihalis Tsoukalos 2109416471}
-$ ./phoneBook search Tsouk
+$ ./phoneCourse search Tsouk
 Entry not found: Tsouk
-$ ./phoneBook
-Usage: ./phoneBook search|list <arguments>
+$ ./phoneCourse
+Usage: ./phoneCourse search|list <arguments>
 ```
 
-The first command lists the contents of the phone book whereas the second command searches for a given surname (`Tsoukalos`). The third command searches for something that does not exist in the phone book and the last command builds `phoneBook.go` and runs the generated executable without any arguments, which prints the instructions of the program.
+The first command lists the contents of the phone book whereas the second command searches for a given surname (`Tsoukalos`). The third command searches for something that does not exist in the phone book and the last command builds `phoneCourse.go` and runs the generated executable without any arguments, which prints the instructions of the program.
 
-Despite its shortcomings, `phoneBook.go` has a clean design that you can easily extend and works as expected, which is a great starting point. The phone book application will keep improving in the chapters that follow as we learn more advanced concepts.
+Despite its shortcomings, `phoneCourse.go` has a clean design that you can easily extend and works as expected, which is a great starting point. The phone book application will keep improving in the chapters that follow as we learn more advanced concepts.
 
 Just Imagine
 

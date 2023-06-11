@@ -12,14 +12,14 @@ var (
 	ErrMissing   = fmt.Errorf("missing book")
 )
 
-// Book represents a book entry
-type Book struct {
+// Course represents a book entry
+type Course struct {
 	ISBN          string
 	Title, Author string
 	Year, Pages   int
 }
 
-func (b Book) String() string {
+func (b Course) String() string {
 	s := strings.Builder{}
 	fmt.Fprintf(&s, "%s - %s", b.Title, b.Author)
 	if b.Year != 0 {
@@ -33,34 +33,34 @@ func (b Book) String() string {
 
 // ReadingList keeps tracks of books and pages read
 type ReadingList struct {
-	Books    []Book
+	Courses  []Course
 	Progress []int
 }
 
 func (r *ReadingList) bookIndex(isbn string) int {
-	for i := range r.Books {
-		if isbn == r.Books[i].ISBN {
+	for i := range r.Courses {
+		if isbn == r.Courses[i].ISBN {
 			return i
 		}
 	}
 	return -1
 }
 
-// AddBook checks if the book is not present and adds it
-func (r *ReadingList) AddBook(b Book) error {
+// AddCourse checks if the book is not present and adds it
+func (r *ReadingList) AddCourse(b Course) error {
 	if b.ISBN == "" {
 		return ErrISBN
 	}
 	if r.bookIndex(b.ISBN) != -1 {
 		return ErrDuplicate
 	}
-	r.Books = append(r.Books, b)
+	r.Courses = append(r.Courses, b)
 	r.Progress = append(r.Progress, 0)
 	return nil
 }
 
-// RemoveBook removes the book from list and forgets its progress
-func (r *ReadingList) RemoveBook(isbn string) error {
+// RemoveCourse removes the book from list and forgets its progress
+func (r *ReadingList) RemoveCourse(isbn string) error {
 	if isbn == "" {
 		return ErrISBN
 	}
@@ -69,10 +69,10 @@ func (r *ReadingList) RemoveBook(isbn string) error {
 		return ErrMissing
 	}
 	// replace the deleted book with the last of the list
-	r.Books[i] = r.Books[len(r.Books)-1]
+	r.Courses[i] = r.Courses[len(r.Courses)-1]
 	r.Progress[i] = r.Progress[len(r.Progress)-1]
 	// shrink the list of 1 element to remove the duplicate
-	r.Books = r.Books[:len(r.Books)-1]
+	r.Courses = r.Courses[:len(r.Courses)-1]
 	r.Progress = r.Progress[:len(r.Progress)-1]
 	return nil
 }
@@ -98,7 +98,7 @@ func (r *ReadingList) SetProgress(isbn string, pages int) error {
 	if i == -1 {
 		return ErrMissing
 	}
-	if p := r.Books[i].Pages; pages > p {
+	if p := r.Courses[i].Pages; pages > p {
 		pages = p
 	}
 	r.Progress[i] = pages
@@ -114,7 +114,7 @@ func (r *ReadingList) AdvanceProgress(isbn string, pages int) error {
 	if i == -1 {
 		return ErrMissing
 	}
-	if p := r.Books[i].Pages - r.Progress[i]; p < pages {
+	if p := r.Courses[i].Pages - r.Progress[i]; p < pages {
 		pages = p
 	}
 	r.Progress[i] += pages

@@ -7,17 +7,6 @@ Although this example covered in this chapter is not built on an empty code base
 -   Defining the components
 -   Implementing use cases
 -   Testing and mocking
-
-Bookmark
-
-# Technical requirements
-
-Download the following code to follow along:
-
-[https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter03/audiofile](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter03/audiofile)[](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter03)
-
-Install the latest version of VS Code with the latest Go tools.
-
 Bookmark
 
 # Defining the components

@@ -7,7 +7,7 @@ The growth of the Go language has seen it become the means by which systems, net
 
 You already know a little Go syntax and you’ve written some small projects, most Go programmers face the difficulty of having to integrate their Golang skills with production code. Typical introductions to Go programming, often stop short of this transition, the author continue on, showing you just how to tackle this.
 
-Offering a compendium of Go, the course begins with an account of how Go has been implemented, also, the reader will benefit from a dedicated chapter, an in-depth account of concurrency, systems and network programming, imperative for modern-day native cloud development.
+Offering a compendium of Go, the book begins with an account of how Go has been implemented, also, the reader will benefit from a dedicated chapter, an in-depth account of concurrency, systems and network programming, imperative for modern-day native cloud development.
 
 
 All of the code is organized into folders. Each folder starts with a number followed by the application name. For example, Chapter02.

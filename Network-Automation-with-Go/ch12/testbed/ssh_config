@@ -1,3 +1,0 @@
-Host *.amazonaws.com
-  StrictHostKeyChecking no
-  PasswordAuthentication no

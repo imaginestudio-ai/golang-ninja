@@ -1977,10 +1977,365 @@ Just Imagine
 
 # Exercises
 
--   Can you write a function that sorts three `int` values? Try to write two versions of the function: one with named returned values and another without named return values. Which one do you think is better?
--   Rewrite the `getSchema.go` utility so that it works with the `jackc/pgx` package.
--   Rewrite the `getSchema.go` utility so that it works with MySQL databases.
--   Use GitLab CI/CD to push Docker images to Docker Hub.
+1.  Can you write a function that sorts three `int` values? Try to write two versions of the function: one with named returned values and another without named return values. Which one do you think is better?
+2.   Rewrite the `getSchema.go` utility so that it works with the `jackc/pgx` package.
+3.  Rewrite the `getSchema.go` utility so that it works with MySQL databases.
+4.  Use GitLab CI/CD to push Docker images to Docker Hub.
+
+Exercise 1: Here's an example of a function that sorts three integer values using two different approaches: one with named return values and another without named return values.
+
+```
+// Function with named return values
+func sortThreeValues(a, b, c int) (sortedA, sortedB, sortedC int) {
+    if a <= b && a <= c {
+        sortedA = a
+        if b <= c {
+            sortedB = b
+            sortedC = c
+        } else {
+            sortedB = c
+            sortedC = b
+        }
+    } else if b <= a && b <= c {
+        sortedA = b
+        if a <= c {
+            sortedB = a
+            sortedC = c
+        } else {
+            sortedB = c
+            sortedC = a
+        }
+    } else {
+        sortedA = c
+        if a <= b {
+            sortedB = a
+            sortedC = b
+        } else {
+            sortedB = b
+            sortedC = a
+        }
+    }
+    return
+}
+
+// Function without named return values
+func sortThreeValuesAlt(a, b, c int) (int, int, int) {
+    if a <= b && a <= c {
+        if b <= c {
+            return a, b, c
+        }
+        return a, c, b
+    } else if b <= a && b <= c {
+        if a <= c {
+            return b, a, c
+        }
+        return b, c, a
+    }
+    if a <= b {
+        return c, a, b
+    }
+    return c, b, a
+}
+```
+
+Both versions of the function achieve the same result, which is sorting the three input integers in ascending order. The difference lies in how the return values are specified.
+
+The first version uses named return values (sortedA, sortedB, and sortedC). This allows us to assign the sorted values directly to these named variables within the function body. The function ends with a bare return statement, which automatically returns the named values.
+
+The second version does not use named return values. Instead, it directly returns the sorted values in the appropriate order using the return statement.
+
+Regarding which version is better, it depends on personal preference and the specific use case. Named return values can make the code more readable by providing clear documentation of the returned values. It can also help improve code maintainability if the number of return values is large or if the function signature changes in the future. However, the second version without named return values can be more concise and straightforward.
+
+Ultimately, it's up to you to decide which approach best suits your needs based on factors such as code readability, maintainability, and personal coding style.
+
+Exercise 2: Here's an example of how you can modify the getSchema.go utility to work with the jackc/pgx package in Go:
+
+```
+package main
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"log"
+
+	"github.com/jackc/pgx/v4"
+)
+
+func main() {
+	connConfig, err := pgx.ParseConfig("postgres://username:password@localhost:5432/database_name")
+	if err != nil {
+		log.Fatal("Error parsing connection config:", err)
+	}
+
+	conn, err := pgx.ConnectConfig(context.Background(), connConfig)
+	if err != nil {
+		log.Fatal("Error connecting to the database:", err)
+	}
+	defer conn.Close(context.Background())
+
+	schemaName := "public" // Change this to the desired schema name
+
+	tables, err := getTables(conn, schemaName)
+	if err != nil {
+		log.Fatal("Error retrieving tables:", err)
+	}
+
+	for _, table := range tables {
+		columns, err := getColumns(conn, schemaName, table)
+		if err != nil {
+			log.Println("Error retrieving columns for table", table, ":", err)
+			continue
+		}
+
+		fmt.Println("Table:", table)
+		for _, column := range columns {
+			fmt.Println("- Column:", column)
+		}
+		fmt.Println()
+	}
+}
+
+func getTables(conn *pgx.Conn, schemaName string) ([]string, error) {
+	var tables []string
+	rows, err := conn.Query(context.Background(), `SELECT table_name FROM information_schema.tables WHERE table_schema = $1`, schemaName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tableName string
+		err := rows.Scan(&tableName)
+		if err != nil {
+			return nil, err
+		}
+		tables = append(tables, tableName)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return tables, nil
+}
+
+func getColumns(conn *pgx.Conn, schemaName, tableName string) ([]string, error) {
+	var columns []string
+	rows, err := conn.Query(context.Background(), `SELECT column_name FROM information_schema.columns WHERE table_schema = $1 AND table_name = $2`, schemaName, tableName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var columnName string
+		err := rows.Scan(&columnName)
+		if err != nil {
+			return nil, err
+		}
+		columns = append(columns, columnName)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return columns, nil
+}
+```
+
+In this modified version, the database/sql package is replaced with the github.com/jackc/pgx/v4 package, which provides the pgx PostgreSQL driver. The connection and query operations are updated to use the pgx package's functions and types.
+
+Make sure to replace the username, password, localhost, and database_name placeholders in the connection string with your actual database credentials.
+
+The getTables and getColumns functions are updated to use the pgx.Conn type for executing queries and retrieving results. The queries themselves remain the same, as they are written in standard SQL.
+
+The rest of the code remains mostly unchanged, and it will retrieve the tables and columns from the specified schema using the pgx package.
+
+Please note that you need to have the pgx package installed. You can install it by running the following command:
+
+```
+go get github.com/jackc/pgx/v4
+```
+
+Remember to update the connection string and adjust the code as per your specific requirements.
+
+Exercise 3:
+
+ Here's an example of how you can modify the getSchema.go utility to work with MySQL databases in Go:
+
+```
+package main
+
+import (
+	"database/sql"
+	"fmt"
+	"log"
+
+	_ "github.com/go-sql-driver/mysql"
+)
+
+func main() {
+	db, err := sql.Open("mysql", "username:password@tcp(localhost:3306)/database_name")
+	if err != nil {
+		log.Fatal("Error connecting to the database:", err)
+	}
+	defer db.Close()
+
+	schemaName := "public" // Change this to the desired schema name
+
+	tables, err := getTables(db, schemaName)
+	if err != nil {
+		log.Fatal("Error retrieving tables:", err)
+	}
+
+	for _, table := range tables {
+		columns, err := getColumns(db, schemaName, table)
+		if err != nil {
+			log.Println("Error retrieving columns for table", table, ":", err)
+			continue
+		}
+
+		fmt.Println("Table:", table)
+		for _, column := range columns {
+			fmt.Println("- Column:", column)
+		}
+		fmt.Println()
+	}
+}
+
+func getTables(db *sql.DB, schemaName string) ([]string, error) {
+	var tables []string
+	rows, err := db.Query("SHOW TABLES")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var tableName string
+		err := rows.Scan(&tableName)
+		if err != nil {
+			return nil, err
+		}
+		tables = append(tables, tableName)
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return tables, nil
+}
+
+func getColumns(db *sql.DB, schemaName, tableName string) ([]string, error) {
+	var columns []string
+	rows, err := db.Query("SHOW COLUMNS FROM " + tableName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var columnName, columnType string
+		err := rows.Scan(&columnName, &columnType)
+		if err != nil {
+			return nil, err
+		}
+		columns = append(columns, columnName+" ("+columnType+")")
+	}
+
+	if rows.Err() != nil {
+		return nil, rows.Err()
+	}
+
+	return columns, nil
+}
+```
+
+In this modified version, we import the github.com/go-sql-driver/mysql package, which provides the MySQL driver for Go's database/sql package.
+
+Make sure to replace the username, password, localhost, database_name, and any other required connection details in the connection string.
+
+The getTables function uses the SHOW TABLES query to retrieve the list of tables in the database.
+
+The getColumns function uses the SHOW COLUMNS FROM query to retrieve the columns of a specific table.
+
+The rest of the code remains mostly unchanged, and it will retrieve the tables and columns from the specified schema using the MySQL driver.
+
+Please note that you need to have the go-sql-driver/mysql package installed. You can install it by running the following command:
+
+```
+go get github.com/go-sql-driver/mysql
+```
+
+Remember to update the connection string and adjust the code as per your specific MySQL configuration.
+
+Exercise 4:  To use GitLab CI/CD to push Docker images to Docker Hub, you need to set up a pipeline in your GitLab project that builds and pushes the Docker image whenever changes are made to the code. 
+
+Here's a step-by-step guide to help you get started:
+
+- Set up your GitLab repository:
+- Create a new repository on GitLab or navigate to an existing repository.
+
+- Make sure your codebase contains a Dockerfile that specifies the image you want to build.
+
+- Set up Docker Hub repository:
+
+- Create a Docker Hub account if you don't have one.
+
+- Create a new repository on Docker Hub where you want to push your Docker images.
+
+- Configure GitLab CI/CD:
+
+In your GitLab repository, navigate to the CI/CD settings (Settings -> CI/CD).
+Add the following environment variables under "Variables":
+        
+- DOCKER_USERNAME: Your Docker Hub username.
+- DOCKER_PASSWORD: Your Docker Hub password or access token.
+
+Create a GitLab CI/CD pipeline configuration file:
+
+In the root of your GitLab repository, create a file named .gitlab-ci.yml.
+
+Add the following content to configure the pipeline:
+
+```
+    image: docker:stable
+
+    services:
+      - docker:dind
+
+    stages:
+      - build
+
+    build:
+      stage: build
+      script:
+        - docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD
+        - docker build -t $DOCKER_USERNAME/your-image-name .
+        - docker push $DOCKER_USERNAME/your-image-name
+```
+
+- Replace your-image-name with the name you want to give to your Docker image.
+
+- Commit and push the .gitlab-ci.yml file to your GitLab repository. This will trigger the pipeline.
+
+- GitLab CI/CD will automatically execute the pipeline:
+
+It will pull the docker:stable image to use as the base image. It will spin up a Docker service. It will execute the build stage defined in the pipeline configuration file. The script will log in to Docker Hub using the provided credentials. It will build the Docker image using the Dockerfile in your repository. It will push the built image to your Docker Hub repository.
+
+Monitor the pipeline execution:
+        
+- Go to your GitLab repository and navigate to the "CI/CD" section.
+- You will be able to see the progress and status of the pipeline. Once the pipeline completes successfully, your Docker image should be available in your Docker Hub repository.
+
+That's it! You have set up GitLab CI/CD to automatically build and push Docker images to Docker Hub whenever changes are made to your codebase.
+
+Note: Make sure to keep your Docker Hub credentials secure. Storing them as environment variables in the GitLab CI/CD settings ensures they are not exposed in your code repository.
+
+Remember to customize the pipeline configuration and script as per your specific requirements, such as specifying the Docker image name, tags, and additional build steps if needed.
 
 Just Imagine
 

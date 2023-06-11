@@ -404,6 +404,23 @@ As you saw in `variables.go` when using the `math.Abs()` function that expects a
 
 For conversions that are not straightforward (for example, `string` to `int`), there exist specialized functions that allow you to catch issues with the conversion in the form of an `error` variable that is returned by the function.
 
+In Go, the `math.Abs()` function is used to calculate the absolute value of a given number. To use it with a `float64` value, you can pass the float64 value as an argument to the math.Abs() function. Here's an example:
+
+```
+package main
+
+import (
+	"fmt"
+	"math"
+)
+
+func main() {
+	num := -6.5
+	absNum := math.Abs(num)
+	fmt.Println(absNum) // Output: 6.5
+}
+```
+In this example, we import the math package and use the Abs() function to calculate the absolute value of the num variable, which is set to -6.5. Since num is a float64 value, we can directly pass it as an argument to math.Abs(). The result, absNum, will be 6.5, which is the absolute value of -6.5. Finally, we print the result using fmt.Println().
 ## Controlling program flow
 
 So far, we have seen Go variables but how do we change the flow of a Go program based on the value of a variable or some other condition? Go supports the `if/else` and `switch` control structures. Both control structures can be found in most modern programming languages, so if you have already programmed in another programming language, you should already be familiar with `if` and `switch`. `if` statements use no parenthesis for embedding the conditions that need to be examined because Go does not use parentheses in general. As expected, `if` has support for `else` and `else if` statements.

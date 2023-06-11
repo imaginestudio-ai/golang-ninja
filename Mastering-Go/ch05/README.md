@@ -1982,7 +1982,7 @@ Just Imagine
 3.  Rewrite the `getSchema.go` utility so that it works with MySQL databases.
 4.  Use GitLab CI/CD to push Docker images to Docker Hub.
 
-Exercise 1: Here's an example of a function that sorts three integer values using two different approaches: one with named return values and another without named return values.
+##### Exercise 1: Here's an example of a function that sorts three integer values using two different approaches: one with named return values and another without named return values.
 
 ```
 // Function with named return values
@@ -2048,7 +2048,7 @@ Regarding which version is better, it depends on personal preference and the spe
 
 Ultimately, it's up to you to decide which approach best suits your needs based on factors such as code readability, maintainability, and personal coding style.
 
-Exercise 2: Here's an example of how you can modify the getSchema.go utility to work with the jackc/pgx package in Go:
+##### Exercise 2: Here's an example of how you can modify the getSchema.go utility to work with the jackc/pgx package in Go:
 
 ```
 package main
@@ -2161,9 +2161,7 @@ go get github.com/jackc/pgx/v4
 
 Remember to update the connection string and adjust the code as per your specific requirements.
 
-Exercise 3:
-
- Here's an example of how you can modify the getSchema.go utility to work with MySQL databases in Go:
+##### Exercise 3: Here's an example of how you can modify the getSchema.go utility to work with MySQL databases in Go:
 
 ```
 package main
@@ -2272,7 +2270,7 @@ go get github.com/go-sql-driver/mysql
 
 Remember to update the connection string and adjust the code as per your specific MySQL configuration.
 
-Exercise 4:  To use GitLab CI/CD to push Docker images to Docker Hub, you need to set up a pipeline in your GitLab project that builds and pushes the Docker image whenever changes are made to the code. 
+##### Exercise 4:  To use GitLab CI/CD to push Docker images to Docker Hub, you need to set up a pipeline in your GitLab project that builds and pushes the Docker image whenever changes are made to the code. 
 
 Here's a step-by-step guide to help you get started:
 

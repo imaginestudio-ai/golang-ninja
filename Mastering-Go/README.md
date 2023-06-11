@@ -4,7 +4,7 @@ This is the code repository for [Mastering Go](https://www.imaginedevops.io/gola
 
 
 ## About the Book
-The Go programming language, often referred to as Golang (albeit wrongly), is really making strides, with some masterclass developments, architected by the greatest programming minds. Tobias Lutke, CEO of Shopify, recently quoted as saying “Go will be the server language of the future”, powerful words, with much ambition. Go programmers are in high demand, but more controversially, Go takes the stage, where C and Unix programmers previously led the way.
+The Go programming language, often referred to as Golang (albeit wrongly), is really making strides, with some masterclass developments, architected by the greatest programming minds.  
 
 The growth of the Go language has seen it become the means by which systems, networking, web, and cloud applications are implemented. Comfortable with syntax, you’ll benefit by mastering the use of the libraries and utilise its features, speed, and efficiency, for which the Go ecology is justly famous.
 

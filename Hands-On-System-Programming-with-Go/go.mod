@@ -1,4 +1,4 @@
-module github.com/ImagineDevOps DevOps/Hands-On-Systems-Programming-with-Go
+module github.com/imaginedevops/Hands-On-Systems-Programming-with-Go
 
 go 1.15
 

@@ -5,7 +5,7 @@ import (
 	"net/rpc"
 	"os"
 
-	"github.com/ImagineDevOps DevOps/Hands-On-Systems-Programming-with-Go/Chapter09/rpc/common"
+	"github.com/imaginedevops/Hands-On-Systems-Programming-with-Go/Chapter09/rpc/common"
 )
 
 func main() {

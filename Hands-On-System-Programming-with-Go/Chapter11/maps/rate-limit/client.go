@@ -5,7 +5,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/ImagineDevOps DevOps/Hands-On-Systems-Programming-with-Go/Chapter11/maps"
+	"github.com/imaginedevops/Hands-On-Systems-Programming-with-Go/Chapter11/maps"
 )
 
 func main() {

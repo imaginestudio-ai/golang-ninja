@@ -8,7 +8,7 @@ import (
 	"os/user"
 	"path/filepath"
 
-	"github.com/ImagineDevOps DevOps/Hands-On-Systems-Programming-with-Go/Chapter06/advanced/state/command"
+	"github.com/imaginedevops/Hands-On-Systems-Programming-with-Go/Chapter06/advanced/state/command"
 )
 
 func init() {

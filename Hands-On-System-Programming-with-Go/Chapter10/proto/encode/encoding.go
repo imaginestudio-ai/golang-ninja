@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"github.com/ImagineDevOps DevOps/Hands-On-Systems-Programming-with-Go/Chapter10/proto/gen"
 	"github.com/golang/protobuf/proto"
+	"github.com/imaginedevops/Hands-On-Systems-Programming-with-Go/Chapter10/proto/gen"
 )
 
 func main() {

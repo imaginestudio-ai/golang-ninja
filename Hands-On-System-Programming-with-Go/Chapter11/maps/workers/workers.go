@@ -6,7 +6,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ImagineDevOps DevOps/Hands-On-Systems-Programming-with-Go/Chapter11/maps"
+	"github.com/imaginedevops/Hands-On-Systems-Programming-with-Go/Chapter11/maps"
 )
 
 type result struct {

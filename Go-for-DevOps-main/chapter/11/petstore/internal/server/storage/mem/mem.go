@@ -10,13 +10,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/internal/server/errors"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/internal/server/log"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/internal/server/storage"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/internal/server/errors"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/internal/server/log"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/internal/server/storage"
 
 	"github.com/biogo/store/llrb"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/proto"
 )
 
 // birthdays represents a set of pets that share the same birthday with

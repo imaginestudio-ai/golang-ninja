@@ -38,7 +38,7 @@ import (
 	"go.opentelemetry.io/otel/trace"
 	"google.golang.org/grpc"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/14/petstore-operator/client/internal/server/telemetry/tracing/sampler"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/14/petstore-operator/client/internal/server/telemetry/tracing/sampler"
 )
 
 // Tracer is the tracer initialized by Start().

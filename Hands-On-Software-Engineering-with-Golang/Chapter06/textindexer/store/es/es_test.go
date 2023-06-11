@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index/indextest"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index/indextest"
 	gc "gopkg.in/check.v1"
 )
 

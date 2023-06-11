@@ -5,7 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/session"
 
-	"github.com/ImagineDevOps/Cloud-Native-programming-with-Golang/chapter06/src/lib/msgqueue"
+	"github.com/ImagineDevOps DevOps/Cloud-Native-programming-with-Golang/chapter06/src/lib/msgqueue"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/sqs"
 )

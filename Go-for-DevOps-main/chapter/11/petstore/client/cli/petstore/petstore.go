@@ -8,10 +8,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/client"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/client"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/proto"
 	dpb "google.golang.org/genproto/googleapis/type/date"
 )
 

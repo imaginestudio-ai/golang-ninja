@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ImagineDevOps/Chapter8/LazyEvaluation/pkg"
+	"github.com/ImagineDevOps DevOps/Chapter8/LazyEvaluation/pkg"
 )
 
 func main() {

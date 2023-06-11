@@ -7,11 +7,11 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/internal/server"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/internal/server/log"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/internal/server/storage/mem"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/internal/server/telemetry/metrics"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/internal/server/telemetry/tracing"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/internal/server"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/internal/server/log"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/internal/server/storage/mem"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/internal/server/telemetry/metrics"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/internal/server/telemetry/tracing"
 
 	//grpcotel "go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc"
 	"go.opentelemetry.io/otel/sdk/trace"

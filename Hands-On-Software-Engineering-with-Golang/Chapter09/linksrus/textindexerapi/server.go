@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter09/linksrus/textindexerapi/proto"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter09/linksrus/textindexerapi/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/golang/protobuf/ptypes/timestamp"

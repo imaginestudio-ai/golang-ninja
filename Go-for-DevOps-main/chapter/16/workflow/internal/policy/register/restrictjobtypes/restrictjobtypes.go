@@ -8,9 +8,9 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/internal/policy"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/internal/service/jobs"
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/proto"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/internal/policy"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/internal/service/jobs"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/proto"
 )
 
 // This registers our policy with the service.

@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/ImagineDevOps/Chapter6/pkg"
+	"github.com/ImagineDevOps DevOps/Chapter6/pkg"
 )
 
 type (

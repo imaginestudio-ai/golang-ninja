@@ -3,7 +3,7 @@ package rest
 import (
 	"net/http"
 
-	"github.com/ImagineDevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/lib/persistence"
+	"github.com/ImagineDevOps DevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/lib/persistence"
 
 	"github.com/gorilla/mux"
 )

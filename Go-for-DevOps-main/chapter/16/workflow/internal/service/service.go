@@ -17,9 +17,9 @@ import (
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/proto"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/internal/es"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/internal/service/executor"
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/proto"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/internal/es"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/internal/service/executor"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/proto"
 )
 
 // active provides an entry for an actively executing workflow.

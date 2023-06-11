@@ -3,8 +3,8 @@ package pagerank
 import (
 	"context"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph/aggregator"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph/aggregator"
 	"golang.org/x/xerrors"
 )
 

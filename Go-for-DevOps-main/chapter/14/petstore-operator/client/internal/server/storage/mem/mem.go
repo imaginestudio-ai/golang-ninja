@@ -10,10 +10,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/14/petstore-operator/client/internal/server/errors"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/14/petstore-operator/client/internal/server/log"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/14/petstore-operator/client/internal/server/storage"
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/14/petstore-operator/client/proto"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/14/petstore-operator/client/internal/server/errors"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/14/petstore-operator/client/internal/server/log"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/14/petstore-operator/client/internal/server/storage"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/14/petstore-operator/client/proto"
 
 	"github.com/biogo/store/llrb"
 )

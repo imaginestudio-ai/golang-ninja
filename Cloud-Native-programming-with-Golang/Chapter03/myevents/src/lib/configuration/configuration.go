@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ImagineDevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/lib/persistence/dblayer"
+	"github.com/ImagineDevOps DevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/lib/persistence/dblayer"
 )
 
 var (

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ImagineDevOps/Chapter8/FunctionChaining/pkg"
+	"github.com/ImagineDevOps DevOps/Chapter8/FunctionChaining/pkg"
 )
 
 /*

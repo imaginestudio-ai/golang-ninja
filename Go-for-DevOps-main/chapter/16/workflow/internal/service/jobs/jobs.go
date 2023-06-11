@@ -20,7 +20,7 @@ import (
 	"log"
 	"strings"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/proto"
 )
 
 var jobs = map[string]Job{}

@@ -8,7 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/8/rollout/lb/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/8/rollout/lb/proto"
 )
 
 // HealthChecks are a set of backend health checks that a backend must pass

@@ -4,8 +4,8 @@ import (
 	"context"
 	"math/rand"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph/message"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph/message"
 )
 
 // Assigner implements the greedy Jones/Plassmann algorithm for coloring graphs.

@@ -11,7 +11,7 @@ import (
 	"unicode"
 	"unicode/utf8"
 
-	"github.com/ImagineDevOps/Hands-On-Systems-Programming-with-Go/Chapter06/advanced/state/command"
+	"github.com/ImagineDevOps DevOps/Hands-On-Systems-Programming-with-Go/Chapter06/advanced/state/command"
 )
 
 func init() {

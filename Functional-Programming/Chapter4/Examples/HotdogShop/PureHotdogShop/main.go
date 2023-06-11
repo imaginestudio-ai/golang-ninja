@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ImagineDevOps/Chapter4/Examples/HotdogShop/PureHotdogShop/pkg"
+	"github.com/ImagineDevOps DevOps/Chapter4/Examples/HotdogShop/PureHotdogShop/pkg"
 )
 
 func main() {

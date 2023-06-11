@@ -10,7 +10,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter09/oauthflow/auth"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter09/oauthflow/auth"
 	"golang.org/x/oauth2"
 	gc "gopkg.in/check.v1"
 )

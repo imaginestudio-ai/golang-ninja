@@ -3,7 +3,7 @@ package dynamolayer
 import (
 	"errors"
 
-	"github.com/ImagineDevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/lib/persistence"
+	"github.com/ImagineDevOps DevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/lib/persistence"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/dynamodb"

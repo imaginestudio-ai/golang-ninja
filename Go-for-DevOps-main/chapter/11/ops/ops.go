@@ -4,10 +4,10 @@ import (
 	"flag"
 	"log"
 
-	jaegerClient "github.com/ImagineDevOps/Go-for-DevOps/chapter/11/ops/internal/jaeger/client"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/ops/internal/prom"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/ops/internal/server"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/client"
+	jaegerClient "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/ops/internal/jaeger/client"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/ops/internal/prom"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/ops/internal/server"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/client"
 )
 
 var (

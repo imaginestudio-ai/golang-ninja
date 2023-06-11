@@ -17,7 +17,7 @@ var jwtSessionLength time.Duration
 var jwtSigningMethod = jwt.SigningMethodHS256
 
 func init() {
-	jwtSigningKey = []byte(env.GetAsString("JWT_SIGNING_KEY", "ImaginePub"))
+	jwtSigningKey = []byte(env.GetAsString("JWT_SIGNING_KEY", "ImagineDevOps Pub"))
 	defaultCookie = http.Cookie{
 		HttpOnly: true,
 		SameSite: http.SameSiteLaxMode,

@@ -6,7 +6,7 @@ import (
 	"sort"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/pipeline"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/pipeline"
 	gc "gopkg.in/check.v1"
 )
 

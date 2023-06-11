@@ -5,9 +5,9 @@ import (
 	"log"
 	"os"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/chatbot/bot"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/chatbot/internal/handlers"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/ops/client"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/chatbot/bot"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/chatbot/internal/handlers"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/ops/client"
 
 	"github.com/joho/godotenv"
 	"github.com/slack-go/slack"

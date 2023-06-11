@@ -8,7 +8,7 @@ import (
 	"net"
 	"os"
 
-	"github.com/ImagineDevOps/Hands-On-Systems-Programming-with-Go/Chapter09/socket/custom/common"
+	"github.com/ImagineDevOps DevOps/Hands-On-Systems-Programming-with-Go/Chapter09/socket/custom/common"
 )
 
 func main() {

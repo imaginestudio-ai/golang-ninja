@@ -24,13 +24,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/internal/es"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/internal/policy"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/internal/policy/config"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/internal/service/jobs"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/internal/es"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/internal/policy"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/internal/policy/config"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/internal/service/jobs"
 	"google.golang.org/protobuf/proto"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/proto"
 )
 
 // Work is an executor for executing a WorkReq received by the server.

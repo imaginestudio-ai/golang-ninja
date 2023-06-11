@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/pipeline"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/pipeline"
 	"github.com/google/uuid"
 )
 

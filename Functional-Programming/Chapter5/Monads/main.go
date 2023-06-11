@@ -1,6 +1,6 @@
 package main
 
-import "github.com/ImagineDevOps/Chapter5/Monads/pkg"
+import "github.com/ImagineDevOps DevOps/Chapter5/Monads/pkg"
 
 func main() {
 	pkg.Just(1)

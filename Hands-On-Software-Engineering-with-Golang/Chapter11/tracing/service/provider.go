@@ -5,8 +5,8 @@ import (
 	"math/rand"
 	"net"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter11/tracing/proto"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter11/tracing/tracer"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter11/tracing/proto"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter11/tracing/tracer"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	"github.com/opentracing/opentracing-go"
 	"google.golang.org/grpc"

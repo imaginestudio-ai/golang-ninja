@@ -3,7 +3,7 @@ package fizzbuzz_test
 import (
 	"testing"
 
-	fizzbuzz "github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/table-driven"
+	fizzbuzz "github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/table-driven"
 )
 
 func TestFizzBuzzTableDriven(t *testing.T) {

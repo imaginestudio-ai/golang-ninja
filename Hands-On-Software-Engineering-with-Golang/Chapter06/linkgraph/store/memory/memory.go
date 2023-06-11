@@ -4,7 +4,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
 	"github.com/google/uuid"
 	"golang.org/x/xerrors"
 )

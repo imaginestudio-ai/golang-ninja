@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ImagineDevOps/Chapter10/pkg"
+	"github.com/ImagineDevOps DevOps/Chapter10/pkg"
 )
 
 type ResponseFunc func(*http.Response)

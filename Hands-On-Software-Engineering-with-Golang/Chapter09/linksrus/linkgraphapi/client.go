@@ -5,13 +5,13 @@ import (
 	"io"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter09/linksrus/linkgraphapi/proto"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter09/linksrus/linkgraphapi/proto"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/google/uuid"
 )
 
-//go:generate mockgen -package mocks -destination mocks/mock.go github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter09/linksrus/linkgraphapi/proto LinkGraphClient,LinkGraph_LinksClient,LinkGraph_EdgesClient
+//go:generate mockgen -package mocks -destination mocks/mock.go github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter09/linksrus/linkgraphapi/proto LinkGraphClient,LinkGraph_LinksClient,LinkGraph_EdgesClient
 
 // LinkGraphClient provides an API compatible with the graph.Graph interface
 // for accessing graph instances exposed by a remote gRPC server.

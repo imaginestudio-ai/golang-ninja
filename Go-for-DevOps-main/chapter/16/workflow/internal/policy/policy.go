@@ -14,7 +14,7 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/proto"
 )
 
 var policies = map[string]registration{}

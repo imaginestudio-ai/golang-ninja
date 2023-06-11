@@ -4,7 +4,7 @@ import (
 	"flag"
 	"log"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/6/grpc/server"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/6/grpc/server"
 )
 
 var addr = flag.String("addr", "127.0.0.1:80", "The address to run on.")

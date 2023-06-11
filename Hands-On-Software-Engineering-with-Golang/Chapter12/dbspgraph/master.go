@@ -5,8 +5,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/job"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/proto"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/job"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/proto"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
 	"github.com/sirupsen/logrus"

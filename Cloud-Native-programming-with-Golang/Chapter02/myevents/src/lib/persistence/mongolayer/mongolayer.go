@@ -1,7 +1,7 @@
 package mongolayer
 
 import (
-	"github.com/ImagineDevOps/Cloud-Native-programming-with-Golang/chapter02/myevents/src/lib/persistence"
+	"github.com/ImagineDevOps DevOps/Cloud-Native-programming-with-Golang/chapter02/myevents/src/lib/persistence"
 
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"

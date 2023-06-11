@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ImagineDevOps/Chapter11/pregenerics/pkg"
+	"github.com/ImagineDevOps DevOps/Chapter11/pregenerics/pkg"
 	"github.com/elliotchance/pie/pie"
 )
 

@@ -14,7 +14,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/8/agent/internal/service"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/8/agent/internal/service"
 )
 
 func main() {

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/chat"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/chat"
 )
 
 func TestChatRoomBroadcast(t *testing.T) {

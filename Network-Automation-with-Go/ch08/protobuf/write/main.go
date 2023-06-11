@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/ImagineDevOps/Network-Automation-with-Go/ch08/protobuf/pb"
+	"github.com/ImagineDevOps DevOps/Network-Automation-with-Go/ch08/protobuf/pb"
 	"google.golang.org/protobuf/proto"
 	"gopkg.in/yaml.v2"
 )

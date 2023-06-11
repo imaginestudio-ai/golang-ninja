@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ImagineDevOps/Chapter7/Examples/Performance/pkg"
+	"github.com/ImagineDevOps DevOps/Chapter7/Examples/Performance/pkg"
 )
 
 func main() {

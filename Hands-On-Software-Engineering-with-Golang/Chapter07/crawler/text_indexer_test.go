@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/crawler/mocks"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/crawler/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	gc "gopkg.in/check.v1"

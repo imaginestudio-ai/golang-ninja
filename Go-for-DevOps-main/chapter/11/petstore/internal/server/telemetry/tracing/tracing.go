@@ -27,7 +27,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/internal/server/telemetry/tracing/sampler"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/internal/server/telemetry/tracing/sampler"
 
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace"

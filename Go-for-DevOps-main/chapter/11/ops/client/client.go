@@ -8,8 +8,8 @@ import (
 
 	"google.golang.org/grpc"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/11/ops/proto"
-	mpb "github.com/ImagineDevOps/Go-for-DevOps/chapter/11/ops/proto/jaeger/model"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/ops/proto"
+	mpb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/ops/proto/jaeger/model"
 )
 
 // Ops is a client for interacting with the Ops service.

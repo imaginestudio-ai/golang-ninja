@@ -4,8 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/dependency"
-	mock_dependency "github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/dependency/mock"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/dependency"
+	mock_dependency "github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/dependency/mock"
 	"github.com/golang/mock/gomock"
 )
 

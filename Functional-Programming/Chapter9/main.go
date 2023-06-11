@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"github.com/ImagineDevOps/Chapter9/pkg/fp"
-	"github.com/ImagineDevOps/Chapter9/pkg/oop"
+	"github.com/ImagineDevOps DevOps/Chapter9/pkg/fp"
+	"github.com/ImagineDevOps DevOps/Chapter9/pkg/oop"
 )
 
 /*

@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/ImagineDevOps/Cloud-Native-programming-with-Golang/chapter02/myevents/src/lib/persistence"
+	"github.com/ImagineDevOps DevOps/Cloud-Native-programming-with-Golang/chapter02/myevents/src/lib/persistence"
 
 	"github.com/gorilla/mux"
 )

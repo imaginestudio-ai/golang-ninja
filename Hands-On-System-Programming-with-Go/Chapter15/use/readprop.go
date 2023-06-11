@@ -4,7 +4,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/ImagineDevOps/Hands-On-Systems-Programming-with-Go/Chapter15/use/prop"
+	"github.com/ImagineDevOps DevOps/Hands-On-Systems-Programming-with-Go/Chapter15/use/prop"
 )
 
 type UpperString string

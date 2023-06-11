@@ -5,8 +5,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/compute"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/compute/gpu"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/compute"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/compute/gpu"
 )
 
 func TestSumOfSquares(t *testing.T) {

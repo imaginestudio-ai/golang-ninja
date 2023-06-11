@@ -3,8 +3,8 @@ package pagerank
 import (
 	"math"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph/message"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph/message"
 )
 
 // IncomingScoreMessage is used for distributing PageRank scores to neighbors.

@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/dialer"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/dialer"
 	"github.com/juju/clock"
 	"github.com/juju/clock/testclock"
 )

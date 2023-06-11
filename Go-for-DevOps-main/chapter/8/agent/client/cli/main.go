@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/ImagineDevOps/Go-for-DevOps/chapter/8/agent/client/cli/cmd"
+import "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/8/agent/client/cli/cmd"
 
 func main() {
 	cmd.Execute()

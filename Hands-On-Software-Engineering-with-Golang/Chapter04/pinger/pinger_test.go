@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/pinger"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter04/pinger"
 	"gopkg.in/check.v1"
 )
 

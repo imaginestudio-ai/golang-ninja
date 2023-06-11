@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter11/tracing/service"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter11/tracing/tracer"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter11/tracing/service"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter11/tracing/tracer"
 )
 
 func main() {

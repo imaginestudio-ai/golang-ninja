@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io"
 
-	"github.com/ImagineDevOps/Hands-On-Systems-Programming-with-Go/Chapter06/advanced/extend/command"
+	"github.com/ImagineDevOps DevOps/Hands-On-Systems-Programming-with-Go/Chapter06/advanced/extend/command"
 )
 
 func init() {

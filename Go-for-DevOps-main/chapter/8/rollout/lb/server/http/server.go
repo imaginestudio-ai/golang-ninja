@@ -13,7 +13,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/8/rollout/lb/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/8/rollout/lb/proto"
 )
 
 type routeHandler struct {

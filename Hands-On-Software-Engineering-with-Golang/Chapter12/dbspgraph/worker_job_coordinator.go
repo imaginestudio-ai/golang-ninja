@@ -4,10 +4,10 @@ import (
 	"context"
 	"sync"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph/message"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/job"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/proto"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph/message"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/job"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/proto"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/xerrors"
 )

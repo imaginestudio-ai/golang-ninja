@@ -42,7 +42,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/internal/server/log"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/internal/server/log"
 
 	"go.opentelemetry.io/otel/metric"
 	"go.opentelemetry.io/otel/metric/global"

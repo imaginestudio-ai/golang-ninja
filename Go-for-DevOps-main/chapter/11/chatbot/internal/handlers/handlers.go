@@ -12,14 +12,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/chatbot/bot"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/ops/client"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/chatbot/bot"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/ops/client"
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/slack-go/slack"
 	"github.com/slack-go/slack/socketmode"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/11/ops/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/ops/proto"
 )
 
 // Ops provides bot.HandleFunc methods that can reuse the connections to the Ops service.

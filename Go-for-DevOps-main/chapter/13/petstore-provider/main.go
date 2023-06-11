@@ -4,7 +4,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/plugin"
 
-	petstore "github.com/ImagineDevOps/Go-for-DevOps/chapter/13/petstore-provider/internal"
+	petstore "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/13/petstore-provider/internal"
 )
 
 func main() {

@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter10/linksrus/partition"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter10/linksrus/service/crawler/mocks"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter10/linksrus/partition"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter10/linksrus/service/crawler/mocks"
 	"github.com/golang/mock/gomock"
 	"github.com/google/uuid"
 	"github.com/juju/clock/testclock"

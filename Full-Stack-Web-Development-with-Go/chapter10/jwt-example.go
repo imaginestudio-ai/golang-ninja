@@ -9,7 +9,7 @@ import (
 )
 
 func main() {
-	mySigningKey := []byte("ImaginePub")
+	mySigningKey := []byte("ImagineDevOps Pub")
 
 	// Your claims above and beyond the default
 	type MyCustomClaims struct {

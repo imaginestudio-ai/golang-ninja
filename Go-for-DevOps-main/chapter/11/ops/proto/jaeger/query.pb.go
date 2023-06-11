@@ -22,7 +22,7 @@
 package jaeger
 
 import (
-	model "github.com/ImagineDevOps/Go-for-DevOps/chapter/11/ops/proto/jaeger/model"
+	model "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/ops/proto/jaeger/model"
 	_ "github.com/gogo/protobuf/gogoproto"
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"

@@ -33,7 +33,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/internal/policy"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/internal/policy"
 )
 
 // Policies provides the policy Reader that can be used to read the current policy.

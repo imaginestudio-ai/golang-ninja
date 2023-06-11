@@ -5,10 +5,10 @@ import (
 	"io/ioutil"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph"
-	pr "github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/pagerank"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter10/linksrus/partition"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/bspgraph"
+	pr "github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter08/pagerank"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter10/linksrus/partition"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-multierror"
 	"github.com/juju/clock"
@@ -16,8 +16,8 @@ import (
 	"golang.org/x/xerrors"
 )
 
-//go:generate mockgen -package mocks -destination mocks/mocks.go github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter10/linksrus/service/pagerank GraphAPI,IndexAPI
-//go:generate mockgen -package mocks -destination mocks/mock_iterator.go github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph LinkIterator,EdgeIterator
+//go:generate mockgen -package mocks -destination mocks/mocks.go github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter10/linksrus/service/pagerank GraphAPI,IndexAPI
+//go:generate mockgen -package mocks -destination mocks/mock_iterator.go github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph LinkIterator,EdgeIterator
 
 // GraphAPI defines as set of API methods for fetching the links and edges from
 // the link graph.

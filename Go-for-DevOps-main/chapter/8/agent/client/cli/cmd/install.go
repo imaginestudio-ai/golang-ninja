@@ -28,12 +28,12 @@ import (
 	"os"
 	"strings"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/8/agent/client"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/8/agent/client"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/8/agent/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/8/agent/proto"
 )
 
 // installCmd represents the install command

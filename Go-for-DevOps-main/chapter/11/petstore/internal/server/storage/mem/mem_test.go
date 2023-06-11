@@ -6,12 +6,12 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/internal/server/storage"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/internal/server/storage"
 
 	"github.com/kylelemons/godebug/pretty"
 	"google.golang.org/protobuf/proto"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore/proto"
 	dpb "google.golang.org/genproto/googleapis/type/date"
 )
 

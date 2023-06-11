@@ -24,7 +24,7 @@ package main
 import (
 	"context"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/7/cobra/app/cmd"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/7/cobra/app/cmd"
 )
 
 func main() {

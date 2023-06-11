@@ -4,9 +4,9 @@ import (
 	"flag"
 	"log"
 
-	"github.com/ImagineDevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/eventsservice/rest"
-	"github.com/ImagineDevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/lib/configuration"
-	"github.com/ImagineDevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/lib/persistence/dblayer"
+	"github.com/ImagineDevOps DevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/eventsservice/rest"
+	"github.com/ImagineDevOps DevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/lib/configuration"
+	"github.com/ImagineDevOps DevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/lib/persistence/dblayer"
 )
 
 func main() {

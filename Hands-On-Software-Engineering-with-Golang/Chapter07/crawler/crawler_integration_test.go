@@ -10,12 +10,12 @@ import (
 	"sort"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
-	memgraph "github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/store/memory"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
-	memidx "github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/store/memory"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/crawler"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/crawler/privnet"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
+	memgraph "github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/store/memory"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
+	memidx "github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/store/memory"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/crawler"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/crawler/privnet"
 	"github.com/google/uuid"
 	gc "gopkg.in/check.v1"
 )

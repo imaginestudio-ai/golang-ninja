@@ -3,15 +3,15 @@ package dbspgraph
 import (
 	"io/ioutil"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/job"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/job"
 	"github.com/golang/protobuf/ptypes/any"
 	"github.com/hashicorp/go-multierror"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/xerrors"
 )
 
-//go:generate mockgen -package mocks -destination mocks/mocks_serializer.go github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph Serializer
-//go:generate mockgen -package mocks -destination mocks/mocks_job.go github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/job Runner
+//go:generate mockgen -package mocks -destination mocks/mocks_serializer.go github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph Serializer
+//go:generate mockgen -package mocks -destination mocks/mocks_job.go github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/job Runner
 
 // Serializer is implemented by types that can serialize aggregator and
 // graph messages from and to an any.Any value.

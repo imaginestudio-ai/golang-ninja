@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
 	"github.com/google/uuid"
 	"github.com/lib/pq"
 	"golang.org/x/xerrors"

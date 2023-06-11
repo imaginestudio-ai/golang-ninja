@@ -4,8 +4,8 @@ import (
 	"log"
 	"net"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/8/rollout/lb/server/grpc"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/8/rollout/lb/server/http"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/8/rollout/lb/server/grpc"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/8/rollout/lb/server/http"
 )
 
 func main() {

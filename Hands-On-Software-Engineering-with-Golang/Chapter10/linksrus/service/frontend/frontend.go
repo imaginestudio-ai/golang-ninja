@@ -12,16 +12,16 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-multierror"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/xerrors"
 )
 
-//go:generate mockgen -package mocks -destination mocks/mocks.go github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter10/linksrus/service/frontend GraphAPI,IndexAPI
-//go:generate mockgen -package mocks -destination mocks/mock_indexer.go github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index Iterator
+//go:generate mockgen -package mocks -destination mocks/mocks.go github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter10/linksrus/service/frontend GraphAPI,IndexAPI
+//go:generate mockgen -package mocks -destination mocks/mock_indexer.go github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index Iterator
 
 const (
 	indexEndpoint      = "/"

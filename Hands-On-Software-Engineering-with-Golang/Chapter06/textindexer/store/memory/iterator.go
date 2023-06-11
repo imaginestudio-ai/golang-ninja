@@ -1,7 +1,7 @@
 package memory
 
 import (
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
 	"github.com/blevesearch/bleve/v2"
 )
 

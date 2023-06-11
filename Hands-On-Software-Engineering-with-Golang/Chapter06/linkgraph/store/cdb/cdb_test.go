@@ -5,7 +5,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph/graphtest"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph/graphtest"
 	gc "gopkg.in/check.v1"
 )
 

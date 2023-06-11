@@ -3,7 +3,7 @@ package privnet_test
 import (
 	"testing"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/crawler/privnet"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/crawler/privnet"
 	gc "gopkg.in/check.v1"
 )
 

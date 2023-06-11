@@ -28,10 +28,10 @@ import (
 	"sort"
 	"time"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/client"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/data/packages/sites"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/client"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/data/packages/sites"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/proto"
 
 	"github.com/spf13/cobra"
 )

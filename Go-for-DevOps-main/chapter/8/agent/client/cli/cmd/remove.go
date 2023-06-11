@@ -26,12 +26,12 @@ import (
 	"log"
 	"os"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/8/agent/client"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/8/agent/client"
 
 	"github.com/spf13/cobra"
 	"golang.org/x/crypto/ssh"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/8/agent/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/8/agent/proto"
 )
 
 // removeCmd represents the remove command

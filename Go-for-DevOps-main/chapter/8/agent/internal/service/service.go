@@ -25,7 +25,7 @@ import (
 
 	linuxproc "github.com/c9s/goprocinfo/linux"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/8/agent/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/8/agent/proto"
 )
 
 const (

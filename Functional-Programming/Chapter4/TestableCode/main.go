@@ -3,7 +3,7 @@ package main
 import (
 	"math/rand"
 
-	"github.com/ImagineDevOps/Chapter4/TestableCode/player"
+	"github.com/ImagineDevOps DevOps/Chapter4/TestableCode/player"
 )
 
 func main() {

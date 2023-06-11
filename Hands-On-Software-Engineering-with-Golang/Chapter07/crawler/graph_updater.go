@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/pipeline"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/pipeline"
 )
 
 type graphUpdater struct {

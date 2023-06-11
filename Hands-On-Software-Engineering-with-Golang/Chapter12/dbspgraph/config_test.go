@@ -1,7 +1,7 @@
 package dbspgraph
 
 import (
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/mocks"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/mocks"
 	"github.com/golang/mock/gomock"
 	gc "gopkg.in/check.v1"
 )

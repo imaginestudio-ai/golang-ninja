@@ -7,8 +7,8 @@ import (
 
 	dpb "google.golang.org/genproto/googleapis/type/date"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/14/petstore-operator/client/internal/server/errors"
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/14/petstore-operator/client/proto"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/14/petstore-operator/client/internal/server/errors"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/14/petstore-operator/client/proto"
 )
 
 // Data represents our data storage.

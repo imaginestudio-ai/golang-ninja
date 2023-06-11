@@ -26,14 +26,14 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/client"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/client"
 
 	"github.com/fatih/color"
 	"github.com/inancgumus/screen"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/encoding/protojson"
 
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/proto"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/proto"
 )
 
 // protoStatusCmd represents the protoStatus command

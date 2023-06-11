@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/ImagineDevOps/Hands-On-Systems-Programming-with-Go/Chapter10/proto/gen"
+	"github.com/ImagineDevOps DevOps/Hands-On-Systems-Programming-with-Go/Chapter10/proto/gen"
 	"github.com/golang/protobuf/proto"
 )
 

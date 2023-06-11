@@ -8,8 +8,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/11/ops/internal/jaeger/client"
-	httpClient "github.com/ImagineDevOps/Go-for-DevOps/chapter/11/ops/internal/jaeger/client/test/client"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/ops/internal/jaeger/client"
+	httpClient "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/ops/internal/jaeger/client/test/client"
 )
 
 func TestTrace(t *testing.T) {

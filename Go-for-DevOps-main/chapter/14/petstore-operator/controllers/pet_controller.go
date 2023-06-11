@@ -31,9 +31,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 
-	petstorev1 "github.com/ImagineDevOps/Go-for-DevOps/chapter/14/petstore-operator/api/v1alpha1"
-	psclient "github.com/ImagineDevOps/Go-for-DevOps/chapter/14/petstore-operator/client"
-	pb "github.com/ImagineDevOps/Go-for-DevOps/chapter/14/petstore-operator/client/proto"
+	petstorev1 "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/14/petstore-operator/api/v1alpha1"
+	psclient "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/14/petstore-operator/client"
+	pb "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/14/petstore-operator/client/proto"
 )
 
 const (

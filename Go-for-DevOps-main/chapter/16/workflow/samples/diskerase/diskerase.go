@@ -22,8 +22,8 @@ THE SOFTWARE.
 package main
 
 import (
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/data/packages/sites"
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/16/workflow/samples/diskerase/cmd"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/data/packages/sites"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/16/workflow/samples/diskerase/cmd"
 )
 
 func main() {

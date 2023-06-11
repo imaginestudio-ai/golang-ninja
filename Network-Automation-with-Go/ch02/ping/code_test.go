@@ -1,7 +1,7 @@
 package ping_test
 
 import (
-	"github.com/ImagineDevOps/Network-Automation-with-Go/ch02/ping"
+	"github.com/ImagineDevOps DevOps/Network-Automation-with-Go/ch02/ping"
 	"testing"
 )
 

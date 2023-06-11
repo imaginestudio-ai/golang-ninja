@@ -6,7 +6,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/pipeline"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/pipeline"
 )
 
 var _ pipeline.Processor = (*linkFetcher)(nil)

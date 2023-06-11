@@ -3,7 +3,7 @@ package dbspgraph
 import (
 	"context"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/proto"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter12/dbspgraph/proto"
 	"golang.org/x/xerrors"
 )
 

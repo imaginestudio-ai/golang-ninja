@@ -12,7 +12,7 @@ import (
 	"github.com/Azure/azure-sdk-for-go/sdk/resourcemanager/storage/armstorage"
 	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob"
 
-	. "github.com/ImagineDevOps/Go-for-DevOps/chapter/15/pkg/helpers"
+	. "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/15/pkg/helpers"
 )
 
 type StorageStack struct {

@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
-	"github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/pipeline"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/linkgraph/graph"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter06/textindexer/index"
+	"github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/pipeline"
 	"github.com/google/uuid"
 )
 
-//go:generate mockgen -package mocks -destination mocks/mocks.go github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/crawler URLGetter,PrivateNetworkDetector,Graph,Indexer
+//go:generate mockgen -package mocks -destination mocks/mocks.go github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter07/crawler URLGetter,PrivateNetworkDetector,Graph,Indexer
 
 // URLGetter is implemented by objects that can perform HTTP GET requests.
 type URLGetter interface {

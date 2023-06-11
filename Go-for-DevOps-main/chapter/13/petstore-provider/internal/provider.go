@@ -6,7 +6,7 @@ import (
 	"github.com/hashicorp/terraform-plugin-sdk/v2/diag"
 	"github.com/hashicorp/terraform-plugin-sdk/v2/helper/schema"
 
-	"github.com/ImagineDevOps/Go-for-DevOps/chapter/13/petstore-provider/internal/client"
+	"github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/13/petstore-provider/internal/client"
 )
 
 // Provider is the entry point for defining the Terraform provider, and will create a new Pet Store provider.

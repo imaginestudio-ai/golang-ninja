@@ -1,4 +1,4 @@
-# golang-ninja
+# Golang-Ninja
 
 Welcome to the golang-ninja repository! This repository contains a collection of tutorials and hands-on projects for learning Go (Golang). Each tutorial focuses on a specific topic or domain and provides step-by-step guidance and code examples.
 

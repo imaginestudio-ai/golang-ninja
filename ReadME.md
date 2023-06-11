@@ -9,7 +9,7 @@ Welcome to the golang-ninja repository! This repository contains a collection of
 - [Cloud-Native Programming with Golang](./Cloud-Native-with-Golang)
 - [Event-Driven Architecture in Golang](./Event-Driven-Architecture-in-Golang)
 - [Full-Stack Web Dev with Go](./Full-Stack-Web-Dev-with-Go)
-- [Functional Programming in Go](./Functional-Programming)
+- [Functional Programming](./Functional-Programming)
 - [Go Standard Library](./Go-Standard-Library)
 - [Go for DevOps](./Go-for-DevOps-main)
 - [GoDocUtility](./GoDocUtility)

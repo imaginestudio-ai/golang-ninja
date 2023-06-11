@@ -12,15 +12,6 @@ This chapter will cover how to output the data for each end user and the best pr
 -   Processing data
 -   Returning the resulting output and defining best practices
 
-Bookmark
-
-# Technical requirements
-
-To easily follow along with the code in this chapter, you will need to do the following:
-
-Download the following code: [https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-In-Go/tree/main/Chapter05/application](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-In-Go/tree/main/Chapter05/application)[](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-In-Go/tree/main/Chapter05%20)
-
-Bookmark
 
 # Receiving the input and user interaction
 

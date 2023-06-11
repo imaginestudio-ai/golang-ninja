@@ -1,3 +1,3 @@
-module github.com/DylanMeeus/Course-FP/Chapter3/PartialApplication
+module github.com/DylanMeeus/Book-FP/Chapter3/PartialApplication
 
 go 1.18

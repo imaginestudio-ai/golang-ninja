@@ -1358,13 +1358,13 @@ The `sortData()` function accepts an empty interface parameter. The code of the 
 func sortData(data interface{}) {
     // type switch
     switch T := data.(type) {
-    case Course1:
-        d := data.(Course1)
-        sort.Sort(Course1(d))
+    case Book1:
+        d := data.(Book1)
+        sort.Sort(Book1(d))
         list(d)
-    case Course2:
-        d := data.(Course2)
-        sort.Sort(Course2(d))
+    case Book2:
+        d := data.(Book2)
+        sort.Sort(Book2(d))
         list(d)
     default:
         fmt.Printf("Not supported type: %T\n", T)
@@ -1372,20 +1372,20 @@ func sortData(data interface{}) {
 }
 ```
 
-The type switch does the job of determining the data type we are working with, which can be either `Course1` or `Course2`. If you want to look at the implementation of `sort.Interface`, you should view the `sortCSV.go` source code file.
+The type switch does the job of determining the data type we are working with, which can be either `Book1` or `Book2`. If you want to look at the implementation of `sort.Interface`, you should view the `sortCSV.go` source code file.
 
-Lastly, `list()` prints the data of the data variable used using the technique found in `sortData()`. Although the code that handles `Course1` and `Course2` is the same as in `sortData()`, you still need a type assertion to get the data from the empty interface variable.
+Lastly, `list()` prints the data of the data variable used using the technique found in `sortData()`. Although the code that handles `Book1` and `Book2` is the same as in `sortData()`, you still need a type assertion to get the data from the empty interface variable.
 
 ```markup
 func list(d interface{}) {
     switch T := d.(type) {
-    case Course1:
-        data := d.(Course1)
+    case Book1:
+        data := d.(Book1)
         for _, v := range data {
             fmt.Println(v)
         }
-    case Course2:
-        data := d.(Course2)
+    case Book2:
+        data := d.(Book2)
         for _, v := range data {
             fmt.Println(v)
         }
@@ -1623,11 +1623,11 @@ The first time we set the `PHONEBOOK` environment variable and executed the phon
 
 ```markup
 $ export PHONEBOOK="/tmp/csv.file"
-$ go run phoneCourse.go list        
+$ go run phoneBook.go list        
 Creating /tmp/csv.file
 ```
 
-As `/tmp/csv.file` does not exist, `phoneCourse.go` creates it from scratch. This verifies that the Go code of the `setCSVFILE()` function works as expected.
+As `/tmp/csv.file` does not exist, `phoneBook.go` creates it from scratch. This verifies that the Go code of the `setCSVFILE()` function works as expected.
 
 Now that we know where to get and write our data, it is time to learn how to sort it using `sort.Interface`, which is the subject of the subsection that follows.
 
@@ -1638,20 +1638,20 @@ The first thing to decide when trying to sort data is the field that is going to
 The code related to sorting using `sort.Interface` is the following:
 
 ```markup
-type PhoneCourse []Entry
+type PhoneBook []Entry
 ```
 
 You need to have a separate data type—`sort.Interface` is implemented for this data type.
 
 ```markup
-var data = PhoneCourse{}
+var data = PhoneBook{}
 ```
 
-As you have a separate data type for implementing `sort.Interface`, the data type of the `data` variable needs to change and become `PhoneCourse`. Then `sort.Interface` is implemented for `PhoneCourse`.
+As you have a separate data type for implementing `sort.Interface`, the data type of the `data` variable needs to change and become `PhoneBook`. Then `sort.Interface` is implemented for `PhoneBook`.
 
 ```markup
 // Implement sort.Interface
-func (a PhoneCourse) Len() int {
+func (a PhoneBook) Len() int {
     return len(a)
 }
 ```
@@ -1661,7 +1661,7 @@ The `Len()` function has a standard implementation.
 ```markup
 // First based on surname. If they have the same
 // surname take into account the name.
-func (a PhoneCourse) Less(i, j int) bool {
+func (a PhoneBook) Less(i, j int) bool {
     if a[i].Surname == a[j].Surname {
         return a[i].Name < a[j].Name
     }
@@ -1677,7 +1677,7 @@ The `Less()` function is the place to define how you are going to sort the eleme
 If the entries have different values in the `Surname` field, then compare them using the `Surname` field.
 
 ```markup
-func (a PhoneCourse) Swap(i, j int) {
+func (a PhoneBook) Swap(i, j int) {
     a[i], a[j] = a[j], a[i]
 }
 ```
@@ -1686,7 +1686,7 @@ The `Swap()` function has a standard implementation. After implementing the desi
 
 ```markup
 func list() {
-    sort.Sort(PhoneCourse(data))
+    sort.Sort(PhoneBook(data))
     for _, v := range data {
         fmt.Println(v)
     }
@@ -1696,17 +1696,17 @@ func list() {
 Now that we know how sorting is implemented, it is time to use the utility. First, we add some entries:
 
 ```markup
-$ go run phoneCourse.go insert Mihalis Tsoukalos 2109416471
-$ go run phoneCourse.go insert Mihalis Tsoukalos 2109416571
-$ go run phoneCourse.go insert Dimitris Tsoukalos 2109416871
-$ go run phoneCourse.go insert Dimitris Tsoukalos 2109416971
-$ go run phoneCourse.go insert Jane Doe 0800123456
+$ go run phoneBook.go insert Mihalis Tsoukalos 2109416471
+$ go run phoneBook.go insert Mihalis Tsoukalos 2109416571
+$ go run phoneBook.go insert Dimitris Tsoukalos 2109416871
+$ go run phoneBook.go insert Dimitris Tsoukalos 2109416971
+$ go run phoneBook.go insert Jane Doe 0800123456
 ```
 
 Last, we print the contents of the phone book using the `list` command:
 
 ```markup
-$ go run phoneCourse.go list                      
+$ go run phoneBook.go list                      
 {Jane Doe 0800123456 1609310777}
 {Dimitris Tsoukalos 2109416871 1609310731}
 {Dimitris Tsoukalos 2109416971 1609310734}

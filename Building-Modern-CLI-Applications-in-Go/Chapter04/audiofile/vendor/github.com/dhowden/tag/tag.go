@@ -89,7 +89,7 @@ const (
 	UnknownFileType FileType = ""     // Unknown FileType.
 	MP3             FileType = "MP3"  // MP3 file
 	M4A             FileType = "M4A"  // M4A file Apple iTunes (ACC) Audio
-	M4B             FileType = "M4B"  // M4A file Apple iTunes (ACC) Audio Course
+	M4B             FileType = "M4B"  // M4A file Apple iTunes (ACC) Audio Book
 	M4P             FileType = "M4P"  // M4A file Apple iTunes (ACC) AES Protected Audio
 	ALAC            FileType = "ALAC" // Apple Lossless file FIXME: actually detect this
 	FLAC            FileType = "FLAC" // FLAC file

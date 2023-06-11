@@ -3,7 +3,7 @@ package pkg_test
 import (
 	"testing"
 
-	"github.com/DylanMeeus/Course-FP/pkg"
+	"github.com/DylanMeeus/Book-FP/pkg"
 )
 
 func TestTodoWrite(t *testing.T) {

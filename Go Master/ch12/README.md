@@ -522,7 +522,7 @@ Just Imagine
 -   Try to convert `gServer.go` into a RESTful server.
 -   Create a RESTful service that uses gRPC for data exchange. Define the REST API you are going to support, but use gRPC for the communication between the RESTful server and the gRPC server—in this case, the RESTful server is going to act as a gRPC client to the gRPC server.
 -   Create your own gRPC service that implements integer addition and subtraction.
--   How easy or difficult would it be to convert the Phone Course application into a gRPC service?
+-   How easy or difficult would it be to convert the Phone Book application into a gRPC service?
 -   Implement a gRPC service that calculates the length of a string.
 
 Just Imagine

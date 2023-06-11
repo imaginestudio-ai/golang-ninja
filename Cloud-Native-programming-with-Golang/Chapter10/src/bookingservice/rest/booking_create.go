@@ -18,21 +18,21 @@ type eventRef struct {
 	Name string `json:"name,omitempty"`
 }
 
-type createCourseingRequest struct {
+type createBookingRequest struct {
 	Seats int `json:"seats"`
 }
 
-type createCourseingResponse struct {
+type createBookingResponse struct {
 	ID    string   `json:"id"`
 	Event eventRef `json:"event"`
 }
 
-type CreateCourseingHandler struct {
+type CreateBookingHandler struct {
 	eventEmitter msgqueue.EventEmitter
 	database     persistence.DatabaseHandler
 }
 
-func (h *CreateCourseingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h *CreateBookingHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	routeVars := mux.Vars(r)
 	eventID, ok := routeVars["eventID"]
 	if !ok {
@@ -49,7 +49,7 @@ func (h *CreateCourseingHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 		return
 	}
 
-	bookingRequest := createCourseingRequest{}
+	bookingRequest := createBookingRequest{}
 	err = json.NewDecoder(r.Body).Decode(&bookingRequest)
 	if err != nil {
 		w.WriteHeader(400)
@@ -64,13 +64,13 @@ func (h *CreateCourseingHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	}
 
 	eventIDAsBytes, _ := event.ID.MarshalText()
-	booking := persistence.Courseing{
+	booking := persistence.Booking{
 		Date:    time.Now().Unix(),
 		EventID: eventIDAsBytes,
 		Seats:   bookingRequest.Seats,
 	}
 
-	msg := contracts.EventCourseedEvent{
+	msg := contracts.EventBookedEvent{
 		EventID: event.ID.Hex(),
 		UserID:  "someUserID",
 	}
@@ -79,10 +79,10 @@ func (h *CreateCourseingHandler) ServeHTTP(w http.ResponseWriter, r *http.Reques
 	bookingCount.
 		WithLabelValues(eventID, event.Name).
 		Add(float64(bookingRequest.Seats))
-	seatsPerCourseing.
+	seatsPerBooking.
 		Observe(float64(bookingRequest.Seats))
 
-	h.database.AddCourseingForUser([]byte("someUserID"), booking)
+	h.database.AddBookingForUser([]byte("someUserID"), booking)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(201)

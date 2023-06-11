@@ -1690,7 +1690,7 @@ I have used this handy technique in the past in order to put sample data on Kafk
 
 The biggest change in this version of the phone book application is that the searching is based on the telephone number because it is easier to search random numbers instead of random strings. But this is a small code change in the `search()` function—this time `search()` uses `v.Tel == key` instead of `v.Surname == key` in order to try to match the `Tel` field.
 
-The `populate()` function of `phoneCourse.go` (as found in the `ch02` directory) does all the work—the implementation of `populate()` is the following.
+The `populate()` function of `phoneBook.go` (as found in the `ch02` directory) does all the work—the implementation of `populate()` is the following.
 
 ```markup
 func populate(n int, s []Entry) {
@@ -1705,16 +1705,16 @@ func populate(n int, s []Entry) {
 
 The `getString()` function generates letters from `A` to `Z` and nothing else in order to make the generated strings more readable. There is no point in using special characters in names and surnames. The generated telephone numbers are in the 100 to 198 range, which is implemented using a call to `random(100, 199)`. The reason for this is that it is easier to search for a three-digit number. Feel free to experiment with the generated names, surnames, and telephone numbers.
 
-Working with `phoneCourse.go` generates the following kind of output:
+Working with `phoneBook.go` generates the following kind of output:
 
 ```markup
-$ go run phoneCourse.go search 123  
+$ go run phoneBook.go search 123  
 Data has 100 entries.
 {BHVA QEEQL 123}
-$ go run phoneCourse.go search 1234
+$ go run phoneBook.go search 1234
 Data has 100 entries.
 Entry not found: 1234
-$ go run phoneCourse.go list
+$ go run phoneBook.go list
 Data has 100 entries.
 {DGTB GNQKI 169}
 {BQNU ZUQFP 120}

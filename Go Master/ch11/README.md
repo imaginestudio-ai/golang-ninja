@@ -1861,7 +1861,7 @@ Just Imagine
 # Exercises
 
 -   Implement a simple version of `ab(1)` ([https://httpd.apache.org/docs/2.4/programs/ab.html](https://httpd.apache.org/docs/2.4/programs/ab.html)) on your own using goroutines and channels for testing the performance of web services.
--   Write test functions for the `phoneCourse.go` application from _Chapter 3_, _Composite Data Types_.
+-   Write test functions for the `phoneBook.go` application from _Chapter 3_, _Composite Data Types_.
 -   Create test functions for a package that calculates numbers in the Fibonacci sequence. Do not forget to implement that package.
 -   Try to find the value of `os.TempDir()` in various operating systems.
 -   Create three different implementations of a function that copies binary files and benchmark them to find the faster one. Can you explain why this function is faster?

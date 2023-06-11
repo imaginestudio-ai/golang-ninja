@@ -4,7 +4,7 @@
    firstname: "Jack",
    lastname:"Kal",
    Age: 36,
-   Courseings: [{
+   Bookings: [{
         date: 73246872364, //maybe use native datetime type?
         eventid: 9324324324,
         seats: 4

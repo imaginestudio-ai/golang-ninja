@@ -7,8 +7,8 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-// Course is a placeholder for book
-type Course struct {
+// Book is a placeholder for book
+type Book struct {
 	id     int
 	name   string
 	author string
@@ -35,10 +35,10 @@ func main() {
 
 	// Read
 	rows, _ := db.Query("SELECT id, name, author FROM books")
-	var tempCourse Course
+	var tempBook Book
 	for rows.Next() {
-		rows.Scan(&tempCourse.id, &tempCourse.name, &tempCourse.author)
-		log.Printf("ID:%d, Course:%s, Author:%s\n", tempCourse.id, tempCourse.name, tempCourse.author)
+		rows.Scan(&tempBook.id, &tempBook.name, &tempBook.author)
+		log.Printf("ID:%d, Book:%s, Author:%s\n", tempBook.id, tempBook.name, tempBook.author)
 	}
 	// Update
 	statement, _ = db.Prepare("update books set name=? where id=?")

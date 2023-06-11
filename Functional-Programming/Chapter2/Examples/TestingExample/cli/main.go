@@ -1,6 +1,6 @@
 package main
 
-import "github.com/DylanMeeus/Course-FP/pkg"
+import "github.com/DylanMeeus/Book-FP/pkg"
 
 func main() {
 	t := pkg.NewTodo()

@@ -43,7 +43,7 @@ In a terminal, if you type the `tty` command, it will output the file name conne
 Let’s run the command in our Unix terminal window and see what the result is:
 
 ```markup
-mmontagnino@Marians-MacCourse-Pro marianina8 % tty
+mmontagnino@Marians-MacBook-Pro marianina8 % tty
 /dev/ttys014
 ```
 
@@ -57,7 +57,7 @@ There is a shorthand silent, `-s`, flag that can be used to suppress output. How
 In Unix, typing `&&` after a command means that the second command will only execute if the first command runs successfully, with exit code 0. So, let’s try this code to see if we’re running in a TTY:
 
 ```markup
-mmontagnino@Marians-MacCourse-Pro marianina8 % tty -s && echo "this is a tty"
+mmontagnino@Marians-MacBook-Pro marianina8 % tty -s && echo "this is a tty"
 this is a tty
 ```
 
@@ -317,7 +317,7 @@ In [_Chapter 9_](https://subscription.imaginedevops.io/book/programming/97818046
 The Cobra CLI offers some empathy when a user mistypes a command. Let’s look at the following example where the user mistypes `upload` as `upolad`:
 
 ```markup
-mmontagnino@Marians-MacCourse-Pro audiofile % ./bin/audiofile upolad
+mmontagnino@Marians-MacBook-Pro audiofile % ./bin/audiofile upolad
 Error: unknown command "upolad" for "audiofile"
 Did you mean this?
         upload
@@ -329,7 +329,7 @@ Run 'audiofile --help' for usage.
 In [_Chapter 9_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_09.xhtml#_idTextAnchor190)_, The Empathic Side of Development,_ we define a bug command that will launch the default browser and navigate to the GitHub repository's new issue page to file a bug report:
 
 ```markup
-mmontagnino@Marians-MacCourse-Pro audiofile % ./bin/audiofile bug --help
+mmontagnino@Marians-MacBook-Pro audiofile % ./bin/audiofile bug --help
 Bug opens the default browser to start a bug report which will include useful system information.
 Usage:
   audiofile bug [flags]
@@ -342,7 +342,7 @@ audiofile bug
 Suppose a user does not input a value to search for when running the search command. The CLI application will prompt for a value to search for. If a value is not passed in by the user, the CLI will output the proper usage of the command:
 
 ```markup
-mmontagnino@Marians-MacCourse-Pro audiofile % ./bin/audiofile search
+mmontagnino@Marians-MacBook-Pro audiofile % ./bin/audiofile search
 ?  What value are you searching for?
 Error: missing required argument (value)
 Usage:

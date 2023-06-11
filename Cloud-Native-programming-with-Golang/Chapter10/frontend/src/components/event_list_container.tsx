@@ -31,13 +31,13 @@ export class EventListContainer extends React.Component<EventListContainerProps,
             })
     }
 
-    private handleEventCourseed(e: Event) {
+    private handleEventBooked(e: Event) {
         console.log("booking event...");
     }
 
     render() {
         return <Loader loading={this.state.loading} message="Loading events...">
-            <EventList events={this.state.events} onEventCourseed={e => this.handleEventCourseed(e)}/>
+            <EventList events={this.state.events} onEventBooked={e => this.handleEventBooked(e)}/>
         </Loader>
     }
 }

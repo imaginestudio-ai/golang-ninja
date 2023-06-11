@@ -1,20 +1,20 @@
 import * as React from "react";
-import {EventCourseingForm} from "./event_booking_form";
+import {EventBookingForm} from "./event_booking_form";
 import {Event} from "../model/event";
 
-export interface EventCourseingFormContainerProps {
+export interface EventBookingFormContainerProps {
     eventID: string;
     eventServiceURL: string;
     bookingServiceURL: string;
 }
 
-export interface EventCourseingFormState {
+export interface EventBookingFormState {
     state: "loading"|"ready"|"saving"|"done"|"error";
     event?: Event;
 }
 
-export class EventCourseingFormContainer extends React.Component<EventCourseingFormContainerProps, EventCourseingFormState> {
-    constructor(p: EventCourseingFormContainerProps) {
+export class EventBookingFormContainer extends React.Component<EventBookingFormContainerProps, EventBookingFormState> {
+    constructor(p: EventBookingFormContainerProps) {
         super(p);
 
         this.state = {
@@ -41,10 +41,10 @@ export class EventCourseingFormContainer extends React.Component<EventCourseingF
         }
 
         if (this.state.state === "done") {
-            return <div className="alert alert-success">Courseing successfully completed!</div>
+            return <div className="alert alert-success">Booking successfully completed!</div>
         }
 
-        return <EventCourseingForm event={this.state.event} onSubmit={amount => this.handleSubmit(amount)}/>
+        return <EventBookingForm event={this.state.event} onSubmit={amount => this.handleSubmit(amount)}/>
     }
 
     private handleSubmit(seats: number) {

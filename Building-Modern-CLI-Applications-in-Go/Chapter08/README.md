@@ -86,7 +86,7 @@ if err != nil {
 Now that we’ve created the survey, we can try it out:
 
 ```markup
-mmontagnino@Marians-MacCourse-Pro Chapter-10 % go run main.go
+mmontagnino@Marians-MacBook-Pro Chapter-10 % go run main.go
 ? What is your email? mmontagnino@gmail.com
 ? How would you rate your experience with the CLI? Great
 ? Have you encountered any of these issues? audio player issues, search issues
@@ -983,4 +983,4 @@ Just Imagine
 
 # Further reading
 
--   _The Big Course of Dashboards: Visualizing Your Data Using Real-World Business Scenarios_ by Wexler, Shaffer, and Cotgreave
+-   _The Big Book of Dashboards: Visualizing Your Data Using Real-World Business Scenarios_ by Wexler, Shaffer, and Cotgreave

@@ -67,7 +67,7 @@ func (dynamoLayer *DynamoDBLayer) AddEvent(event persistence.Event) ([]byte, err
 	return []byte(event.ID), nil
 }
 
-func (dynamoLayer *DynamoDBLayer) AddCourseingForUser(id []byte, bk persistence.Courseing) error {
+func (dynamoLayer *DynamoDBLayer) AddBookingForUser(id []byte, bk persistence.Booking) error {
 	/*
 		input := &dynamodb.UpdateItemInput{
 			ExpressionAttributeNames: map[string]*string{
@@ -76,7 +76,7 @@ func (dynamoLayer *DynamoDBLayer) AddCourseingForUser(id []byte, bk persistence.
 		}
 		av,err := dynamodbattribute.MarshalMap(bk)
 	*/
-	booking := []persistence.Courseing{bk}
+	booking := []persistence.Booking{bk}
 	bookingMardhalled, err := dynamodbattribute.Marshal(&booking)
 	if err != nil {
 		return err
@@ -84,7 +84,7 @@ func (dynamoLayer *DynamoDBLayer) AddCourseingForUser(id []byte, bk persistence.
 	input := &dynamodb.UpdateItemInput{
 		UpdateExpression: aws.String("SET #B = list_append(:i, #B)"),
 		ExpressionAttributeNames: map[string]*string{
-			"#B": aws.String("Courseings"),
+			"#B": aws.String("Bookings"),
 		},
 		ExpressionAttributeValues: map[string]*dynamodb.AttributeValue{
 			":i": bookingMardhalled,
@@ -106,7 +106,7 @@ func (dynamoLayer *DynamoDBLayer) FindUser(f string, l string) (persistence.User
 	return persistence.User{}, nil
 }
 
-func (dynamoLayer *DynamoDBLayer) FindCourseingsForUser(id []byte) ([]persistence.Courseing, error) {
+func (dynamoLayer *DynamoDBLayer) FindBookingsForUser(id []byte) ([]persistence.Booking, error) {
 	input := &dynamodb.GetItemInput{
 		Key: map[string]*dynamodb.AttributeValue{
 			"ID": {
@@ -119,8 +119,8 @@ func (dynamoLayer *DynamoDBLayer) FindCourseingsForUser(id []byte) ([]persistenc
 	if err != nil {
 		return nil, err
 	}
-	av := result.Item["Courseings"]
-	bookings := []persistence.Courseing{}
+	av := result.Item["Bookings"]
+	bookings := []persistence.Booking{}
 	err = dynamodbattribute.Unmarshal(av, &bookings)
 	return bookings, err
 }

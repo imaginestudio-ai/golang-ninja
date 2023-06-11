@@ -22,7 +22,7 @@ func TestExamineDatabaseCalls(t *testing.T) {
 	}
 	users := generateDemoUsersData()
 	userids := make([][]byte, 2)
-	bookings := generateDemoCourseingData(eventids[0], eventids[1])
+	bookings := generateDemoBookingData(eventids[0], eventids[1])
 	for i, user := range users {
 		userids[i], err = layer.AddUser(user)
 		if err != nil {
@@ -35,12 +35,12 @@ func TestExamineDatabaseCalls(t *testing.T) {
 		}
 		t.Log(finduser)
 
-		err = layer.AddCourseingForUser(userids[i], bookings[i])
+		err = layer.AddBookingForUser(userids[i], bookings[i])
 		if err != nil {
 			t.Fatal("Could not add booking", bookings[i], "for userid", bson.ObjectId(userids[i]), "error", err)
 		}
 
-		bookings, err := layer.FindCourseingsForUser(userids[i])
+		bookings, err := layer.FindBookingsForUser(userids[i])
 		if err != nil {
 			t.Fatal("Could not find booking for user", userids[i], err)
 		}
@@ -122,14 +122,14 @@ func generateDemoUsersData() []persistence.User {
 	}
 }
 
-func generateDemoCourseingData(eventid1, eventid2 []byte) []persistence.Courseing {
-	return []persistence.Courseing{
-		persistence.Courseing{
+func generateDemoBookingData(eventid1, eventid2 []byte) []persistence.Booking {
+	return []persistence.Booking{
+		persistence.Booking{
 			Date:    time.Now().UnixNano(),
 			Seats:   4,
 			EventID: eventid1,
 		},
-		persistence.Courseing{
+		persistence.Booking{
 			Date:    time.Now().UnixNano(),
 			Seats:   4,
 			EventID: eventid2,

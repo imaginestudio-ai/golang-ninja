@@ -11,7 +11,7 @@ This chapter covers the following topics:
 -   Developing a gRPC server
 -   Developing a gRPC client
 
-Bookmark
+Just Imagine
 
 # Introduction to gRPC
 
@@ -37,7 +37,7 @@ A **protocol buffer** (**protobuf**) is basically a **method for serializing str
 
 Generally speaking, the IDL file is the center of each gRPC service because it defines the format of the data that is exchanged as well as the service interface. You cannot have a gRPC service without having a protobuf file at hand. Strictly speaking, a protobuf file includes the definition of services, methods of services, and the format of the messages that are going to be exchanged—it is not an exaggeration to say that if you want to understand a gRPC service, you should start by looking at its definition file. The next section shows the protobuf file that is going to be used in our gRPC service.
 
-Bookmark
+Just Imagine
 
 # Defining an interface definition language file
 
@@ -180,7 +180,7 @@ Both `protoapi_grpc.pb.go`, and `protoapi.pb.go` are part of the `protoapi` Go p
 
 The next section is about the development of the gRPC server.
 
-Bookmark
+Just Imagine
 
 # Developing a gRPC server
 
@@ -327,7 +327,7 @@ The `curl(1)` utility does not work with binary data and therefore cannot be use
 
 Now that we have the gRPC server ready, let us continue by developing the client that can help us test the operation of the gRPC server.
 
-Bookmark
+Just Imagine
 
 # Developing a gRPC client
 
@@ -514,7 +514,7 @@ The fact that the gRPC server returned different values proves that the gRPC ser
 
 gRPC can do more things than the ones presented in this chapter, such as exchange arrays of messages and streaming—RESTful servers cannot be used for data streaming. However, a discussion of these is beyond the scope of this book.
 
-Bookmark
+Just Imagine
 
 # Exercises
 
@@ -525,7 +525,7 @@ Bookmark
 -   How easy or difficult would it be to convert the Phone Book application into a gRPC service?
 -   Implement a gRPC service that calculates the length of a string.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -535,7 +535,7 @@ So, should you use gRPC or stick with RESTful services? Only you can answer that
 
 The last chapter of the book is about **generics**, which is a Go feature that is currently under development and is going to be officially included in Go in 2022. However, nothing prohibits us from discussing generics and showing some Go code to better understand generics.
 
-Bookmark
+Just Imagine
 
 # Additional resources
 

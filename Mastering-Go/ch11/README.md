@@ -18,7 +18,7 @@ This chapter covers:
 -   Using `go:generate`
 -   Creating example functions
 
-Bookmark
+Just Imagine
 
 # Optimizing code
 
@@ -34,7 +34,7 @@ If you are really into code optimization, you might want to read _Compilers: Pri
 
 The section that follows is about benchmarking Go code, which helps you determine what is faster and what is slower in your code—this makes it a perfect place to begin.
 
-Bookmark
+Just Imagine
 
 # Benchmarking code
 
@@ -289,7 +289,7 @@ func BenchmarkFiboIII(b *testing.B) {
 
 Correct benchmark functions are a tool for identifying bottlenecks on your code that you should put in your own projects, especially when working with file I/O or CPU-intensive operations—as I am writing this, I have been waiting **3 days** for a Python program to finish its operation to test the performance of the brute force method of a mathematical algorithm. Enough with benchmarking. The next section discusses code profiling.
 
-Bookmark
+Just Imagine
 
 # Profiling code
 
@@ -533,7 +533,7 @@ Feel free to browse the web interface and see the various options that are offer
 
 The next section is about code tracing.
 
-Bookmark
+Just Imagine
 
 # The go tool trace utility
 
@@ -912,7 +912,7 @@ Although visiting the routes of a web server is a kind of testing, it is not the
 
 The next section discusses the testing of Go code in more detail.
 
-Bookmark
+Just Imagine
 
 # Testing Go code
 
@@ -1342,7 +1342,7 @@ As a rule of thumb, it does not hurt to include `go vet` in your workflow. You c
 
 The next section illustrates how to test an HTTP server with a database backend.
 
-Bookmark
+Just Imagine
 
 # Testing an HTTP server with a database backend
 
@@ -1609,7 +1609,7 @@ Last, this is the output from the `TestGetUserDataHandler()` test function that 
 
 The next subsection discusses fuzzing, which offers a different way of testing.
 
-Bookmark
+Just Imagine
 
 # Fuzzing
 
@@ -1625,7 +1625,7 @@ Fuzzing is going to be officially included in the Go language in a future Go rel
 
 The next section discusses a handy Go feature, which is cross-compilation.
 
-Bookmark
+Just Imagine
 
 # Cross-compilation
 
@@ -1680,7 +1680,7 @@ Cross-compilation is a great Go feature that can come in handy when you want to 
 
 The next section discusses `go:generate`.
 
-Bookmark
+Just Imagine
 
 # Using go:generate
 
@@ -1794,7 +1794,7 @@ So, `go:generate` can help you work with the OS before program execution. Howeve
 
 The last section of this chapter talks about example functions.
 
-Bookmark
+Just Imagine
 
 # Creating example functions
 
@@ -1856,7 +1856,7 @@ ok      command-line-arguments  1.157s
 
 Example functions can be a great tool both for learning the capabilities of a package and for testing the correctness of functions, so I suggest that you include both test code and example functions in your Go packages. As a bonus, your test functions **appear in the documentation of the package**, if you decide to generate package documentation.
 
-Bookmark
+Just Imagine
 
 # Exercises
 
@@ -1866,7 +1866,7 @@ Bookmark
 -   Try to find the value of `os.TempDir()` in various operating systems.
 -   Create three different implementations of a function that copies binary files and benchmark them to find the faster one. Can you explain why this function is faster?
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -1878,7 +1878,7 @@ Although the discussions of the Go profiler and `go tool trace` are far from com
 
 The next chapter is about creating gRPC services in Go.
 
-Bookmark
+Just Imagine
 
 # Additional resources
 

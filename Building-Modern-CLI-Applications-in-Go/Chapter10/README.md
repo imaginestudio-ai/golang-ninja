@@ -263,7 +263,7 @@ Flags:
 
 We can even level up by additionally suggesting how to find an ID. Potentially, ask the user to run the `list` command to confirm the ID. Another thing that can be done, similarly to how we handled the status codes from an HTTP API request, is to check the errors coming back from a local command being called. Whether the command is not found or the command is missing executable permissions, you can similarly use a switch to handle potential errors that can occur when a command is started or run. These potential errors can be rewritten similarly using more user-friendly language.
 
-Bookmark
+Just Imagine
 
 # Providing debug and traceback information
 
@@ -542,7 +542,7 @@ Global Flags:
 
 Using the `verbose` flag, the debug statements are printed out, and when an error occurs, the stack trace is also output. This is important data for the user to share with the developer to debug what went wrong. Now, let us learn how to give the option to the user to submit a bug.
 
-Bookmark
+Just Imagine
 
 # Effortless bug submission
 
@@ -608,7 +608,7 @@ Figure 9.2 – Screenshot of browser open to a new issue
 
 From the browser window, open the new issue page; the version of the CLI is populated, and then the user can replace the default text for the description, reproduction steps, expected behavior, and other steps with their own.
 
-Bookmark
+Just Imagine
 
 # Help, documentation, and support
 
@@ -708,7 +708,7 @@ Macklin has proposed seven philosophical documentation techniques rooted in empa
 
 Hopefully, these tenets that describe the philosophy of empathy advocacy help you to think twice about the words you use in your documentation. A few things to consider when you are writing your documentation include how your words may come across to someone who is in a panicked or frustrated state. Also, consider how you can help those about to give up or lacking the energy to complete their task to be successful.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -720,7 +720,7 @@ If a bug is encountered, the addition of a new `bug` command allows the user to 
 
 Finally, bridging the gap between technical documentation and the user’s perspective is done by taking an empathetic approach. Several philosophical tenets when using an empathic framework when writing your documentation were discussed.
 
-Bookmark
+Just Imagine
 
 # Questions
 
@@ -728,14 +728,14 @@ Bookmark
 2.  Between Zap and Logrus loggers, why would you choose Zap?
 3.  What is empathy advocacy?
 
-Bookmark
+Just Imagine
 
 # Further reading
 
 -   _Empathy_ _Advocacy_: [https://empathyadvocacy.org](https://empathyadvocacy.org)
 -   _Write the_ _Docs_: [https://www.writethedocs.org](https://www.writethedocs.org)
 
-Bookmark
+Just Imagine
 
 # Answers
 

@@ -154,7 +154,7 @@ No matter what folders are contained within your project structure, use folder n
 
 All of the aforementioned common folders and structural patterns described apply to building a CLI application. Depending on whether the CLI is a new feature of an existing application or not, you may be inheriting an existing structure. If there is an existing `cmd` folder, then it’s best to define an entry to your CLI there under a folder name that identifies your CLI application. If it is a new CLI application, start with a flat structure and grow into a modular structure from there. From the aforementioned examples, you can see how a flat structure naturally grows as the application extends to offer more features over time.
 
-Bookmark
+Just Imagine
 
 # Determining use cases and requirements
 
@@ -408,7 +408,7 @@ There are many more possible requirements for this metadata CLI application, but
 
 Building a simple prototype for your application can be done in parallel with defining use cases and requirements.
 
-Bookmark
+Just Imagine
 
 # Structuring an audio metadata CLI application
 
@@ -480,7 +480,7 @@ Each folder is is follows:
 -   `services`: Three services have been defined in our previous discussion – the metadata (extraction) service, the transcript review service, and an event listener service, which will listen for processing events and output notifications. Existing and new services exist within this folder.
 -   `storage`: The interface and individual implementations for storage exist within this folder.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -492,7 +492,7 @@ After covering these topics, we then discussed a hypothetical real-world example
 
 Finally, we discussed a folder structure that could satisfy the requirements of the CLI and API audio metadata application. In [_Chapter 3_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_03.xhtml#_idTextAnchor061), _Building an Audio Metadata CLI_, we will build out the folder structure with the models, interfaces, and implementations to get the CLI application working. That concludes this chapter on how to structure your Go CLI application! Hopefully, it will help you get started.
 
-Bookmark
+Just Imagine
 
 # Questions
 
@@ -500,7 +500,7 @@ Bookmark
 2.  In ports-and-adapters, or hexagonal, architecture, what are the ports and what are the adapters?
 3.  For listing audio, in a real-world example, how would you define the actors, preconditions, and triggers of this use case?
 
-Bookmark
+Just Imagine
 
 # Answers
 
@@ -508,7 +508,7 @@ Bookmark
 2.  Ports are the interfaces and the adapters are the implementations in a hexagonal architecture. Ports allow communication between different layers of the architecture while the adapters provide the actual implementation.
 3.  The actors are the operations team members or any user of the CLI. A precondition of the use case is that the user must be authenticated first. The use case is triggered by either the API’s /list endpoint for the metadata service or running the CLI command for listing audio.
 
-Bookmark
+Just Imagine
 
 # Further reading
 

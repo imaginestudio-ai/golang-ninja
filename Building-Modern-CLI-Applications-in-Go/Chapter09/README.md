@@ -487,7 +487,7 @@ There are many visual cues that can be displayed to the user to increase informa
 
 We now know how to determine whether we are outputting to a human via a terminal or to another application, so knowing the difference allows us to output data appropriately. Let’s continue to the next section to discuss fun examples to provide data with ASCII visualizations to improve information density.
 
-Bookmark
+Just Imagine
 
 # Increasing information density with ASCII art
 
@@ -755,7 +755,7 @@ Some percentage of your users may be colorblind. Allowing your users to swap out
 
 Including ASCII art within your application increases information density—a visual indicator that easily helps users to understand some important information. It adds clarity and conciseness. Now let’s discuss a way to make your CLI more intuitive through consistency.
 
-Bookmark
+Just Imagine
 
 # Being consistent across CLIs
 
@@ -833,7 +833,7 @@ In previous chapters, we discussed the grammar of a command and how applications
 
 When building your command-line application, if you think about how to stay consistent across other programs and internal to your application, you will create a more intuitive and easier to learn command-line application where your users feel naturally supported.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -847,7 +847,7 @@ Figure 8.5 – Good versus bad CLI design
 
 In the next chapter, [_Chapter 9_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_09.xhtml#_idTextAnchor190), _Empathic Side of Development_, we will continue discussing how to develop for humans by incorporating more empathy.
 
-Bookmark
+Just Imagine
 
 # Questions
 
@@ -855,14 +855,14 @@ Bookmark
 2.  What flag should you check to see if the end user does not want color set within the terminal? And what common flag can be used to disable color from the output?
 3.  Think about how there could be two commands with similar names and how this adds ambiguity. What ambiguous commands have you come across in your experience of CLIs?
 
-Bookmark
+Just Imagine
 
 # Further reading
 
 -   _The Anti-Mac_ _Interface_: [https://www.nngroup.com/articles/anti-mac-interface/](https://www.nngroup.com/articles/anti-mac-interface/)
 -   _The Humane Interface: New Directions for Designing Interactive Systems_ by Jef Raskin
 
-Bookmark
+Just Imagine
 
 # Answers
 
@@ -870,6 +870,6 @@ Bookmark
 2.  Either the `TERM=dumb`, `NO_COLOR`, or `MYAPP_NO_COLOR` environment variables. The most common flag for disabling color is the `–``no-color` flag.
 3.  Update versus upgrade are commonly confused, as well as name and host.
 
-Bookmark
+Just Imagine
 
 Previous Chapter

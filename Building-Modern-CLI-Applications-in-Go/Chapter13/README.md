@@ -193,7 +193,7 @@ Hello, World!
 
 We did it! A simple Dockerfile for a simple hello world application. Within the next two sections, we’ll return to the audiofile command-line application example and use this new skill of building images and running containers for testing and distribution.
 
-Bookmark
+Just Imagine
 
 # Testing with containers
 
@@ -456,7 +456,7 @@ audiofile-cli-1  | ok   github.com/marianina8/audiofile/cmd     1.163s
 
 Now, no matter which platform you’re running the containers on, the results will be consistent while running the tests within a container. Integration testing provides more comprehensive testing as it will catch bugs that might exist within the **end-to-end** (**E2E**) flow from the command to the API to the filesystem and back. We can therefore increase our confidence with tests that can ensure our CLI and API are more stable and reliable as a whole. In the next section, we’ll discuss how to distribute your CLI application with containers.
 
-Bookmark
+Just Imagine
 
 # Distributing with containers
 
@@ -707,7 +707,7 @@ Follow these instructions to similarly publish the audiofile API image to your D
 
 The fact that users must have Docker installed on their computers is one of the key disadvantages of utilizing Docker to deploy a CLI. However, if your program has complicated dependencies or is designed to operate on various platforms, this Docker dependency may be easier to handle. Using Docker may assist in avoiding difficulties with many libraries and unexpected interactions with various system setups.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -721,7 +721,7 @@ Overall, this chapter has given you a strong knowledge of when to utilize Docker
 
 In the next chapter, [_Chapter 14_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_14.xhtml#_idTextAnchor359), _Publishing your Go Binary as a Homebrew Formula with GoReleaser_, we’ll take distribution to a next level. We will get your application available on the official Homebrew repository to further increase the distribution of your application.
 
-Bookmark
+Just Imagine
 
 # Questions
 
@@ -729,7 +729,7 @@ Bookmark
 2.  Which `docker run` flag is used to attach a host machine path to a container path?
 3.  Which Docker command is used to see all created containers?
 
-Bookmark
+Just Imagine
 
 # Further reading
 
@@ -737,7 +737,7 @@ Bookmark
 -   _Continuous Delivery with Docker and Jenkins: Delivering software at scale_ by _Rafal Leszko_
 -   _Docker in Action_ by _Jeff Nickoloff_ and _Stephen Kuenzli_
 
-Bookmark
+Just Imagine
 
 # Answers
 

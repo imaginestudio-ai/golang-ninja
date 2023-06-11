@@ -304,7 +304,7 @@ Similarly, we can pass in the name and all arguments using the `exec.Command` me
 
 So, the `os/exec` package offers different ways to create and run external commands. Whether you create a quick command using the `exec.Command` method or directly create one with the `exec.Cmd` struct and then run the `Start` command, you have options. Finally, you can either retrieve the standard output and error output separately or together. Knowing all about the `os/exec` package will make it easy to successfully run external commands from your Go command-line application.
 
-Bookmark
+Just Imagine
 
 # Interacting with REST APIs
 
@@ -524,7 +524,7 @@ There are other ways of handling limiting requests, such as using a `time.Sleep(
 
 You’ve now learned how to send requests to external APIs and how to handle the response, and when you receive a successful response, how to transform and paginate the results. Also, because rate limiting is commonly required for APIs, we’ve discussed how to do that. Since this section has only handled the case of success, let’s consider how to handle the case of failure in the following section.
 
-Bookmark
+Just Imagine
 
 # Handling the expected – timeouts and errors
 
@@ -810,7 +810,7 @@ if resp.StatusCode != http.StatusOK {
 
 This concludes the section for handling HTTP timeouts and other errors. Although the examples are simple, they give you the necessary information and guidance to handle timeouts, temporary networks, and other errors.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -822,7 +822,7 @@ It’s important to learn how to build robust code, and handling errors graceful
 
 With all the information learned in this chapter, we should now be more confident in building a CLI that interacts with external commands or sends requests to external APIs. In the next chapter, we’ll learn how to write code that can run on multiple different architectures and operating systems.
 
-Bookmark
+Just Imagine
 
 # Questions
 
@@ -830,7 +830,7 @@ Bookmark
 2.  What is the error type returned from `http.Client`’s `Do` method?
 3.  When an HTTP request receives a response with a status code other than `StatusOK`, is the error returned from the request populated?
 
-Bookmark
+Just Imagine
 
 # Answers
 
@@ -838,7 +838,7 @@ Bookmark
 2.  `*``url.Error`
 3.  No
 
-Bookmark
+Just Imagine
 
 # Further reading
 

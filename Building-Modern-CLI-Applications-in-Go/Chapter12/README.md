@@ -15,7 +15,7 @@ This chapter ends with an example script to automate cross-compilation across th
 
 In [_Chapter 14_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_14.xhtml#_idTextAnchor359), _Publishing Your Go Binary as a Homebrew Formula with GoReleaser_, we will delve into a fantastic open source tool, **GoReleaser**, which automates the process of building and releasing Go binaries. Despite its power and usefulness, it’s crucial to know how to manually compile your Go code. You see, not all projects can be built and released with GoReleaser. For instance, if your application requires unique build flags or dependencies, manual compilation may be necessary. Moreover, understanding how to manually compile your code is essential for addressing issues that may crop up during the build process. In essence, tools such as GoReleaser can make the process a lot smoother, but having a good grasp of the manual compile process is vital to ensure that your **command-line interface (CLI)** applications can be built and released in various scenarios.
 
-Bookmark
+Just Imagine
 
 # Using GOOS and GOARCH
 
@@ -75,7 +75,7 @@ GOOS=darwin GOARCH=amd64 go build
 
 Let’s try this out with the audio file CLI and learn all the ways to compile for the three main operating systems: Linux, macOS, and Windows.
 
-Bookmark
+Just Imagine
 
 # Compiling for Linux, macOS, and Windows
 
@@ -335,7 +335,7 @@ install-linux-amd64-free:
 
 This example specifies the operating system, the `GOOS` environment variable, as `linux`, and then the architecture, the `GOARCH` environment variable, as `amd64`. Rather than creating a command for each pair of operating systems and architectures, again, we’ll save this for a script within the last section of this chapter.
 
-Bookmark
+Just Imagine
 
 # Scripting to compile for multiple platforms
 
@@ -621,7 +621,7 @@ Check the `builds` folder to see all the ports generated successfully. The full 
 
 Now, we can generate builds for all operating systems and architectures from a PowerShell script, which can be run on Windows. If you run any of the major operating systems – Darwin, Linux, or Windows – you can now generate a build for your own platform or anyone else who would like to use your application.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -631,7 +631,7 @@ There are also two ways to compile an application – building or installing. In
 
 Finally, we learned how to create a simple script to run in Darwin, Linux, or Windows to generate all the builds needed for all the major operating systems. You learned how to write both a bash and PowerShell script to generate builds. In the next chapter, [_Chapter 13_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_13.xhtml#_idTextAnchor331), _Using Containers for Distribution_, we will learn how to run these compiled applications on containers made from different operating system images. Finally, in [_Chapter 14_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_14.xhtml#_idTextAnchor359), _Publishing Your Go Binary as a Homebrew Formula with GoReleaser_, you’ll explore the tools required to automate the process of building and releasing your Go binaries across a range of operating systems and architectures. By learning how to use GoReleaser, you can significantly accelerate the process of releasing and deploying your application. This way, you can concentrate on developing new features and addressing bugs instead of getting bogged down with the build and compile process. Ultimately, using GoReleaser can save you valuable time and energy that you can use to make your application even better.
 
-Bookmark
+Just Imagine
 
 # Questions
 
@@ -639,7 +639,7 @@ Bookmark
 2.  What additional security do you get from building with a first-class port?
 3.  What command would you run on Linux to find the port values for the Darwin operating system?
 
-Bookmark
+Just Imagine
 
 # Answers
 
@@ -647,7 +647,7 @@ Bookmark
 2.  There are several reasons why a first-class port is more secure: releases are blocked by broken builds, official binaries are provided, and installation is documented.
 3.  `go tool dist list |` `grep darwin`.
 
-Bookmark
+Just Imagine
 
 # Further reading
 

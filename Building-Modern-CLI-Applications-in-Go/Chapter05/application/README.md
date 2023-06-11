@@ -537,7 +537,7 @@ Favorite Pies: [Pumpkin Lemon Meringue Key Lime Pecan
 
 Although these examples are just a selection of the many input prompts provided by the `survey` package, you can visit the GitHub page to view examples of all the possible options. Playing around with prompts reminds me of early text-based RPG games that used them to prompt the gamer’s character. Having learned about the many different types of input, whether user-based, from the kernel, or from other piped applications, let’s discuss how to process this incoming data.
 
-Bookmark
+Just Imagine
 
 # Processing data
 
@@ -744,7 +744,7 @@ A CLI that utilizes an API behind the scenes would often require internet access
 
 Once the data has been processed, the result must be returned to the user or receiving process. In the next section, we will discuss the details of returning the output and defining the best practices for returning data.
 
-Bookmark
+Just Imagine
 
 # Returning the resulting output and defining best practices
 
@@ -840,7 +840,7 @@ If a CLI outputs a lot of text at once, such as `git diff`, a pager is used. Tha
 
 Finally, make errors stand out – use red text or a red _x_ emoji to increase understanding if an error occurs. If colors are disabled, then use text to communicate that an error has occurred and offer some suggestions for the next steps to take – and, even better, an avenue toward support via email or a website.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -854,7 +854,7 @@ Returning the output is just as important as receiving it, if not more! This is 
 
 How would you want to receive data in a way that makes you feel assured, understanding failures and what to do next, and where to find help? Not all processes run successfully, so let’s at least make users feel that they’re on the path to success. In _Part 2_, [_Chapter 6_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_06.xhtml#_idTextAnchor123), _Calling External Processes, Handling Errors and Timeouts_, we will continue to discuss the command-line process in more detail, focusing on external processes and how to handle timeouts and errors and communicate them to the user effectively.
 
-Bookmark
+Just Imagine
 
 # Questions
 
@@ -862,7 +862,7 @@ Bookmark
 2.  What key combination interrupts a computer process?
 3.  What flag can be added to your CLI to modify the output into plain output that can easily be integrated with tools such as `grep` and `awk`?
 
-Bookmark
+Just Imagine
 
 # Answers
 
@@ -870,7 +870,7 @@ Bookmark
 2.  _Ctrl +_ _C_.
 3.  The `–plain` flag can be added to remove any unnecessary data from the output.
 
-Bookmark
+Just Imagine
 
 # Further reading
 

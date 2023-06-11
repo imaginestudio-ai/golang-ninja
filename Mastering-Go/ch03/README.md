@@ -16,7 +16,7 @@ This chapter covers:
 
 Maps can use keys of different data types whereas structures can group multiple data types and create new ones. So, without further ado, let us begin by presenting maps.
 
-Bookmark
+Just Imagine
 
 # Maps
 
@@ -149,7 +149,7 @@ key: 123 value: 456
 
 Having covered maps, it is time to learn about Go structures.
 
-Bookmark
+Just Imagine
 
 # Structures
 
@@ -328,7 +328,7 @@ Sum: 45
 
 We revisit structures in the next chapter where we discuss reflection, as well as _Chapter 6_, _Telling a UNIX System What to Do_ where we learn how to work with JSON data using structures. For now, let us discuss regular expressions and pattern matching.
 
-Bookmark
+Just Imagine
 
 # Regular expressions and pattern matching
 
@@ -455,7 +455,7 @@ false
 
 The first record is correct and therefore the `true` value is returned, which is not true for the second running where the phone number field is not correct. The last one failed because it contains four fields instead of three.
 
-Bookmark
+Just Imagine
 
 # Improving the phone book application
 
@@ -947,7 +947,7 @@ Despite being much better than the previous version, the new version of the phon
 
 The phone book application will keep improving, starting from the next chapter, where sorting slices with structure elements is implemented.
 
-Bookmark
+Just Imagine
 
 # Exercises
 
@@ -960,7 +960,7 @@ Bookmark
 -   Make the necessary changes to `phoneBook.go` in order to create the index based on the `LastAccess` field. Is this practical? Does it work? Why?
 -   Make changes to `csvData.go` in order to separate the fields of a record with a character that is given as a command-line argument.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -968,7 +968,7 @@ In this chapter we discussed the composite data types of Go, which are maps and 
 
 The next chapter is about type methods, which are functions attached to a data type, reflection, and interfaces. All these things will allow us to improve the phone book application.
 
-Bookmark
+Just Imagine
 
 # Additional resources
 

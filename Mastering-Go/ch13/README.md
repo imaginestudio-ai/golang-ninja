@@ -15,7 +15,7 @@ This chapter covers:
 -   Reflection versus generics
 -   Concluding remarks: what does the future look like for Go developers?
 
-Bookmark
+Just Imagine
 
 # Introducing generics
 
@@ -87,7 +87,7 @@ So, each slice is printed as expected using a single generic function.
 
 With that information in mind, let us begin by discussing generics and constraints.
 
-Bookmark
+Just Imagine
 
 # Constraints
 
@@ -194,7 +194,7 @@ The reason for this error is that the `Add()` function expects two parameters of
 
 The next section shows how to use generics when defining new data types.
 
-Bookmark
+Just Imagine
 
 # Defining new data types with generics
 
@@ -376,7 +376,7 @@ Let us discuss the output a little more. The first line shows that the value of 
 
 The next section discusses the differences between using interfaces and generics to support multiple data types.
 
-Bookmark
+Just Imagine
 
 # Interfaces versus generics
 
@@ -503,7 +503,7 @@ So in practice, when you have to support multiple data types, the use of generic
 
 The next section discusses the use of reflection as a way of bypassing the use of generics.
 
-Bookmark
+Just Imagine
 
 # Reflection versus generics
 
@@ -583,7 +583,7 @@ a b c
 
 The last six lines of the output produce the same output, but this time using reflection. There is no difference in the output—all differences are in the code found in the implementations of `PrintReflection()` and `PrintSlice()` for printing the output. As expected, generics code is simpler and shorter than Go code that uses reflection, especially when you must support lots of different data types.
 
-Bookmark
+Just Imagine
 
 # Exercises
 
@@ -592,7 +592,7 @@ Bookmark
 -   Implement the `delete()` and `search()` functionality using generics for the linked list found in `structures.go`
 -   Implement a doubly-linked list using generics starting with the code found in `structures.go`
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -604,7 +604,7 @@ So, what does the future look like for Go developers? In short, it looks wonderf
 
 Go helps you to create great software! So, go and create great software!
 
-Bookmark
+Just Imagine
 
 # Additional resources
 

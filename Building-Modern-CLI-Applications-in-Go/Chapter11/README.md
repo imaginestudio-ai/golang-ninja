@@ -41,7 +41,7 @@ Run `go` `env` in your terminal to see which tags are satisfied automatically wh
 
 As mentioned earlier, you can create your own pro and free versions based on tags placed at the top of code files, `//go:build pro` or `//go:build free`. Integration test files can be tagged with `//go:build int`, for example. However you want to customize your builds, you can do so with the power of tags and Boolean logic. Now, in the next section, let’s use tags in our code to do just that.
 
-Bookmark
+Just Imagine
 
 # How to utilize build tags
 
@@ -138,7 +138,7 @@ func init() {
 
 As you can see, whether building the `free`, `pro`, or `dev` version, if the `profile` build tag is added as tag input, then the `init` function will be called to set the `profile` variable to `true`. Now, we have another idea of how to use build tags – to set Boolean variables that act as feature flags. Now that we’ve changed the necessary files to include the build tags, let’s use these as inputs to the build commands.
 
-Bookmark
+Just Imagine
 
 # Building with tags
 
@@ -202,7 +202,7 @@ Similarly, the files will be included in the build when we build for the free ve
 
 At this point, we’ve learned what build tags are, the different ways to use build tags within your code, and, finally, how to build applications targeted to specific uses using build tags. Specifically, while build tags can be used to define different levels of features available (free versus pro), you can also enable profiling or any other debug tooling using build tags. Now that we have understood how to build our command-line application for different targets, let’s learn how to test our CLI commands.
 
-Bookmark
+Just Imagine
 
 # Testing CLI commands
 
@@ -555,7 +555,7 @@ ok      github.com/marianina8/audiofile/cmd
 
 We now know how to run the tests utilizing build tags as well. This should be all the tools needed to run your own CLI testing.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -563,7 +563,7 @@ In this chapter, you learned what build tags are and how to use them for differe
 
 You also learned how to test your Cobra CLI commands with Golang’s default `testing` package. Some necessary tools were also included, such as learning how to mock an HTTP client. Together with the build tags, you can now not only build targeted applications with tags but also run tests with the same tags to target specific tests. In the next chapter, [_Chapter 12_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_12.xhtml#_idTextAnchor291), _Cross-Compilation Across Different Platforms_, we will learn how to use these tags and compile for the different major operating systems: `darwin`, `linux`, and `windows`.
 
-Bookmark
+Just Imagine
 
 # Questions
 
@@ -571,7 +571,7 @@ Bookmark
 2.  What flag is used for both `go build` and `go test` to pass in the build tags?
 3.  What build tag could you place on an integration test Golang file and how would you run `go test` with the tag?
 
-Bookmark
+Just Imagine
 
 # Answers
 
@@ -579,7 +579,7 @@ Bookmark
 2.  The `–tags` flag is used to pass in build tags for both the `go build` and `go` `test` methods.
 3.  You could add the `//go:build int` build tag at the top of any integration test file, and then modify the test file to run this command: `go test ./cmd -tags "``pro int"`.
 
-Bookmark
+Just Imagine
 
 # Further reading
 

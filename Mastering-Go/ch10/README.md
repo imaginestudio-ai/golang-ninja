@@ -15,7 +15,7 @@ In more detail, this chapter covers:
 -   Creating a WebSocket server
 -   Creating a WebSocket client
 
-Bookmark
+Just Imagine
 
 # TCP/IP
 
@@ -43,7 +43,7 @@ $ nc 10.10.1.123 1234
 
 The `-l` option tells `netcat(1)` to act as a server, which means that `netcat(1)` starts listening for incoming connections at the given port number. By default, `nc(1)` uses the TCP protocol. However, if you execute `nc(1)` with the `-u` flag, then `nc(1)` uses the UDP protocol, either as a client or as a server. Finally, the `-v` and `-vv` options tell `netcat(1)` to generate verbose output, which can come in handy when you want to troubleshoot network connections.
 
-Bookmark
+Just Imagine
 
 # The net package
 
@@ -53,7 +53,7 @@ The `net.Dial()` function is used for connecting to a remote server. The first p
 
 Execute the `go doc net.Listen` and `go doc net.Dial` commands for more detailed information regarding these two functions.
 
-Bookmark
+Just Imagine
 
 # Developing a TCP client
 
@@ -216,7 +216,7 @@ The interaction is the same as with `tcpC.go`—we have just learned a different
 
 The next section shows how to program TCP servers.
 
-Bookmark
+Just Imagine
 
 # Developing a TCP server
 
@@ -408,7 +408,7 @@ The first line that begins with `>` is the client message, whereas the second li
 
 The next section is about developing UDP clients.
 
-Bookmark
+Just Imagine
 
 # Developing a UDP client
 
@@ -527,7 +527,7 @@ Finally, after sending the `STOP` keyword to the server, the client prints `Exit
 
 The next section is about programming a UDP server.
 
-Bookmark
+Just Imagine
 
 # Developing a UDP server
 
@@ -671,7 +671,7 @@ When the client gets `STOP` as user input, it terminates the UDP connection and 
 
 The next section shows how to develop a concurrent TCP server that uses goroutines for serving its clients.
 
-Bookmark
+Just Imagine
 
 # Developing concurrent TCP servers
 
@@ -762,7 +762,7 @@ The first line of output is from the first TCP client, whereas the second line i
 
 The next section shows how to work with UNIX domain sockets, which are really fast for interactions on the local machine only.
 
-Bookmark
+Just Imagine
 
 # Working with UNIX domain sockets
 
@@ -971,7 +971,7 @@ In the previous two sections, we learned how to create UNIX domain socket client
 
 The sections that follow concern the WebSocket protocol.
 
-Bookmark
+Just Imagine
 
 # Creating a WebSocket server
 
@@ -1270,7 +1270,7 @@ For the WebSocket interaction defined in `test.html`, the WebSocket server gener
 
 Both ways verify that the WebSocket server works as expected: the client can connect to the server, the server sends data that is received by the client, and the client closes the connection with the server successfully. So, it is time to develop our own WebSocket client in Go.
 
-Bookmark
+Just Imagine
 
 # Creating a WebSocket client
 
@@ -1468,7 +1468,7 @@ The `connection refused` message indicates that there is no process listening to
 
 WebSocket gives you an alternative way of creating services. As a rule of thumb, WebSocket is better when we want to exchange lots of data, and we want the connection to remain open all the time and exchange data in full-duplex. However, if you are not sure about what to use, begin with a TCP/IP service and see how it goes before upgrading it to the WebSocket protocol.
 
-Bookmark
+Just Imagine
 
 # Exercises
 
@@ -1478,7 +1478,7 @@ Bookmark
 -   Develop a UNIX domain socket server that generates random numbers. After that, program a client for that server.
 -   Develop a WebSocket server that creates a variable number of random integers that are sent to the client. The number of random integers is specified by the client at the initial client message.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -1486,7 +1486,7 @@ This chapter was all about the `net` package, TCP/IP, TCP, UDP, UNIX sockets, an
 
 The next chapter is about REST APIs, exchanging JSON data over HTTP, and developing RESTful clients and servers—Go is widely used for developing RESTful clients and servers.
 
-Bookmark
+Just Imagine
 
 # Additional resources
 

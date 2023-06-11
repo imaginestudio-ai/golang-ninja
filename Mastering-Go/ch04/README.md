@@ -15,7 +15,7 @@ This chapter covers:
 -   Object-oriented programming in Go
 -   Updating the phone book application
 
-Bookmark
+Just Imagine
 
 # Reflection
 
@@ -222,7 +222,7 @@ Without a doubt, reflection is a powerful Go feature. However, as with all tool
 
 Now that we know about reflection and what it can do for us, it is time to begin the discussion about type methods, which are necessary for using interfaces.
 
-Bookmark
+Just Imagine
 
 # Type methods
 
@@ -392,7 +392,7 @@ The input here is two 2x2 matrices, `[[1 2] [0 0]]` and `[[2 1] [1 1]]`, and the
 
 Now that we know about type methods, it is time to begin exploring interfaces as interfaces cannot be implemented without type methods.
 
-Bookmark
+Just Imagine
 
 # Interfaces
 
@@ -1258,7 +1258,7 @@ This is the reversed sorted output of the program from bigger to smaller shapes.
 
 The next section shows a technique for differentiating between two CSV file formats in your programs.
 
-Bookmark
+Just Imagine
 
 # Working with two different CSV file formats
 
@@ -1417,7 +1417,7 @@ This means that the code successfully understands that we are dealing with an un
 
 The next section explores the limited object-oriented capabilities of Go.
 
-Bookmark
+Just Imagine
 
 # Object-oriented programming in Go
 
@@ -1558,7 +1558,7 @@ The first two lines of the output show that two different structures can have a 
 
 Evidently, although Go is not an object-oriented programming language, it can mimic some of the characteristics of object-oriented programming. Moving on, the last section of this chapter is about updating the phone book application by reading an environment variable and sorting its output.
 
-Bookmark
+Just Imagine
 
 # Updating the phone book application
 
@@ -1716,7 +1716,7 @@ $ go run phoneBook.go list
 
 As `Dimitris` comes before `Mihalis` alphabetically, all relevant entries come first as well, which means that our sorting works as expected.
 
-Bookmark
+Just Imagine
 
 # Exercises
 
@@ -1725,7 +1725,7 @@ Bookmark
 -   Add support for a `reverse` command to `phonebook.go` in order to list its entries in reverse order
 -   Use the empty interface and a function that allows you to differentiate between two different structures that you create
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -1735,7 +1735,7 @@ The last section of this chapter discussed writing Go code that follows the prin
 
 The next chapter discusses Go packages, functions, and automation using GitHub and GitLab CI/CD systems.
 
-Bookmark
+Just Imagine
 
 # Additional resources
 

@@ -95,7 +95,7 @@ mmontagnino@Marians-MacBook-Pro Chapter-10 % go run main.go
 
 Prompting the user is an easy way to integrate interactivity into your command-line application. However, there are even more colorful and fun ways to interact with your users. In the next section, we’ll discuss the terminal dashboard, the `termdash` package in detail, and how to mock up and implement a terminal dashboard.
 
-Bookmark
+Just Imagine
 
 # Designing a useful terminal dashboard
 
@@ -659,7 +659,7 @@ Figure 10.11 – Terminal dashboard layout
 
 This layout can be created easily with the binary layout. The music library list section can be generated from a list of songs with number identifiers, which can be used in the text input section, where a song can be selected by ID. Any error messages associated with the input ID will be displayed right below. If the input is good, the selected song section will show rolling ASCII text with the song title, and the metadata section will display the text metadata of the selected song. Hitting the play button will start playing the selected song, and the stop button will stop it. Proceed to the next section where we’ll make this terminal dashboard a reality.
 
-Bookmark
+Just Imagine
 
 # Implementing a terminal dashboard
 
@@ -953,7 +953,7 @@ Figure 10.18 – Audio file player terminal dashboard
 
 -   Voila! We’ve created a terminal dashboard to play the music in our audio file library. While you can view the metadata through the command-line application’s `get` and `list` commands and play music with the `play` command, the new player terminal dashboard allows you to view what exists in the audio file library in a more user-friendly fashion.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -963,7 +963,7 @@ The survey example showed you how to use a variety of different types of prompts
 
 The player terminal dashboard gives you an example of how to create a terminal dashboard for a command-line interface. Consider the kind of data your users will be sending or retrieving from your command-line interface and let that guide you in your design of a more visual approach.
 
-Bookmark
+Just Imagine
 
 # Questions
 
@@ -971,7 +971,7 @@ Bookmark
 2.  What method is used to place a widget inside a container?
 3.  What’s the difference between the binary layout and the grid layout?
 
-Bookmark
+Just Imagine
 
 # Answers
 
@@ -979,7 +979,7 @@ Bookmark
 2.  `container.PlaceWidget(widget)`
 3.  The grid layout allows you to split the container into horizontal rows and vertical columns. The binary layout allows you to split sub-containers horizontally or vertically.
 
-Bookmark
+Just Imagine
 
 # Further reading
 

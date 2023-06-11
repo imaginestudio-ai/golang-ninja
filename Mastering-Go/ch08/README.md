@@ -13,7 +13,7 @@ In more detail, this chapter covers:
 -   Creating file servers
 -   Timing out HTTP connections
 
-Bookmark
+Just Imagine
 
 # The net/http package
 
@@ -115,7 +115,7 @@ Note that `http.Transport` is pretty low-level, whereas `http.Client`, which is 
 
 Let us now learn how to develop a web server.
 
-Bookmark
+Just Imagine
 
 # Creating a web server
 
@@ -235,7 +235,7 @@ In this last case, we visit `/doesNotExist`, which does not exist. As this canno
 
 The next section is about making the phone book application a web application!
 
-Bookmark
+Just Imagine
 
 # Updating the phone book application
 
@@ -613,7 +613,7 @@ Later in this chapter we are going to create a command-line client for the phone
 
 The next section shows how to expose metrics to Prometheus and how to build Docker images for server applications.
 
-Bookmark
+Just Imagine
 
 # Exposing metrics to Prometheus
 
@@ -1253,7 +1253,7 @@ Grafana has many more capabilities than the ones presented here—if you are wor
 
 After learning about HTTP servers, the next section shows how to develop HTTP clients.
 
-Bookmark
+Just Imagine
 
 # Developing web clients
 
@@ -1740,7 +1740,7 @@ This is the operation of the `insert` command. If you try to insert the same num
 
 The next section shows how to create an FTP server using `net/http`.
 
-Bookmark
+Just Imagine
 
 # Creating file servers
 
@@ -1868,7 +1868,7 @@ _Chapter 10_, _Working with REST APIs_, presents a different way of creating a f
 
 The next section explains how to time out HTTP connections.
 
-Bookmark
+Just Imagine
 
 # Timing out HTTP connections
 
@@ -2096,7 +2096,7 @@ Apart from the parameters in the definition of `http.Server`, the rest of the co
 
 Working with `timeoutServer.go` generates no output. However, if a client connects to it without sending any requests, the client connection is going to end after 3 seconds. The same is going to happen if it takes the client more than 3 seconds to receive the server response.
 
-Bookmark
+Just Imagine
 
 # Exercises
 
@@ -2105,7 +2105,7 @@ Bookmark
 -   Include the functionality of `getEntries.go` in the phone book application.
 -   Implement a simple version of `ab(1)` using goroutines and channels. `ab(1)` is an Apache HTTP server benchmarking tool.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -2115,7 +2115,7 @@ We are now ready to begin developing powerful and concurrent HTTP applications�
 
 But first, we need to learn about working with TCP/IP, TCP, UDP, and WebSocket, which are the subjects of the next chapter.
 
-Bookmark
+Just Imagine
 
 # Additional resources
 

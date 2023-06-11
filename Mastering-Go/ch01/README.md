@@ -16,7 +16,7 @@ We will cover the following topics:
 -   Overview of Go generics
 -   Developing a basic phone book application
 
-Bookmark
+Just Imagine
 
 # Introducing Go
 
@@ -330,7 +330,7 @@ func main() {
 
 After learning about this global rule, let us continue by presenting some important characteristics of Go.
 
-Bookmark
+Just Imagine
 
 # Important characteristics of Go
 
@@ -866,7 +866,7 @@ This happens because goroutines are initialized in random order and start runnin
 
 The next section shows a practical example, which is developing a Go version of the `which(1)` utility, which locates a program file in the user's `PATH` value.
 
-Bookmark
+Just Imagine
 
 # Developing the which(1) utility in Go
 
@@ -941,7 +941,7 @@ The last command could not find the `doesNotExist` executable—according to the
 
 Although it is useful to print error messages onscreen, there are times that you need to keep all error messages together and be able to search them when it is convenient for you. In this case, you need to use one or more log files.
 
-Bookmark
+Just Imagine
 
 # Logging information
 
@@ -1144,7 +1144,7 @@ LNum 2020/12/05 17:33:23 customLogLineNumber.go:27: Another log entry!
 
 You will most likely get a different output on your own machine, which is the expected behavior.
 
-Bookmark
+Just Imagine
 
 # Overview of Go generics
 
@@ -1191,7 +1191,7 @@ We end this section by stating some useful facts about generics:
 
 You need time to get used to generics and use generics at its full potential. Take your time. We will cover generics in more depth in _Chapter 13_, _Go Generics_.
 
-Bookmark
+Just Imagine
 
 # Developing a basic phone book application
 
@@ -1327,7 +1327,7 @@ The first command lists the contents of the phone book whereas the second comman
 
 Despite its shortcomings, `phoneBook.go` has a clean design that you can easily extend and works as expected, which is a great starting point. The phone book application will keep improving in the chapters that follow as we learn more advanced concepts.
 
-Bookmark
+Just Imagine
 
 # Exercises
 
@@ -1335,7 +1335,7 @@ Bookmark
 -   The current version of `which.go` processes the first command-line argument only. Make the necessary changes to `which.go` in order to accept and search the `PATH` variable for multiple executable binaries.
 -   Read the documentation of the `fmt` package at [https://golang.org/pkg/fmt/](https://golang.org/pkg/fmt/).
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -1343,7 +1343,7 @@ If you are using Go for the first time, the information in this chapter will hel
 
 The next chapter discusses the basic data types of Go in more detail.
 
-Bookmark
+Just Imagine
 
 # Additional resources
 

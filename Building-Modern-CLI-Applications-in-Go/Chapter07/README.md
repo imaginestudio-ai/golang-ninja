@@ -440,7 +440,7 @@ main.main()
 
 Now that we have learned about some of the packages required for building a command-line application that runs across multiple operating systems and architectures, in the next section, we’ll return to the `audiofile` CLI from previous chapters and implement a few new functions and show how the methods and functions we’ve learned in this section can come into play.
 
-Bookmark
+Just Imagine
 
 # Implementing independent or platform-specific code
 
@@ -704,7 +704,7 @@ enjoy the music!
 
 The final section of this chapter will show us how to implement this differently, if we’d like to, using build tags.
 
-Bookmark
+Just Imagine
 
 # Build tags for targeted platforms
 
@@ -877,7 +877,7 @@ Since you’ll be building your application for the main operating systems, it�
 
 These are some of the differences to be aware of when developing a command-line application in Go for different operating systems. It’s important to thoroughly test your application on each platform to ensure it behaves as expected.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -887,7 +887,7 @@ Building for multiple operating systems will expand the usage of your command-li
 
 In the next chapter, [_Chapter 8_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_08.xhtml#_idTextAnchor166), _Building for Humans Versus Machines_, we’ll learn how to build a CLI that outputs according to who is receiving it: a machine or human. We’ll also learn how to structure the language for clarity and name commands for consistency with the rest of the CLIs in the community.
 
-Bookmark
+Just Imagine
 
 # Questions
 
@@ -895,7 +895,7 @@ Bookmark
 2.  Which package constant can be used to determine the `runtime` operating system?
 3.  Where is the build tag comment set within a Go file – at the top, bottom, or above the defined function?
 
-Bookmark
+Just Imagine
 
 # Answers
 
@@ -903,7 +903,7 @@ Bookmark
 2.  `runtime.GOOS`
 3.  At the top first line of the Go file.
 
-Bookmark
+Just Imagine
 
 # Further reading
 

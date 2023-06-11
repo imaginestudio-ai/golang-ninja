@@ -21,7 +21,7 @@ This chapter covers:
 -   The `context` package
 -   The `semaphore` package
 
-Bookmark
+Just Imagine
 
 # Processes, threads, and goroutines
 
@@ -35,7 +35,7 @@ In practice, this means that a process can have multiple threads as well as lots
 
 Now that you know the basics of processes, programs, threads, and goroutines, let us talk a little bit about the **Go scheduler**.
 
-Bookmark
+Just Imagine
 
 # The Go scheduler
 
@@ -123,7 +123,7 @@ Even if you cannot run your functions in parallel on your machine, a valid concu
 
 In other words, concurrency is better than parallelism! Let us now talk about goroutines before looking into channels, which are the main components of the Go concurrency model.
 
-Bookmark
+Just Imagine
 
 # Goroutines
 
@@ -364,7 +364,7 @@ $ go run randomFiles.go 2 5 masterGo /tmp
 
 Everything looks fine, and four files have been created according to our instructions! Now that we know about goroutines, let us continue with channels.
 
-Bookmark
+Just Imagine
 
 # Channels
 
@@ -588,7 +588,7 @@ The last function accepts two channel parameters. However, `out` is available fo
 
 The subject of the next section is race conditions—read it carefully in order to avoid undefined behaviors and unpleasant situations when working with multiple goroutines.
 
-Bookmark
+Just Imagine
 
 # Race conditions
 
@@ -679,7 +679,7 @@ false false false false false false false false false false false false false fa
 
 The next section is about the important and powerful `select` keyword.
 
-Bookmark
+Just Imagine
 
 # The select keyword
 
@@ -737,7 +737,7 @@ Exiting...
 
 We are going to see `select` in action in the remainder of the chapter, starting from the next section, which discusses how to time out goroutines. What you should remember is that `select` allows us to listen to multiple channels from a single point.
 
-Bookmark
+Just Imagine
 
 # Timing out a goroutine
 
@@ -838,7 +838,7 @@ This time the timeout is 5,500 milliseconds, which means that the goroutine had 
 
 The next section revisits and presents advanced concepts related to channels.
 
-Bookmark
+Just Imagine
 
 # Go channels revisited
 
@@ -1270,7 +1270,7 @@ D()! D()! D()! D()!
 
 So, the four functions, which are executed as goroutines, are executed in the desired order, and, in the case of the last function, the desired number of times. The next section talks about shared memory and shared variables, which is a very handy way of making goroutines communicate with each other.
 
-Bookmark
+Just Imagine
 
 # Shared memory and shared variables
 
@@ -1689,7 +1689,7 @@ So, 10 random numbers are created by 10 goroutines and all these goroutines send
 
 The next section discusses the `go` statement in more detail.
 
-Bookmark
+Just Imagine
 
 # Closured variables and the go statement
 
@@ -1779,7 +1779,7 @@ $ go run -race goClosureCorrect.go
 
 The next section presents the functionality of the `context` package.
 
-Bookmark
+Just Imagine
 
 # The context package
 
@@ -1984,7 +1984,7 @@ The first call to `searchKey()` is successful whereas the next two calls cannot 
 
 We are not completely done with `context` as the next chapter is going to use it to time-out HTTP interactions on the client side of the connection. The last section of this chapter discusses the `semaphore` package, which is not part of the Standard library.
 
-Bookmark
+Just Imagine
 
 # The semaphore package
 
@@ -2113,7 +2113,7 @@ $ go run semaphore.go 6
 
 Each line in the output shows the input value and the output value separated by `->`. The use of the semaphore keeps things in order.
 
-Bookmark
+Just Imagine
 
 # Exercises
 
@@ -2123,7 +2123,7 @@ Bookmark
 -   Try to implement a concurrent version of `wc(1)` that saves its output to a file.
 -   Modify `wPools.go` so that each worker implements the functionality of `wc(1)`.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -2131,7 +2131,7 @@ This important chapter was about Go concurrency, goroutines, channels, the `sele
 
 The next chapter is all about web services and working with the HTTP protocol in Go. Among other things, we are going to convert the phone book application into a web service.
 
-Bookmark
+Just Imagine
 
 # Additional resources
 

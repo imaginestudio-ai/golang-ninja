@@ -7,7 +7,7 @@ Although this example covered in this chapter is not built on an empty code base
 -   Defining the components
 -   Implementing use cases
 -   Testing and mocking
-Bookmark
+Just Imagine
 
 # Defining the components
 
@@ -403,7 +403,7 @@ In the `storage` folder, there is the `flatfile.go` file, which implements a met
 
 The `vendor` directory holds all direct and indirect dependencies.
 
-Bookmark
+Just Imagine
 
 # Implementing use cases
 
@@ -678,7 +678,7 @@ Giving the CLI a more specific name, `audiofile-cli`, let’s generate the build
 go build -o audiofile-cli cmd/cli/main.go
 ```
 
-Bookmark
+Just Imagine
 
 # Testing a CLI
 
@@ -988,7 +988,7 @@ ok      github.com/marianina8/audiofile/cmd/cli/command
 
 It’s important to test success and failure cases for all the commands. Although this was just a starting example; more test cases could be added. For example, in the previous chapter, we discussed the upload use case in more detail. You could test it with large files that exceed the limit, or whether the file passed into the `upload` command is an audio file. In the state that the current implementation is in, a large file would successfully upload. Since this is not what we want, we can modify the `UploadCommand` `Run` method to check the size of the file before calling the request to the `/upload` endpoint. However, this is just an example and hopefully gives you an idea of how a CLI can be built alongside an existing API.
 
-Bookmark
+Just Imagine
 
 # Summary
 
@@ -998,7 +998,7 @@ We learned how to implement the first two main use cases of the CLI, uploading a
 
 While this chapter gave you an idea of how to build a CLI, some commands such as nested subcommands and flag combinations can get complicated. In the next chapter, we’ll discuss how to use some popular frameworks to help parse complicated commands and improve the CLI development process overall. You’ll see how these frameworks can exponentially speed up the development of a new CLI!
 
-Bookmark
+Just Imagine
 
 # Questions
 
@@ -1018,7 +1018,7 @@ Bookmark
 
 What would an additional entry to the `tests` array look like?
 
-Bookmark
+Just Imagine
 
 # Answers
 

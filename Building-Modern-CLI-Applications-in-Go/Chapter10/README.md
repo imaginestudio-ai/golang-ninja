@@ -11,17 +11,6 @@ Taking an empathetic approach into many different areas of your application, as 
 -   Effortless bug submission
 -   Help, documentation, and support
 
-Bookmark
-
-# Technical requirements
-
-These are the requirements for this chapter:
-
--   A Unix operating system to understand and run the examples shared in the chapter
--   You can also find the code examples on GitHub at [https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter09](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter09)
-
-Bookmark
-
 # Rewriting errors to be human-readable
 
 Errors can be a big point of frustration for users as they can set users off their original plans. Users will be grateful, though, if you can make the process as painless as possible. In this section, we will discuss some ways to ease users when an error occurs and provide some guidelines for creating better error messages and avoiding some common mistakes. Creating clear and helpful error messages is often overlooked, yet they are very impactful toward an optimal UX.

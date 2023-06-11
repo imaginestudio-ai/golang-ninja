@@ -10,17 +10,6 @@ Interactivity is fun. It’s the more human and empathetic approach to a command
 -   Designing a useful terminal dashboard
 -   Implementing a terminal dashboard
 
-Bookmark
-
-# Technical requirements
-
--   You’ll need a Unix operating system to understand and run the examples shared in the chapter
--   Get the `termdash` package at [https://github.com/mum4k/termdash](https://github.com/mum4k/termdash)[](https://github.com/mum4k/termdash%0A)
--   Get the survey package at [https://github.com/go-survey/survey](https://github.com/go-survey/survey)[](https://github.com/go-survey/survey%0A)
--   You can also find the code examples on GitHub at [https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter10](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter10)[](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter-10%0A)
-
-Bookmark
-
 # Guiding users with prompts
 
 There are many ways to simply prompt the user, but if you want to create a whole survey that can retrieve information using a variety of different prompts – text input, multi-select, single-select, multi-line text, password, and more – it might be useful to use a preexisting library to handle this for you. Let’s create a generic customer survey using the `survey` package.

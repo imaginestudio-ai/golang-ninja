@@ -10,14 +10,6 @@ Build tags are not only used as input when building but also when testing. We wi
 -   Building with tags
 -   Testing CLI commands
 
-Bookmark
-
-# Technical requirements
-
--   You’ll need a Unix operating system to understand and run the examples shared in the chapter
--   You can also find the code examples on GitHub at [https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter11/audiofile](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter11/audiofile)
-
-Bookmark
 
 # What are build tags and how can you use them?
 

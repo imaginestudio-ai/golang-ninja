@@ -2,7 +2,7 @@
 
 
 # Building RESTful Web services with Go
-This is the code repository for [Building RESTful Web services with Go](https://www.imaginedevops.io/application-development/building-restful-web-services-go?utm_source=github&utm_medium=repository&utm_campaign=9781788294287), published by [ImagineDevOps ](https://www.imaginedevops.io/?utm_source=github). It contains all the supporting project files necessary to work through the book from start to finish.
+This is the code repository for [Building RESTful Web services with Go](https://www.imaginedevops.io/application-development/building-restful-web-services-go?utm_source=github&utm_medium=repository&utm_campaign=9781788294287), published by [ImagineDevOps ](https://www.imaginedevops.io/?utm_source=github)
 ## About the Book
 Initially, SOAP-based web services became more popular with XML. Then, since 2012,
 REST picked up the pace and gulped SOAP in whole. The rise of a new generation of web
@@ -37,14 +37,3 @@ flexibility; refer to https://www.docker.com/docker-windows for more details.
 Before diving into the book, refresh your language basics at https://tour.golang.org/welcome/1.
 Even though these are the basic requirements, we will guide you through the installations
 wherever required.
-
-## Related Products
-* [Go: Design Patterns for Real-World Projects](https://www.imaginedevops.io/application-development/go-design-patterns-real-world-projects?utm_source=github&utm_medium=repository&utm_campaign=9781788390552)
-
-* [Building RESTful Web Services with Spring 5 - Second Edition](https://www.imaginedevops.io/application-development/building-restful-web-services-spring-5-second-edition?utm_source=github&utm_medium=repository&utm_campaign=9781788475891)
-
-* [Mastering Go](https://www.imaginedevops.io/networking-and-servers/mastering-go?utm_source=github&utm_medium=repository&utm_campaign=9781788626545)
-### Download a free PDF
-
- <i>If you have already purchased a print or Kindle version of this book, you can get a DRM-free PDF version at no cost.<br>Simply click on the link to claim your free PDF.</i>
-<p align="center"> <a href="https://packt.link/free-ebook/9781788294287">https://packt.link/free-ebook/9781788294287 </a> </p>

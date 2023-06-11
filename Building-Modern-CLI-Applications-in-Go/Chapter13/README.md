@@ -12,18 +12,6 @@ By the end of this chapter, you will have a strong grasp of how to utilize Docke
 -   Testing with containers
 -   Distributing with containers
 
-Bookmark
-
-# Technical requirement
-
-For this chapter, you will need to do the following:
-
--   Download and install Docker Desktop at [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)[](https://www.docker.com/products/docker-desktop/%0A)
--   Install the Docker Compose plugin
-
-You can also find the code examples on GitHub at [https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter13](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter13)
-
-Bookmark
 
 # Why use containers?
 

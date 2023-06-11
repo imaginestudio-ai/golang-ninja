@@ -12,13 +12,6 @@ In this chapter, we will cover the following key topics:
 -   Implementing independent or platform-specific code
 -   Build tags for targeted platforms
 
-Bookmark
-
-# Technical requirements
-
--   The code files for this chapter are available here: [https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter07](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter07).
-
-Bookmark
 
 # Packages for platform-independent functionality
 

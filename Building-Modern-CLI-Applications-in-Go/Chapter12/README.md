@@ -11,14 +11,6 @@ This chapter ends with an example script to automate cross-compilation across th
 -   Compiling for Linux, macOS, and Windows
 -   Scripting to compile for multiple platforms
 
-Bookmark
-
-# Technical requirements
-
--   You can also find the code examples on GitHub at [https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter12/audiofile](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter12/audiofile)
-
-Bookmark
-
 # Manual compilation versus build automation tools
 
 In [_Chapter 14_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_14.xhtml#_idTextAnchor359), _Publishing Your Go Binary as a Homebrew Formula with GoReleaser_, we will delve into a fantastic open source tool, **GoReleaser**, which automates the process of building and releasing Go binaries. Despite its power and usefulness, it’s crucial to know how to manually compile your Go code. You see, not all projects can be built and released with GoReleaser. For instance, if your application requires unique build flags or dependencies, manual compilation may be necessary. Moreover, understanding how to manually compile your code is essential for addressing issues that may crop up during the build process. In essence, tools such as GoReleaser can make the process a lot smoother, but having a good grasp of the manual compile process is vital to ensure that your **command-line interface (CLI)** applications can be built and released in various scenarios.

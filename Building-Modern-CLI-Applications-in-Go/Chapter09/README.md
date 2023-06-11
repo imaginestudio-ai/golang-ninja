@@ -12,15 +12,6 @@ Finally, consistency also increases clarity for your users. When your CLI uses c
 -   Increasing information density with ASCII art
 -   Being consistent across CLIs
 
-Bookmark
-
-# Technical requirements
-
-You’ll need a Unix operating system to understand and run the examples shared in the chapter.
-
-You can also find the code examples on GitHub at [https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter08](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter08).
-
-Bookmark
 
 # Building for humans versus machines
 

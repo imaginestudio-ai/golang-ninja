@@ -1,412 +1,351 @@
-# Goroutines - Basic Features
+# Network Programming
 
-In the previous chapter, you learned about Unix signal handling as well as adding support for pipes and creating graphical images in Go.
+In the previous chapter, we talked about developing web applications, talking to databases, and dealing with JSON data in Go.
 
-The subject of this really important chapter is goroutines. Go uses goroutines and **channels** in order to program concurrent applications in its own way while providing support for traditional concurrency techniques. Everything in Go is executed using goroutines; when a program starts its execution, its single goroutine automatically calls the main() function in order to begin the actual execution of the program.
+The topic of this chapter is the development of Go applications that work over TCP/IP networks. In addition, you will learn how to create TCP and UDP clients and servers. The central Go package of this chapter will be the net package: most of its functions are quite low level and require a good knowledge of TCP/IP and its family of protocols.
 
-In this chapter, we will present the easy parts of goroutines using easy to follow code examples. However, in [Chapter 10](https://subscription.imaginedevops.io/book/programming/9781787125643/10)_,_ _Goroutines - Advanced Features_, that is coming next, we will talk about more important and advanced techniques related to goroutines and channels; so, make sure that you fully understand this chapter before reading the next one.
+However, have in mind that network programming is a huge theme that cannot be covered in a single chapter. This chapter will give you the foundational directions for how to create TCP/IP applications in Go.
 
-Therefore, this chapter will tell you about the following:
+More analytically, this chapter will talk about the following topics:
 
--   Creating goroutines
--   Synchronizing goroutines
--   About channels and how to use them
--   Reading and writing to channels
--   Creating and using pipelines
--   Changing the Go code of the wc.go utility from _[](https://subscription.imaginedevops.io/book/programming/9781787125643/6)_[Chapter 6](https://subscription.imaginedevops.io/book/programming/9781787125643/6), _File Input and Output_, in order to use goroutines in the new implementation
--   Improving the goroutine version of wc.go even further
-
-Just Imagine
-
-# About goroutines
-
-A **goroutine** is the minimum Go entity that can be executed concurrently. Note that the use of the word _minimum_ is very important here because goroutines are not autonomous entities. Goroutines live in threads that live in Unix processes. Putting it simply, processes can be autonomous and exist on their own, whereas both goroutines and threads cannot. So, in order to create a goroutine, you will need to have a process with at least one thread. The good thing is that goroutines are lighter than threads, which are lighter than processes. Everything in Go is executed using goroutines, which makes perfect sense since Go is a concurrent programming language by design. As you have just learned, when a Go program starts its execution, its single goroutine calls the main() function, which starts the actual program execution.
-
-You can define a new goroutine using the go keyword followed by a function name or the full definition of an anonymous function. The go keyword starts the function argument to it in a new goroutine and allows the invoking function to continue on by itself.
-
-However, as you will see, you cannot control or make any assumptions about the order your goroutines are going to get executed because this depends on the scheduler of the operating system as well as the load of the operating system.
-
-# Concurrency and parallelism
-
-A very common misconception is that **concurrency** and **parallelism** refer to the same thing, which is far from true! Parallelism is the simultaneous execution of multiple things, whereas concurrency is a way of structuring your components so that they can be independently executed when possible.
-
-Only when you build things concurrently you can safely execute them in parallel: when and if your operating system and your hardware permit it. The Erlang programming language did this a long time ago, long before CPUs had multiple cores and computers had lots of RAM.
-
-In a valid concurrent design, adding concurrent entities makes the whole system run faster because more things can run in parallel. So, the desired parallelism comes from a better concurrent expression and implementation of the problem. The developer is responsible for taking concurrency into account during the design phase of a system and benefit from a potential parallel execution of the components of the system. So, the developer should not think about parallelism, but about breaking things into independent components that solve the initial problem when combined.
-
-Even if you cannot run your functions in parallel on a Unix machine, a valid concurrent design will still improve the design and the maintainability of your programs. In other words, concurrency is better than parallelism!
+-   How TCP/IP operates
+-   The net Go standard package
+-   Developing TCP clients and servers
+-   Programing UDP clients and servers
+-   Developing an RPC client
+-   Implementing an RPC server
+-   The Wireshark and tshark(1) network traffic analyzers
+-   Unix sockets
+-   Performing DNS lookups from Go programs
 
 Just Imagine
 
-# The sync Go packages
+# About network programming
 
-The sync Go package contains functions that can help you synchronize goroutines; the most important functions of sync are sync.Add, sync.Done, and sync.Wait. The synchronization of goroutines is a mandatory task for every programmer.
+**Network programming** is the development of applications that can operate over computer networks using TCP/IP, which is the dominant networking protocol. Therefore, without knowing the way TCP/IP and its protocols work, you cannot create network applications and develop TCP/IP servers.
 
-Note that the synchronization of goroutines has nothing to do with shared variables and shared state. Shared variables and shared state have to do with the method you want to use for performing concurrent interactions.
+The best two advices that I can give to developers of network applications, are to know the theory behind the task they want to perform and to know that networks fail all the time for several reasons. The nastiest types of network failures have to do with malfunctioning or misconfigured DNS servers, because such problems are challenging to find and difficult to correct.
 
-# A simple example
+# About TCP/IP
 
-In this subsection, we will present a simple program that creates two goroutines. The name of the sample program will be aGoroutine.go and will be presented in three parts; the first part is the following:
+**TCP/IP** is a family of protocols that help the internet to operate. Its name comes from its two most well-known protocols: **TCP** and **IP**.
+
+Every device that uses TCP/IP must have an IP address, which should be unique at least to its local network. It also needs a **network mask** (used for dividing big IP networks into smaller networks) that is related to its current network, one or more **DNS servers** (used for translating an IP address to a human-memorable format and vice versa) and, if you want to communicate with devices beyond your local network, the IP address of a device that will act as the **default gateway** (a network device that TCP/IP sends a network packet to when it cannot find where else to send it).
+
+Each TCP/IP service, which in reality is a Unix process, listens to a port number that is unique to each machine. Note that port numbers 0-1023 are restricted and can only be used by the root user, so it is better to avoid using them and choose something else, provided that it is not already in use by a different process.
+
+# About TCP
+
+**TCP** stands for **Transmission** **Control** **Protocol**. TCP software transmits data between machines using segments, which are called TCP **packets**. The main characteristic of TCP is that it is a reliable protocol, which means that it attempts to make sure that a packet was delivered. If there is no proof of a packet delivery, TCP resends that particular packet. Among other things, a TCP packet can be used for establishing connections, transferring data, sending acknowledgments, and closing connections.
+
+When a TCP connection is established between two machines, a full duplex virtual circuit, similar to the telephone call, is created between these two machines. The two machines constantly communicate to make sure that data are sent and received correctly. If the connection fails for some reason, the two machines try to find the problem and report to the relevant application.
+
+TCP assigns a sequence number to each transmitted packet and expects a positive acknowledgment (ACK) from the receiving TCP stack. If the ACK is not received within a timeout interval, the data is retransmitted as the original packet is considered undelivered. The receiving TCP stack uses the sequence numbers to rearrange the segments when they arrive out of order, which also eliminates duplicate segments.
+
+The TCP header of each packet includes **source port and destination port** fields. These two fields plus the source and destination IP addresses are combined to uniquely identify each TCP connection. The TCP header also includes a 6-bit flags field that is used to relay control information between TCP peers. The possible flags include SYN, FIN, RESET, PUSH, URG, and ACK. The SYN and ACK flags are used for the initial TCP 3-way handshake. The RESET flag signifies that the receiver wants to abort the connection.
+
+# The TCP handshake!
+
+When a connection is initiated, the client sends a TCP SYN packet to the server. The TCP header also includes a sequence number field that has an arbitrary value in the SYN packet. The server sends back a TCP \[SYN, ACK\] packet, which includes the sequence number of the opposite direction and an acknowledgment of the previous sequence number. Finally, in order to truly establish the TCP connection, the client sends a TCP ACK packet in order to acknowledge the sequence number of the server.
+
+Although all these actions take place automatically, it is good to know what is happening behind the scenes!
+
+# About UDP and IP
+
+**IP** stands for **Internet Protocol**. The main characteristic of IP is that it is not a reliable protocol by nature. IP encapsulates the data that travels in a TCP/IP network because it is responsible for delivering packets from the source host to the destination host according to the IP addresses. IP has to find an addressing method to effectively send the packet to its destination. Although there exist dedicated devices called routers that perform IP routing, every TCP/IP device has to perform some basic routing.
+
+**UDP** (short for **User Datagram Protocol**) is based on IP, which means that it is also unreliable. Generally speaking, UDP is simpler than TCP mainly because UDP is not reliable by design. As a result, UDP messages can be lost, duplicated, or arrive out of order. Furthermore, packets can arrive faster than the recipient can process them. So, UDP is used when speed is more important than reliability! An example for this is live video and audio applications where catching up is way more important than buffering and not losing any data.
+
+So, when you do not need too many network packets to transfer the desired information, using a protocol that is based on IP might be more efficient than using TCP, even if you have to retransmit a network packet, because there is no traffic overhead from the TCP handshake.
+
+# About Wireshark and tshark
+
+**Wireshark** is a graphical application for analyzing network traffic of almost any kind. Nevertheless, there are times that you need something lighter that you can execute remotely without a graphical user interface. In such situations, you can use tshark, which is the command-line version of Wireshark.
+
+In order to help you find the network data you really want, Wireshark and tshark have support for capture filters and display filters.
+
+Capture filters are the filters that are applied during network data capturing; therefore, they make Wireshark discard network traffic that does not match the filter. Display filters are the filters that are applied after packet capturing; therefore, they just hide some network traffic without deleting it: you can always disable a display filter and get your hidden data back. Generally speaking, display filters are considered more useful and versatile than capture filters because, normally, you do not know in advance what you will capture or want to examine. Nevertheless, applying filters at capture time can save you time and disk space and that is the main reason for using them.
+
+The following screenshot shows the traffic of a TCP handshake in more detail as captured by Wireshark. The client IP address is 10.0.2.15 and the destination IP address is 80.244.178.150. Additionally, a simple display filter (tcp && !http) makes Wireshark display fewer packets and makes the output less cluttered and therefore easier to read:
+
+![](https://static.packt-cdn.com/products/9781787125643/graphics/assets/4cd7d321-edd4-4d49-8713-bc9cea9535f6.png)
+
+The TCP handshake!
+
+The same information can be seen in text format using tshark(1):
+
+```markup
+$ tshark -r handshake.pcap -Y '(tcp.flags.syn==1 ) || (tcp.flags == 0x0010 && tcp.seq==1 && tcp.ack==1)'
+       18   5.144264    10.0.2.15 → 80.244.178.150 TCP 74 59897 → 80 [SYN] Seq=0 Win=29200 Len=0 MSS=1460 SACK_PERM=1 TSval=1585402 TSecr=0 WS=128
+       19   5.236792 80.244.178.150 → 10.0.2.15    TCP 60 80 → 59897 [SYN, ACK] Seq=0 Ack=1 Win=65535 Len=0 MSS=1460
+       20   5.236833    10.0.2.15 → 80.244.178.150 TCP 54 59897 → 80 [ACK] Seq=1 Ack=1 Win=29200 Len=0
+```
+
+The \-r parameter followed by an existing filename allows you to replay a previously captured data file on your screen, whereas a more complex display filter, which is defined after the \-Y parameter, does the rest of the job!
+
+You can learn more about Wireshark at [https://www.wireshark.org/](https://www.wireshark.org/) and by looking at its documentation at [https://www.wireshark.org/docs/](https://www.wireshark.org/docs/).
+
+# About the netcat utility
+
+There are times that you will need to test a TCP/IP client or a TCP/IP server: the netcat(1) utility can help you with that by playing the role of the client or server in a TCP or UDP application.
+
+You can use netcat(1) as a client for a TCP service that runs on a machine with the 192.168.1.123 IP address and listens to port number 1234, as follows:
+
+```markup
+$ netcat 192.168.1.123 1234
+```
+
+Similarly, you can use netcat(1) as a client for a UDP service that runs on a Unix machine named amachine.com and listens to port number 2345, as shown here:
+
+```markup
+$ netcat -vv -u amachine.com 2345
+```
+
+The \-l option tells netcat(1) to listen for incoming connections, which makes netcat(1) to act as a TCP or UDP server. If you try to use netcat(1) as a server with a port that is already in use, you will get the following output:
+
+```markup
+$ netcat -vv -l localhost -p 80
+Can't grab 0.0.0.0:80 with bind : Permission denied
+```
+
+Just Imagine
+
+# The net Go standard package
+
+The most useful Go package for creating TCP/IP applications is the net Go standard package. The net.Dial() function is used for connecting to a network as a client, and the net.Listen() function is used for accepting connections as a server. The first parameter of both functions is the network type, but this is where the similarities end.
+
+For the net.Dial() function, the network type can be one of tcp, tcp4 (IPv4-only), tcp6 (IPv6-only), udp, udp4 (IPv4-only), udp6 (IPv6-only), ip, ip4 (IPv4-only), ip6 (IPv6-only), Unix, Unixgram, or Unixpacket. For the net.Listen() function, the first parameter can be one of tcp, tcp4, tcp6, Unix, or Unixpacket.
+
+The return value of the net.Dial() function is of the net.Conn interface type, which implements the io.Reader and io.Writer interfaces! This means that you already know how to access the variables of the net.Conn interface!
+
+So, although the way you create a network connection is different from the way you create a text file, their access methods are the same because the net.Conn interface implements the io.Reader and io.Writer interfaces. Therefore, as network connections are treated as files, you might need to review _[](https://subscription.imaginedevops.io/book/programming/9781787125643/6)_[Chapter 6](https://subscription.imaginedevops.io/book/programming/9781787125643/6)_,_ _File Input and Output_, at this moment.
+
+Just Imagine
+
+# Unix sockets revisited
+
+Back in _[](https://subscription.imaginedevops.io/book/programming/9781787125643/8)_[Chapter 8](https://subscription.imaginedevops.io/book/programming/9781787125643/8)_,_ _Processes and Signals_, we talked a little about Unix sockets and presented a small Go program that was acting as a Unix socket client. This section will also create a Unix socket server to make things even clearer. However, the Go code of the Unix socket client will be also explained here in more detail and will be enriched with error handling code.
+
+# A Unix socket server
+
+The Unix socket server will act as an Echo server, which means that it will send the received message back to the client. The name of the program will be socketServer.go and it will be presented to you in four parts.
+
+The first part of socketServer.go is the following:
 
 ```markup
 package main 
  
 import ( 
    "fmt" 
-   "time" 
-) 
- 
-func namedFunction() { 
-   time.Sleep(10000 * time.Microsecond) 
-   fmt.Println("Printing from namedFunction!") 
-} 
-```
-
-Apart from the expected package and import statements, you can see the implementation of a function named namedFunction() that sleeps for a while before printing a message on the screen.
-
-The second part of aGoroutine.go contains the following Go code:
-
-```markup
-func main() { 
-   fmt.Println("Chapter 09 - Goroutines.") 
-   go namedFunction() 
-```
-
-Here, you create a goroutine that executes the namedFunction() function. The last part of this naive program is the following:
-
-```markup
-   go func() { 
-         fmt.Println("An anonymous function!") 
-   }() 
- 
-   time.Sleep(10000 * time.Microsecond) 
-   fmt.Println("Exiting...") 
-} 
-```
-
-Here, you create another goroutine that executes an anonymous function that contains a single fmt.Println() statement.
-
-As you can see, goroutines that run this way are totally isolated from each other and cannot exchange any kind of data, which is not always the operational style that is desired.
-
-If you forget to call the time.Sleep() function in the main() function, or if time.Sleep() sleeps for a small amount of time, then main() will finish too early and the two goroutines will not have enough time to start and therefore finish their jobs; as a result, you will not see all the expected output on your screen!
-
-Executing aGoroutine.go will generate the following output:
-
-```markup
-$ go run aGoroutine.go
-Chapter 09 - Goroutines.
-Printing from namedFunction!
-Exiting... 
-```
-
-# Creating multiple goroutines
-
-This subsection will show you how to create many goroutines and the problems that arise from having to handle more goroutines. The name of the program will be moreGoroutines.go and will be presented in three parts.
-
-The first part of moreGoroutines.go is the following:
-
-```markup
-package main 
- 
-import ( 
-   "fmt" 
-   "time" 
-) 
-```
-
-The second part of the program has the following Go code:
-
-```markup
-func main() { 
-   fmt.Println("Chapter 09 - Goroutines.") 
- 
-   for i := 0; i < 10; i++ { 
-         go func(x int) { 
-               time.Sleep(10) 
-               fmt.Printf("%d ", x) 
-         }(i) 
-   } 
-```
-
-This time, the anonymous function takes a parameter named x, which has the value of the i variable. The for loop that uses the i variable creates ten goroutines, one by one.
-
-The last part of the program is the following:
-
-```markup
-   time.Sleep(10000) 
-   fmt.Println("Exiting...") 
-} 
-```
-
-Once again, if you put a smaller value as the parameter to time.Sleep(), you will see different results when you execute the program.
-
-Executing moreGoroutines.go will generate a somehow strange output:
-
-```markup
-$ go run moreGoroutines.go
-Chapter 09 - Goroutines.
-1 7 Exiting...
-2 3
-```
-
-However, the big surprise comes when you execute moreGoroutines.go multiple times:
-
-```markup
-$ go run moreGoroutines.go
-Chapter 09 - Goroutines.
-Exiting...
-$ go run moreGoroutines.go
-Chapter 09 - Goroutines.
-3 1 0 9 2 Exiting...
-4 5 6 8 7
-$ go run moreGoroutines.go
-Chapter 09 - Goroutines.
-2 0 1 8 7 3 6 5 Exiting...
-4
-```
-
-As you can see, all previous outputs of the program are different from the first one! So, not only the output is not coordinated and there is not always enough time for all goroutines to get executed; you cannot be sure about the order the goroutines will get executed. However, although you cannot do anything about the latter problem because the order that goroutines get executed depends on various parameters that the developer cannot control, the next subsection will teach you how to synchronize goroutines and give them enough time to finish without having to call time.Sleep().
-
-# Waiting for goroutines to finish their jobs
-
-This subsection will demonstrate to you the correct way to make a calling function that wait for its goroutines to finish their jobs. The name of the program will be waitGR.go and will be presented in four parts; the first part is the following:
-
-```markup
-package main 
- 
-import ( 
-   "fmt" 
-   "sync" 
-) 
-```
-
-There is nothing special here apart from the absence of the time package and the addition of the sync package.
-
-The second part has the following Go code:
-
-```markup
-func main() { 
-   fmt.Println("Waiting for Goroutines!") 
- 
-   var waitGroup sync.WaitGroup 
-   waitGroup.Add(10) 
-```
-
-Here, you create a new variable with a type of sync.WaitGroup, which waits for a group of goroutines to finish. The number of goroutines that belong to that group is defined by one or multiple calls to the sync.Add() function.
-
-Calling sync.Add() before the Go statement in order to prevent race conditions is important.
-
-Additionally, the sync.Add(10) call tells our program that we will wait for ten goroutines to finish.
-
-The third part of the program is the following:
-
-```markup
-   var i int64 
-   for i = 0; i < 10; i++ { 
- 
-         go func(x int64) { 
-               defer waitGroup.Done() 
-               fmt.Printf("%d ", x) 
-         }(i) 
-   } 
-```
-
-Here, you create the desired number of goroutines using a for loop, but you could have used multiple sequential Go statements. When each goroutine finishes its job, the sync.Done() function is executed: the use of the defer keyword right after the function definition tells the anonymous function to automatically call sync.Done() just before it finishes.
-
-The last part of waitGR.go is the following:
-
-```markup
-   waitGroup.Wait() 
-   fmt.Println("\nExiting...") 
-} 
-```
-
-The good thing here is that there is no need to call time.Sleep() because sync.Wait() does the necessary waiting for us.
-
-Once again, it should be noted here that you should not make any assumptions about the order the goroutines will get executed in which is also verified by the following output:
-
-```markup
-$ go run waitGR.go
-Waiting for Goroutines!
-9 0 5 6 7 8 2 1 3 4
-Exiting...
-$ go run waitGR.go
-Waiting for Goroutines!
-9 0 5 6 7 8 3 1 2 4
-Exiting...
-$ go run waitGR.go
-Waiting for Goroutines!
-9 5 6 7 8 1 0 2 3 4
-Exiting...
-```
-
-If you call waitGroup.Add() more times than needed, you will get the following error message when you execute waitGR.go:
-
-```markup
-Waiting for Goroutines!
-fatal error: all goroutines are asleep - deadlock!
-    
-goroutine 1 [semacquire]:
-sync.runtime_Semacquire(0xc42000e28c)
-      /usr/local/Cellar/go/1.8.3/libexec/src/runtime/sema.go:47 +0x34
-sync.(*WaitGroup).Wait(0xc42000e280)
-      /usr/local/Cellar/go/1.8.3/libexec/src/sync/waitgroup.go:131 +0x7a
-main.main()
-      /Users/mtsouk/ch/ch9/code/waitGR.go:22 +0x13c
-exit status 2
-9 0 1 2 6 7 8 3 4 5
-```
-
-This happens because when you tell your program to wait for n+1 goroutines by calling sync.Add(1) n+1 times, your program cannot have only n goroutines (or less)! Putting it simply, this will make sync.Wait() to wait indefinitely for one or more goroutines to call sync.Done() without any luck, which is obviously a deadlock situation that prevents your program from finishing.
-
-# Creating a dynamic number of goroutines
-
-This time, the number of goroutines that will be created will be given as a command-line argument: the name of the program will be dynamicGR.go and will be presented in four parts.
-
-The first part of dynamicGR.go is the following:
-
-```markup
-package main 
- 
-import ( 
-   "fmt" 
+   "net" 
    "os" 
-   "path/filepath" 
-   "strconv" 
-   "sync" 
 ) 
 ```
 
-The second part of dynamicGR.go contains the following Go code:
+The second part of the Unix socket server is the following:
 
 ```markup
-func main() { 
-   if len(os.Args) != 2 { 
-         fmt.Printf("usage: %s integer\n",filepath.Base(os.Args[0])) 
-         os.Exit(1) 
-   } 
+func echoServer(c net.Conn) { 
+   for { 
+         buf := make([]byte, 1024) 
+         nr, err := c.Read(buf) 
+         if err != nil { 
+               return 
+         } 
  
-   numGR, _ := strconv.ParseInt(os.Args[1], 10, 64) 
-   fmt.Printf("Going to create %d goroutines.\n", numGR) 
-   var waitGroup sync.WaitGroup 
- 
-   var i int64 
-   for i = 0; i < numGR; i++ { 
-         waitGroup.Add(1) 
-```
-
-As you can see, the waitGroup.Add(1) statement is called just before you create a new goroutine.
-
-The third part of the Go code of dynamicGR.go is the following:
-
-```markup
-         go func(x int64) { 
-               defer waitGroup.Done() 
-               fmt.Printf(" %d ", x) 
-         }(i) 
+         data := buf[0:nr] 
+         fmt.Printf("->: %v\n", string(data)) 
+         _, err = c.Write(data) 
+         if err != nil { 
+               fmt.Println(err) 
+         } 
    } 
-```
-
-In the preceding part, each simplistic goroutine is created.
-
-The last part of the program is the following:
-
-```markup
-   waitGroup.Wait() 
-   fmt.Println("\nExiting...") 
 } 
 ```
 
-Here, you just tell the program to wait for all goroutines to finish using the waitGroup.Wait() statement.
+This is where the function that serves incoming connections is implemented.
 
-The execution of dynamicGR.go requires an integer parameter, which is the number of goroutines you want to create:
-
-```markup
-$ go run dynamicGR.go 15
-Going to create 15 goroutines.
- 0  2  4  1  3  5  14  10  8  9  12  11  6  13  7
-Exiting...
-$ go run dynamicGR.go 15
-Going to create 15 goroutines.
- 5  3  14  4  10  6  7  11  8  9  12  2  13  1  0
-Exiting...
-$ go run dynamicGR.go 15
-Going to create 15 goroutines.
- 4  2  3  6  5  10  9  7  0  12  11  1  14  13  8
-Exiting...
-```
-
-As you can imagine, the more goroutines you want to create, the more diverse outputs you will have because there is no way to control the order that the goroutines of a program are going to be executed.
-
-# About channels
-
-A **channel**, putting it simply, is a communication mechanism that allows goroutines to exchange data. However, some rules exist here. First, each channel allows the exchange of a particular data type, which is also called the **element type** of the channel, and second, for a channel to operate properly, you will need to use some Go code to receive what is sent via the channel.
-
-You should declare a new channel using the chan keyword and you can close a channel using the close() function. Additionally, as each channel has its own type, the developer should define it.
-
-Last, a very important detail: when you are using a channel as a function parameter, you can specify its direction, that is, whether it will be used for writing or reading. In my opinion, if you know the purpose of a channel in advance, use this capability because it will make your program more robust as well as safer: otherwise, just do not define the purpose of the channel function parameter. As a result, if you declare that a channel function parameter will be used for reading only and you try to write to it, you will get an error message that will most likely save you from nasty bugs.
-
-The error message you will get when you try to read from a write channel will be similar to the following:
+The third portion of the program has the following Go code:
 
 ```markup
-# command-line-arguments
-./writeChannel.go:13: invalid operation: <-c (receive from send-only type chan<- int)
+func main() { 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide a socket file.") 
+         os.Exit(100) 
+   } 
+   socketFile := arguments[1] 
+ 
+   l, err := net.Listen("unix", socketFile) 
+   if err != nil { 
+         fmt.Println(err) 
+os.Exit(100) 
+   } 
 ```
 
-# Writing to a channel
+Here, you can see the use of the net.Listen() function with the unix argument for creating the desired socket file.
 
-In this subsection, you will learn how to write to a channel. The presented program will be called writeChannel.go and you will see it in three parts.
+Finally, the last part contains the following Go code:
 
-The first part has the expected preamble:
+```markup
+   for { 
+         fd, err := l.Accept() 
+         if err != nil { 
+               fmt.Println(err) 
+               os.Exit(100) 
+         } 
+         go echoServer(fd) 
+   } 
+} 
+```
+
+As you can see, each connection is first handled by the Accept() function and served by its own goroutine.
+
+When socketServer.go serves a client, it generates the following output:
+
+```markup
+$ go run socketServer.go /tmp/aSocket
+->: Hello Server!
+```
+
+If you cannot create the desired socket file, for instance, if it already exists, you will get an error message similar to the following:
+
+```markup
+$ go run socketServer.go /tmp/aSocket
+listen unix /tmp/aSocket: bind: address already in use
+exit status 100
+```
+
+# A Unix socket client
+
+The name of the Unix socket client program is socketClient.go and will be presented in four parts.
+
+The first part of the utility contains the expected preamble:
 
 ```markup
 package main 
  
 import ( 
    "fmt" 
+   "io" 
+   "log" 
+   "net" 
+   "os" 
    "time" 
 ) 
 ```
 
-As you can understand, the use of channels does not require any extra Go packages.
-
-The second part of writeChannel.go is the following:
+There is nothing special here, just the required Go packages. The second portion contains the definition of a Go function:
 
 ```markup
-func writeChannel(c chan<- int, x int) { 
-   fmt.Println(x) 
-   c <- x 
-   close(c) 
-   fmt.Println(x) 
+func readSocket(r io.Reader) { 
+   buf := make([]byte, 1024) 
+   for { 
+         n, err := r.Read(buf[:]) 
+         if err != nil { 
+               fmt.Println(err) 
+               return 
+         } 
+         fmt.Println("-> ", string(buf[0:n])) 
+   } 
 } 
 ```
 
-Although the writeChannel() function writes to the channel, the data will be lost because currently nobody reads the channel in the program.
+The readSocket() function reads the data from a socket file using Read(). Note that, although socketClient.go just reads from the socket file, the socket is bisectional, which means that you can also write to it.
 
-The last part of the program contains the following Go code:
+The third part has the following Go code:
 
 ```markup
 func main() { 
-   c := make(chan int) 
-   go writeChannel(c, 10) 
-   time.Sleep(2 * time.Second) 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide a socket file.") 
+         os.Exit(100) 
+   } 
+   socketFile := arguments[1] 
+ 
+   c, err := net.Dial("unix", socketFile) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+   defer c.Close() 
+```
+
+The net.Dial() function with the right first argument allows you to connect to the socket file before you try to read from it.
+
+The last part of socketClient.go is the following:
+
+```markup
+   go readSocket(c) 
+   for { 
+         _, err := c.Write([]byte("Hello Server!")) 
+         if err != nil { 
+               fmt.Println(err) 
+               os.Exit(100) 
+         } 
+         time.Sleep(1 * time.Second) 
+   } 
 } 
 ```
 
-Here, you can see the definition of a channel variable named c with the help of the chan keyword that is used for the int data.
-
-Executing writeChannel.go will create the following output:
+In order to use socketClient.go, you must have another program dealing with the Unix socket file, which, in this case will be socketServer.go. So, if socketServer.go is already running, you will get the following output from socketClient.go:
 
 ```markup
- $ go run writeChannel.go
- 10
+$ go run socketClient.go /tmp/aSocket
+->: Hello Server!
 ```
 
-This is not what you expected to see! The cause of this unpredicted output is that the second fmt.Println(x) statement was not executed. The reason for this is pretty simple: the c <- x statement is blocking the execution of the rest of the writeChannel() function because nobody is reading from the c channel.
+If you do not have enough Unix file permissions to read the desired socket file, then socketClient.go will fail with the following error message:
 
-# Reading from a channel
+```markup
+$ go run socketClient.go /tmp/aSocket
+dial unix /tmp/aSocket: connect: permission denied
+exit status 100
+```
 
-This subsection will improve the Go code of writeChannel.go by allowing you to read from a channel. The presented program will be called readChannel.go and be presented in four parts.
+Similarly, if the socket file you want to read does not exist, socketClient.go will fail with the following error message:
+
+```markup
+$ go run socketClient.go /tmp/aSocket
+dial unix /tmp/aSocket: connect: no such file or directory
+exit status 100
+```
+
+Just Imagine
+
+# Performing DNS lookups
+
+There exist many types of DNS lookups, but two of them are the most popular. In the first type, you want to go from an IP address to a domain name and in the second type you want to go from a domain name to an IP address.
+
+The following output shows an example of the first type of DNS lookup:
+
+```markup
+$ host 109.74.193.253
+253.193.74.109.in-addr.arpa domain name pointer li140-253.members.linode.com.
+```
+
+The following output shows three examples of the second type of DNS lookup:
+
+```markup
+$ host www.mtsoukalos.eu
+www.mtsoukalos.eu has address 109.74.193.253
+$ host www.highiso.net
+www.highiso.net has address 109.74.193.253
+$ host -t a cnn.com
+cnn.com has address 151.101.1.67
+cnn.com has address 151.101.129.67
+cnn.com has address 151.101.65.67
+cnn.com has address 151.101.193.67
+```
+
+As you just saw in the aforementioned examples, an IP address can serve many hosts and a host name can have many IP addresses.
+
+The Go standard library provides the net.LookupHost() and net.LookupAddr() functions that can answer DNS queries for you. However, none of them allow you to define the DNS server you want to query. While using standard Go libraries is ideal, there exist external Go libraries that allow you to choose the DNS server you desire, which is mainly required when troubleshooting DNS configurations.
+
+# Using an IP address as input
+
+The name of the Go utility that will return the hostname of an IP address will be lookIP.go and will be presented in three parts.
 
 The first part is the following:
 
@@ -415,191 +354,133 @@ package main
  
 import ( 
    "fmt" 
-   "time" 
+   "net" 
+   "os" 
 ) 
 ```
 
-The second part of readChannel.go has the following Go code:
-
-```markup
-func writeChannel(c chan<- int, x int) { 
-   fmt.Println(x) 
-   c <- x 
-   close(c) 
-   fmt.Println(x) 
-} 
-```
-
-Once again, note that if nobody collects the data written to a channel, the function that sent it will stall while waiting for someone to read its data. However, in [Chapter 10](https://subscription.imaginedevops.io/book/programming/9781787125643/10)_,_ _Goroutines - Advanced Features_, you will see a very pretty solution to this problem.
-
-The third part has the following Go code:
+The second part has the following Go code:
 
 ```markup
 func main() { 
-   c := make(chan int) 
-   go writeChannel(c, 10) 
-   time.Sleep(2 * time.Second) 
-   fmt.Println("Read:", <-c) 
-   time.Sleep(2 * time.Second) 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide an IP address!") 
+         os.Exit(100) 
+   } 
+ 
+   IP := arguments[1] 
+   addr := net.ParseIP(IP) 
+   if addr == nil { 
+         fmt.Println("Not a valid IP address!") 
+         os.Exit(100) 
+   } 
 ```
 
-Here, the <-c statement in the fmt.Println() function is used for reading a single value from the channel: the same statement can be used for storing the value of a channel into a variable. However, if you do not store the value you read from a channel, it will be lost.
+The net.ParseIP() function allows you to verify the validity of the given IP address and is pretty handy for catching illegal IP addresses such as 288.8.8.8 and 8.288.8.8.
 
-The last part of readChannel.go is the following:
+The last part of the utility is the following:
 
 ```markup
-   _, ok := <-c 
-   if ok { 
-         fmt.Println("Channel is open!") 
-   } else { 
-         fmt.Println("Channel is closed!") 
+   hosts, err := net.LookupAddr(IP) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+ 
+   for _, hostname := range hosts { 
+         fmt.Println(hostname) 
    } 
 } 
 ```
 
-Here, you see a technique that allows you to find out whether the channel that you want to read from is closed or not. However, if the channel was open, the presented Go code will discard the read value of the channel because of the use of the \_ character in the assignment.
+As you can see, the net.LookupAddr() function returns a string slice with the list of names that match the given IP address.
 
-Executing readChannel.go will create the following output:
+Executing lookIP.go will generate the following output:
 
 ```markup
-$ go run readChannel.go
-10
-Read: 10
-10
-Channel is closed!
-$ go run readChannel.go
-10
-10
-Read: 10
-Channel is closed!
+$ go run lookIP.go 288.8.8.8
+Not a valid IP address!
+exit status 100
+$ go run lookIP.go 8.8.8.8
+google-public-dns-a.google.com.
 ```
 
-# Explaining h1s.go
+You can validate the output of dnsLookup.go using host(1) or dig(1):
 
-In [Chapter 8](https://subscription.imaginedevops.io/book/programming/9781787125643/8)_,_ _Processes and Signals_, you saw how Go handles Unix signals using many examples including h1s.go. However, now that you understand more about goroutines and channels, it is time to explain the Go code of h1s.go a little more.
+```markup
+$ host 8.8.8.8
+8.8.8.8.in-addr.arpa domain name pointer google-public-dns-a.google.com.
+```
 
-As you already know that h1s.go uses channels and goroutines, it should be clear now that the anonymous function that is executed as a goroutine reads from the sigs channel using an infinite for loop. This means that each time there is a signal that interests us, the goroutine will read it from the sigs channel and handle it.
+# Using a host name as input
 
-Just Imagine
-
-# Pipelines
-
-Go programs rarely use a single channel. One very common technique that uses multiple channels is called a **pipeline**. So, a pipeline is a method for connecting goroutines so that the output of a goroutine becomes the input of another with the help of channels. The benefits of using pipelines are as follows:
-
--   One of the benefits you get from using pipelines is that there is a constant flow in your program because nobody waits for everything to be completed in order to start the execution of goroutines and channels of the program
--   Additionally, you are using less variables and therefore less memory space because you do not have to save everything
--   Last, the use of pipelines simplifies the design of the program and improves its maintainability
-
-The code of pipelines.go, which works with a pipeline of integers, will be presented in five parts; the first part is the following:
+The name of this DNS utility will be lookHost.go and will be presented in three parts. The first part of the lookHost.go utility is the following:
 
 ```markup
 package main 
  
 import ( 
    "fmt" 
+   "net" 
    "os" 
-   "path/filepath" 
-   "strconv" 
 ) 
 ```
 
-The second part contains the following Go code:
-
-```markup
-func genNumbers(min, max int64, out chan<- int64) { 
- 
-   var i int64 
-   for i = min; i <= max; i++ { 
-         out <- i 
-   } 
-   close(out) 
-} 
-```
-
-Here, you define a function that takes three arguments: two integers and one output channel. The output channel will be used for writing data that will be read in another function: this is how a pipeline is created.
-
-The third part of the program is the following:
-
-```markup
-func findSquares(out chan<- int64, in <-chan int64) { 
-   for x := range in { 
-         out <- x * x 
-   } 
-   close(out) 
-} 
-```
-
-This time, the function takes two arguments that are both channels. However, out is an output channel, whereas in is an input channel used for reading data.
-
-The fourth part contains the definition of another function:
-
-```markup
-func calcSum(in <-chan int64) { 
-   var sum int64 
-   sum = 0 
-   for x2 := range in { 
-         sum = sum + x2 
-   } 
-   fmt.Printf("The sum of squares is %d\n", sum) 
-} 
-```
-
-The last function of pipelines.go takes just one argument, which is a channel used for reading data.
-
-The last part of pipelines.go is the implementation of the main() function:
+The second part of the program has the following Go code:
 
 ```markup
 func main() { 
-   if len(os.Args) != 3 { 
-         fmt.Printf("usage: %s n1 n2\n", filepath.Base(os.Args[0])) 
-         os.Exit(1) 
-   } 
-   n1, _ := strconv.ParseInt(os.Args[1], 10, 64) 
-   n2, _ := strconv.ParseInt(os.Args[2], 10, 64) 
- 
-   if n1 > n2 { 
-         fmt.Printf("%d should be smaller than %d\n", n1, n2) 
-         os.Exit(10) 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide an argument!") 
+         os.Exit(100) 
    } 
  
-   naturals := make(chan int64) 
-   squares := make(chan int64) 
-   go genNumbers(n1, n2, naturals) 
-   go findSquares(squares, naturals) 
-   calcSum(squares) 
+   hostname := arguments[1] 
+   IPs, err := net.LookupHost(hostname) 
+```
+
+Similarly, the net.LookupHost() function also returns a string slice with the desired information.
+
+The third part of the program has the following code, which is for error checking and printing the output of net.LookupHost():
+
+```markup
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+ 
+   for _, IP := range IPs { 
+         fmt.Println(IP) 
+   } 
 } 
 ```
 
-Here, the main() function firstly reads its two command-line arguments and creates the necessary channel variables (naturals and squares). Then, it calls the functions of the pipeline: note that the last function of the channel is not being executed as a goroutine.
-
-The following figure shows a graphical representation of the pipeline used in pipelines.go in order to the way this particular pipeline works:
-
-![](https://static.packt-cdn.com/products/9781787125643/graphics/assets/e6d2874d-12a1-4441-b5a1-f2af5c0056fe.png)
-
-A graphical representation of the pipeline structure used in pipelines.go
-
-Running pipelines.go generates the following output:
+Executing lookHost.go will generate the following output:
 
 ```markup
-$ go run pipelines.go
-usage: pipelines n1 n2
-exit status 1
-$ go run pipelines.go 3 2
-3 should be smaller than 2
-exit status 10
-$ go run pipelines.go 3 20
-The sum of squares is 2865
-$ go run pipelines.go 1 20
-The sum of squares is 2870
-$ go run pipelines.go 20 20
-The sum of squares is 400
+$ go run lookHost.go www.google
+lookup www.google: no such host
+exit status 100
+$ go run lookHost.go www.google.com
+2a00:1450:4001:81f::2004
+172.217.16.164
 ```
 
-Just Imagine
+The first line of the output is the IPv6 address, whereas the second output line is the IPv4 address of www.google.com.
 
-# A better version of wc.go
+You can verify the operation of lookHost.go by comparing its output with the output of the host(1) utility:
 
-As we talked about in _[](https://subscription.imaginedevops.io/book/programming/9781787125643/6)_[Chapter 6](https://subscription.imaginedevops.io/book/programming/9781787125643/6)_,_ _File Input and Output_, in this chapter, you will learn how to create a version of wc.go that uses goroutines. The name of the new utility will be dWC.go and will be presented in four parts. Note that the current version of dWC.go considers each command-line argument as a file.
+```markup
+$ host www.google.com
+www.google.com has address 172.217.16.164
+www.google.com has IPv6 address 2a00:1450:4001:81a::2004
+```
+
+# Getting NS records for a domain
+
+This subsection will present an additional kind of DNS lookup that returns the domain name servers for a given domain. This is very handy for troubleshooting DNS-related problems and finding out the status of a domain. The presented program will be named lookNS.go and will be presented in three parts.
 
 The first part of the utility is the following:
 
@@ -607,117 +488,90 @@ The first part of the utility is the following:
 package main 
  
 import ( 
-   "bufio" 
    "fmt" 
-   "io" 
+   "net" 
    "os" 
-   "path/filepath" 
-   "regexp" 
-   "sync" 
 ) 
 ```
 
 The second part has the following Go code:
 
 ```markup
-func count(filename string) { 
-   var err error 
-   var numberOfLines int = 0 
-   var numberOfCharacters int = 0 
-   var numberOfWords int = 0 
- 
-   f, err := os.Open(filename) 
-   if err != nil { 
-         fmt.Printf("%s\n", err) 
-         return 
-   } 
-   defer f.Close() 
- 
-   r := bufio.NewReader(f) 
-   for { 
-         line, err := r.ReadString('\n') 
- 
-         if err == io.EOF { 
-               break 
-         } else if err != nil { 
-               fmt.Printf("error reading file %s\n", err) 
-         } 
-         numberOfLines++ 
-         r := regexp.MustCompile("[^\\s]+") 
-         for range r.FindAllString(line, -1) { 
-               numberOfWords++ 
-         } 
-         numberOfCharacters += len(line) 
-   } 
- 
-   fmt.Printf("\t%d\t", numberOfLines) 
-   fmt.Printf("%d\t", numberOfWords) 
-   fmt.Printf("%d\t", numberOfCharacters) 
-   fmt.Printf("%s\n", filename) 
-} 
-```
-
-The count() function does all the processing without returning any information to the main() function: it just prints the lines, words, and characters of its input file and exits. Although the current implementation of the count() function does the desired job, it is not the correct way to design a program because there is no way to control its output of the program.
-
-The third part of the utility is the following:
-
-```markup
 func main() { 
-   if len(os.Args) == 1 { 
-         fmt.Printf("usage: %s <file1> [<file2> [... <fileN]]\n", 
-               filepath.Base(os.Args[0])) 
-         os.Exit(1) 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide a domain!") 
+         os.Exit(100) 
    } 
+ 
+   domain := arguments[1] 
+ 
+   NSs, err := net.LookupNS(domain) 
 ```
 
-The last part of dWC.go is the following:
+The net.LookupNS() function does all the work for us by returning a slice of NS elements.
+
+The last part of the code is mainly for printing the results:
 
 ```markup
-   var waitGroup sync.WaitGroup 
-   for _, filename := range os.Args[1:] { 
-         waitGroup.Add(1) 
-         go func(filename string) { 
-               count(filename) 
-               defer waitGroup.Done() 
-         }(filename) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
    } 
-   waitGroup.Wait() 
+ 
+   for _, NS := range NSs { 
+         fmt.Println(NS.Host) 
+   } 
 } 
 ```
 
-As you can see, each input file is being processed by a different goroutine. As expected, you cannot make any assumptions about the order the input files will be processed.
-
-Executing dWC.go will generate the following output:
+Executing lookNS.go will generate the following output:
 
 ```markup
-$ go run dWC.go /tmp/swtag.log /tmp/swtag.log doesnotExist
-open doesnotExist: no such file or directory
-          48    275   3571  /tmp/swtag.log
-          48    275   3571  /tmp/swtag.log
-  
+$ go run lookNS.go mtsoukalos.eu
+ns5.linode.com.
+ns2.linode.com.
+ns3.linode.com.
+ns1.linode.com.
+ns4.linode.com.
 ```
 
-Here, you can see that although the doesnotExist filename is the last command-line argument, it is the first one in the output of dWC.go!
-
-Although dWC.go uses goroutines, there is no cleverness in it because goroutines run without communicating with each other and without performing any other tasks. Additionally, the output might get scrambled because there is no guarantee that the fmt.Printf() statements of the count() function will not get interrupted.
-
-As a result, the forthcoming section as well as some of the techniques that will be presented in [Chapter 10](https://subscription.imaginedevops.io/book/programming/9781787125643/10)_,_ _Goroutines - Advanced Features_, will improve dWC.go.
-
-# Calculating totals
-
-The current version of dWC.go cannot calculate totals, which can be easily solved by processing the output of dWC.go with awk:
+The reason that the following query will fail is that www.mtsoukalos.eu is not a domain but a single host, which means that it has no NS records associated with it:
 
 ```markup
-$ go run dWC.go /tmp/swtag.log /tmp/swtag.log | awk '{sum1+=$1; sum2+=$2; sum3+=$3} END {print "\t", sum1, "\t", sum2, "\t", sum3}'
-       96    550   7142
-  
+$ go run lookNS.go www.mtsoukalos.eu
+lookup www.mtsoukalos.eu on 8.8.8.8:53: no such host
+exit status 100
 ```
 
-Still, this is far from being perfect and elegant!
+You can use the host(1) utility to verify the previous output:
 
-The main reason that the current version of dWC.go cannot calculate totals is that its goroutines have no way of communicating with each other. This can be easily solved with the help of channels and pipelines. The new version of dWC.go will be called dWCtotal.go and will be presented in five parts.
+```markup
+$ host -t ns mtsoukalos.eu
+mtsoukalos.eu name server ns5.linode.com.
+mtsoukalos.eu name server ns4.linode.com.
+mtsoukalos.eu name server ns3.linode.com.
+mtsoukalos.eu name server ns1.linode.com.
+mtsoukalos.eu name server ns2.linode.com.
+$ host -t ns www.mtsoukalos.eu
+www.mtsoukalos.eu has no NS record
+```
 
-The first part of dWCtotal.go is the following:
+Just Imagine
+
+# Developing a simple TCP server
+
+This section will develop a TCP server that implements the **Echo** service. The Echo service is usually implemented using the UDP protocol due to its simplicity, but it can also be implemented with TCP. The Echo service usually uses port number 7, but our implementation will use other port numbers:
+
+```markup
+$ grep echo /etc/services
+echo        7/tcp
+echo        7/udp
+```
+
+The TCPserver.go file will hold the Go code of this section and will be presented in six parts. For reasons of simplicity, each connection is handled inside the main() function without calling a separate function. However, this is not the recommended practice.
+
+The first part contains the expected preamble:
 
 ```markup
 package main 
@@ -725,199 +579,900 @@ package main
 import ( 
    "bufio" 
    "fmt" 
-   "io" 
+   "net" 
    "os" 
-   "path/filepath" 
-   "regexp" 
+   "strings" 
 ) 
- 
-type File struct { 
-   Filename   string 
-   Lines      int 
-   Words      int 
-   Characters int 
-   Error      error 
-} 
 ```
 
-Here, a new struct type is defined. The new structure is called File and has four fields and an additional field for keeping error messages. This is the correct way for a pipeline to circulate multiple values. One might argue that a better name for the File structure would have been Counts, Results, FileCounts, or FileResults.
-
-The second part of the program is the following:
-
-```markup
-func process(files []string, out chan<- File) { 
-   for _, filename := range files { 
-         var fileToProcess File 
-         fileToProcess.Filename = filename 
-         fileToProcess.Lines = 0 
-         fileToProcess.Words = 0 
-         fileToProcess.Characters = 0 
-         out <- fileToProcess 
-   } 
-   close(out) 
-} 
-```
-
-A better name of the process() function would have been beginProcess() or processResults(). You can try to make that change on your own throughout the dWCtotal.go program.
-
-The third part of dWCtotal.go has the following Go code:
-
-```markup
-func count(in <-chan File, out chan<- File) { 
-   for y := range in { 
-         filename := y.Filename 
-         f, err := os.Open(filename) 
-         if err != nil { 
-               y.Error = err 
-               out <- y 
-               continue 
-         } 
-         defer f.Close() 
-         r := bufio.NewReader(f) 
-         for { 
-               line, err := r.ReadString('\n') 
-               if err == io.EOF { 
-                     break 
-               } else if err != nil { 
-                     fmt.Printf("error reading file %s", err) 
-                     y.Error = err 
-                     out <- y 
-                     continue 
-               } 
-               y.Lines = y.Lines + 1 
-               r := regexp.MustCompile("[^\\s]+") 
-               for range r.FindAllString(line, -1) { 
-                     y.Words = y.Words + 1 
-               } 
-               y.Characters = y.Characters + len(line) 
-         } 
-         out <- y 
-   } 
-   close(out) 
-} 
-```
-
-Although the count() function still calculates the counts, it does not print them. It just sends the counts of lines, words, and characters as well as the filename to another channel using a struct variable of the File type.
-
-There exists one very important detail here, which is the last statement of the count() function: in order to properly end a pipeline, you should close all involved channels, starting from the first one. Otherwise, the execution of the program will fail with an error message similar to the following one:
-
-```markup
-fatal error: all goroutines are asleep - deadlock!
-```
-
-However, as far as closing the channels of a pipeline is concerned, you should also be careful about closing channels too early, especially when there are splits in a pipeline.
-
-The fourth part of the program contains the following Go code:
-
-```markup
-func calculate(in <-chan File) { 
-   var totalWords int = 0 
-   var totalLines int = 0 
-   var totalChars int = 0 
-   for x := range in { 
-         totalWords = totalWords + x.Words 
-         totalLines = totalLines + x.Lines 
-         totalChars = totalChars + x.Characters 
-         if x.Error == nil { 
-               fmt.Printf("\t%d\t", x.Lines) 
-               fmt.Printf("%d\t", x.Words) 
-               fmt.Printf("%d\t", x.Characters) 
-               fmt.Printf("%s\n", x.Filename) 
-         } 
-   } 
- 
-   fmt.Printf("\t%d\t", totalLines) 
-   fmt.Printf("%d\t", totalWords) 
-   fmt.Printf("%d\ttotal\n", totalChars) 
-} 
-```
-
-There is nothing special here: the calculate() function does the dirty job of printing the output of the program.
-
-The last part of dWCtotal.go is the following:
+The second part of the TCP server is the following:
 
 ```markup
 func main() { 
-   if len(os.Args) == 1 { 
-         fmt.Printf("usage: %s <file1> [<file2> [... <fileN]]\n", 
-               filepath.Base(os.Args[0])) 
-         os.Exit(1) 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide port number") 
+         os.Exit(100) 
    } 
- 
-   files := make(chan File)   values := make(chan File) 
- 
-   go process(os.Args[1:], files) 
-   go count(files, values) 
-   calculate(values) 
+```
+
+The third part of TCPserver.go contains the following Go code:
+
+```markup
+   PORT := ":" + arguments[1] 
+   l, err := net.Listen("tcp", PORT) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+   defer l.Close() 
+```
+
+What is important to remember here is that net.Listen() returns a Listener variable, which is a generic network listener for stream-oriented protocols. Additionally, the Listen() function can support more formats: check the documentation of the net package to find more information about that.
+
+The fourth part of the TCP server has the following Go code:
+
+```markup
+   c, err := l.Accept() 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+```
+
+Only after a successful call to Accept(), the TCP server can start interacting with TCP clients. Nonetheless, the current version of TCPserver.go has a very serious shortcoming: it can only serve a single TCP client, the first one that will connect to it.
+
+The fifth portion of the TCPserver.go code is the following:
+
+```markup
+   for { 
+         netData, err := bufio.NewReader(c).ReadString('\n') 
+         if err != nil { 
+               fmt.Println(err) 
+               os.Exit(100) 
+         } 
+```
+
+Here, you read data from your client using bufio.NewReader().ReadString(). The aforementioned call allows you to read your input line by line. Additionally, the for loop allows you to keep reading data from the TCP client for as long as you wish.
+
+The last part of the Echo TCP server is the following:
+
+```markup
+         fmt.Print("-> ", string(netData)) 
+         c.Write([]byte(netData)) 
+         if strings.TrimSpace(string(netData)) == "STOP" { 
+               fmt.Println("Exiting TCP server!") 
+               return 
+         } 
+   } 
 } 
 ```
 
-Since the files channel is only used for passing around filenames, it could have been a string channel instead of a File channel. However, this way the code is more consistent.
+The current version of TCPserver.go stops when it receives the STOP string as input. Although TCP servers do not usually terminate in that style, this is a pretty handy way to terminate a TCP server process that will only serve a single client!
 
-Now dWCtotal.go automatically generates totals even if it has to process just one file:
-
-```markup
-$ go run dWCtotal.go /tmp/swtag.log
-      48    275   3571  /tmp/swtag.log
-      48    275   3571  total
-$ go run dWCtotal.go /tmp/swtag.log /tmp/swtag.log doesNotExist
-      48    275   3571  /tmp/swtag.log
-      48    275   3571  /tmp/swtag.log
-      96    550   7142  total
-```
-
-Note that both dWCtotal.go and dWC.go implement the same core functionality, which is counting the words, characters, and lines of a file: it is the way the information is handled that is different because dWCtotal.go uses a pipeline and not isolated goroutines.
-
-[Chapter 10](https://subscription.imaginedevops.io/book/programming/9781787125643/10)_,_ _Goroutines - Advanced Features_, will use other techniques to implement the functionality of dWCtotal.go.
-
-# Doing some benchmarking
-
-In this section, we will compare the performance of wc.go from _[](https://subscription.imaginedevops.io/book/programming/9781787125643/6)_[Chapter 6](https://subscription.imaginedevops.io/book/programming/9781787125643/6)_,_ _File Input and Output__,_ with the performance of wc(1), dWC.go and dWCtotal.go. In order for the results to be more accurate, all three utilities will process relatively big files:
+Next, we will test TCPserver.go with netcat(1):
 
 ```markup
-$ wc /tmp/*.data
-  712804 3564024 9979897 /tmp/connections.data
-  285316  855948 4400685 /tmp/diskSpace.data
-  712523 1425046 8916670 /tmp/memory.data
- 1425500 2851000 5702000 /tmp/pageFaults.data
-  285658  840622 4313833 /tmp/uptime.data
- 3421801 9536640 33313085 total
-  
+$ go run TCPserver.go 1234
+-> Hi!
+-> STOP
+Exiting TCP server!
 ```
 
-So, the time(1) utility will measure the following commands:
+The netcat(1) part is the following:
 
 ```markup
-$ time wc /tmp/*.data /tmp/*.data
-$ time wc /tmp/uptime.data /tmp/pageFaults.data
-$ time ./dWC /tmp/*.data /tmp/*.data
-$ time ./dWC /tmp/uptime.data /tmp/pageFaults.data
-$ time ./dWCtotal /tmp/*.data /tmp/*.data
-$ time ./dWCtotal /tmp/uptime.data /tmp/pageFaults.data
-$ time ./wc /tmp/uptime.data /tmp/pageFaults.data
-$ time ./wc /tmp/*.data /tmp/*.data
+$ nc localhost 1234
+Hi!
+Hi!
+STOP
+STOP
 ```
 
-The following figure shows a graphical representation of the real field from the output of the time(1) utility when used to measure the aforementioned commands:
+Here, the first and third lines are our input, whereas the second and fourth lines are the responses from the Echo server.
 
-![](https://static.packt-cdn.com/products/9781787125643/graphics/assets/de995173-8729-4a8b-8960-775d6436074c.png)
+If you try to use an improper port number, TCPserver.go will generate the following error message and exit:
 
-Plotting the real field of the time(1) utility
+```markup
+$ go run TCPserver.go 123456
+listen tcp: address 123456: invalid port
+exit status 100
+```
 
-The original wc(1) utility is by far the fastest of all. Additionally, dWC.go is faster than both dWCtotal.go and wc.go. Apart from dWC.go, the remaining two Go versions have the same performance.
+Just Imagine
+
+# Developing a simple TCP client
+
+In this section, we will develop a TCP client named TCPclient.go. The port number the client will try to connect to as well as the server address will be given as command-line arguments to the program. The Go code of the TCP client will be presented in five parts; the first part is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "bufio" 
+   "fmt" 
+   "net" 
+   "os" 
+   "strings" 
+) 
+```
+
+The second part of TCPclient.go is the following:
+
+```markup
+func main() { 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide host:port.") 
+         os.Exit(100) 
+   } 
+```
+
+The third part of TCPclient.go has the following Go code:
+
+```markup
+   CONNECT := arguments[1] 
+   c, err := net.Dial("tcp", CONNECT) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+```
+
+Once again, you use the net.Dial() function to try to connect to the desired port of the desired TCP server.
+
+The fourth part of the TCP client is the following:
+
+```markup
+   for { 
+         reader := bufio.NewReader(os.Stdin) 
+         fmt.Print(">> ") 
+         text, _ := reader.ReadString('\n') 
+         fmt.Fprintf(c, text+"\n") 
+```
+
+Here, you read data from the user that you will send to the TCP server using fmt.Fprintf().
+
+The last part of TCPclient.go is the following:
+
+```markup
+         message, _ := bufio.NewReader(c).ReadString('\n') 
+         fmt.Print("->: " + message) 
+         if strings.TrimSpace(string(text)) == "STOP" { 
+               fmt.Println("TCP client exiting...") 
+               return 
+         } 
+   } 
+} 
+```
+
+In this part, you get data from the TCP server using bufio.NewReader().ReadString(). The reason for using the strings.TrimSpace() function is to remove any spaces and newline characters from the variable you want to compare with the static string (STOP).
+
+So, now it is time to verify that TCPclient.go works as expected using it to connect to TCPserver.go:
+
+```markup
+$ go run TCPclient.go localhost:1024
+>> 123
+->: 123
+>> Hello server!
+->: Hello server!
+>> STOP
+->: STOP
+TCP client exiting...
+```
+
+If no process listens to the specified TCP port at the specified host, then you will get an error message similar to the following:
+
+```markup
+$ go run TCPclient.go localhost:1024
+dial tcp [::1]:1024: getsockopt: connection refused
+exit status 100
+```
+
+# Using other functions for the TCP server
+
+In this subsection, we will develop the functionality of TCPserver.go using some slightly different functions. The name of the new TCP server will be TCPs.go and will be presented in four parts.
+
+The first part of TCPs.go is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "fmt" 
+   "net" 
+   "os" 
+) 
+```
+
+The second part of the TCP server is the following:
+
+```markup
+func main() { 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide a port number!") 
+         os.Exit(100) 
+   } 
+ 
+   SERVER := "localhost" + ":" + arguments[1] 
+```
+
+So far, there are no differences from the code of TCPserver.go.
+
+The differences start in the third part of TCPs.go, which is the following:
+
+```markup
+   s, err := net.ResolveTCPAddr("tcp", SERVER) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+ 
+   l, err := net.ListenTCP("tcp", s) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+```
+
+Here, you use the net.ResolveTCPAddr() and net.ListenTCP() functions. Is this version better than TCPserver.go? Not really. But the Go code might look a little clearer and this is a big advantage for some people. Additionally, net.ListenTCP() returns a TCPListener value that when used with net.AcceptTCP() instead of net.Accept() will return TCPConn, which offers more methods that allow you to change more socket options.
+
+The last part of TCPs.go has the following Go code:
+
+```markup
+   buffer := make([]byte, 1024) 
+ 
+   for { 
+         conn, err := l.Accept() 
+         n, err := conn.Read(buffer) 
+         if err != nil { 
+               fmt.Println(err) 
+               os.Exit(100) 
+         } 
+ 
+         fmt.Print("> ", string(buffer[0:n])) 
+         _, err = conn.Write(buffer) 
+ 
+         conn.Close() 
+         if err != nil { 
+               fmt.Println(err) 
+               os.Exit(100) 
+         } 
+   } 
+} 
+```
+
+There is nothing special here. You still use Accept() to get and process client requests. However, this version uses Read() to get the client data all at once, which is great when you do not have to process lots of input.
+
+The operation of TCPs.go is the same with the operation of TCPserver.go, so it will not be shown here.
+
+If you try to create a TCP server using an invalid port number, TCPs.go will generate an informative error message, as shown here:
+
+```markup
+$ go run TCPs.go 123456
+address 123456: invalid port
+exit status 100
+```
+
+# Using alternative functions for the TCP client
+
+Once again, we will implement TCPclient.go using some slightly different functions that are provided by the net Go standard package. The name of the new version will be TCPc.go and will be shown in four code segments.
+
+The first part is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "fmt" 
+   "net" 
+   "os" 
+) 
+```
+
+The second code segment of the program is the following:
+
+```markup
+func main() { 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide a server:port string!") 
+         os.Exit(100) 
+   } 
+ 
+   CONNECT := arguments[1] 
+   myMessage := "Hello from TCP client!\n" 
+```
+
+This time, we will send a static message to the TCP server.
+
+The third part of TCPc.go is the following:
+
+```markup
+   tcpAddr, err := net.ResolveTCPAddr("tcp", CONNECT) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+ 
+   conn, err := net.DialTCP("tcp", nil, tcpAddr) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+```
+
+In this part, you see the use of net.ResolveTCPAddr() and net.DialTCP(), which is where the differences between TCPc.go and TCPclient.go exist.
+
+The last part of the TCP client is the following:
+
+```markup
+   _, err = conn.Write([]byte(myMessage)) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+ 
+   fmt.Print("-> ", myMessage) 
+   buffer := make([]byte, 1024) 
+ 
+   n, err := conn.Read(buffer) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+ 
+   fmt.Print(">> ", string(buffer[0:n])) 
+   conn.Close() 
+} 
+```
+
+You might ask if you can use TCPc.go with TCPserver.go or TCPs.go with TCPclient.go. The answer is a definitive _yes_ because the implementation and the function names have nothing to do with the actual TCP/IP operations that take place.
+
+Just Imagine
+
+# Developing a simple UDP server
+
+This section will also develop an Echo server. However, this time the Echo server will use the UDP protocol. The name of the program will be UDPserver.go and will be presented to you in five parts.
+
+The first part contains the expected preamble:
+
+```markup
+package main 
+ 
+import ( 
+   "fmt" 
+   "net" 
+   "os" 
+   "strings" 
+) 
+```
+
+The second part is the following:
+
+```markup
+func main() { 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide a port number!") 
+         os.Exit(100) 
+   } 
+   PORT := ":" + arguments[1] 
+```
+
+The third part of UDPserver.go is the following:
+
+```markup
+   s, err := net.ResolveUDPAddr("udp", PORT) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+ 
+   connection, err := net.ListenUDP("udp", s) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+```
+
+The UDP approach is similar to the TCP approach: you just call functions with different names.
+
+The fourth part of the program has the following Go code:
+
+```markup
+   defer connection.Close() 
+   buffer := make([]byte, 1024) 
+ 
+   for { 
+         n, addr, err := connection.ReadFromUDP(buffer) 
+         fmt.Print("-> ", string(buffer[0:n])) 
+         data := []byte(buffer[0:n]) 
+         _, err = connection.WriteToUDP(data, addr) 
+         if err != nil { 
+               fmt.Println(err) 
+               os.Exit(100) 
+         } 
+```
+
+In the UDP case, you use ReadFromUDP() to read from a UDP connection and WriteToUDP() to write to an UDP connection. Additionally, the UDP connection does not need to call a function similar to net.Accept().
+
+The last part of the UDP server is the following:
+
+```markup
+         if strings.TrimSpace(string(data)) == "STOP" { 
+               fmt.Println("Exiting UDP server!") 
+               return 
+         } 
+   } 
+} 
+```
+
+Once again, we will test UDPserver.go with netcat(1):
+
+```markup
+$ go run UDPserver.go 1234
+-> Hi!
+-> Hello!
+-> STOP
+Exiting UDP server!
+```
+
+Just Imagine
+
+# Developing a simple UDP client
+
+In this section, we will develop a UDP client, which we will name UDPclient.go and present in five parts.
+
+As you will see, the code differences between the Go code of UDPclient.go and TCPc.go are basically the differences in the names of the functions used: the general idea is exactly the same.
+
+The first part of the UDP client is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "fmt" 
+   "net" 
+   "os" 
+) 
+```
+
+The second part of the utility contains the following Go code:
+
+```markup
+func main() { 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide a host:port string") 
+         os.Exit(100) 
+   } 
+   CONNECT := arguments[1] 
+```
+
+The third part of UDPclient.go has the following Go code:
+
+```markup
+   s, err := net.ResolveUDPAddr("udp", CONNECT) 
+   c, err := net.DialUDP("udp", nil, s) 
+ 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+ 
+   fmt.Printf("The UDP server is %s\n", c.RemoteAddr().String()) 
+   defer c.Close() 
+```
+
+Nothing special here: just the use of net.ResolveUDPAddr() and net.DialUDP() to connect to the UDP server.
+
+The fourth part of the UDP client is the following:
+
+```markup
+   data := []byte("Hello UDP Echo server!\n") 
+   _, err = c.Write(data) 
+ 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+```
+
+This time, you send your data to the UDP server using Write(), although you will read from the UDP server using ReadFromUDP().
+
+The last part of UDPclient.go is the following:
+
+```markup
+   buffer := make([]byte, 1024) 
+   n, _, err := c.ReadFromUDP(buffer) 
+   fmt.Print("Reply: ", string(buffer[:n])) 
+} 
+```
+
+As we have UDPserver.go and we know that it works, we can test the operation of UDPclient.go using UDPserver.go:
+
+```markup
+$ go run UDPclient.go localhost:1234
+The UDP server is 127.0.0.1:1234
+Reply: Hello UDP Echo server!
+```
+
+If you execute UDPclient.go without a UDP server listening to the desired port, you will get the following output, which does not clearly state that it could not connect to an UDP server: it just shows an empty reply:
+
+```markup
+$ go run UDPclient.go localhost:1024
+The UDP server is 127.0.0.1:1024
+Reply:
+```
+
+Just Imagine
+
+# A concurrent TCP server
+
+In this section, you will learn how to develop a concurrent TCP server: each client connection will be assigned to a new goroutine that will serve the client request. Note that although TCP clients initially connect to the same port, they are served using a different port number than the main port number of the server: this is automatically handled by TCP and is the way TCP works.
+
+Although creating a concurrent UDP server is also a possibility, it might not be absolutely necessary due to the way UDP works. However, if you have a really busy UDP service, then you might consider developing a concurrent UDP server.
+
+The name of the program will be concTCP.go and will be presented in five parts. The good thing is that once you define a function to handle incoming connections, all you need is to execute that function as a goroutine, and the rest will be handled by Go!
+
+The first part of concTCP.go is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "bufio" 
+   "fmt" 
+   "net" 
+   "os" 
+   "strings" 
+   "time" 
+) 
+```
+
+The second part of the concurrent TCP server is the following:
+
+```markup
+func handleConnection(c net.Conn) { 
+   for { 
+         netData, err := bufio.NewReader(c).ReadString('\n') 
+         if err != nil { 
+               fmt.Println(err) 
+               os.Exit(100) 
+         } 
+ 
+         fmt.Print("-> ", string(netData)) 
+         c.Write([]byte(netData)) 
+         if strings.TrimSpace(string(netData)) == "STOP" { 
+               break 
+         } 
+   } 
+   time.Sleep(3 * time.Second) 
+   c.Close() 
+} 
+```
+
+Here is the implementation of the function that handles each TCP request. The time delay at the end of it is used for giving you the necessary time to connect with another TCP client and prove that concTCP.go can serve multiple TCP clients.
+
+The third part of the program contains the following Go code:
+
+```markup
+func main() { 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide a port number!") 
+         os.Exit(100) 
+   } 
+ 
+   PORT := ":" + arguments[1] 
+```
+
+The fourth part of concTCP.go has the following Go code:
+
+```markup
+   l, err := net.Listen("tcp", PORT) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+   defer l.Close() 
+```
+
+So far, there is nothing special in the main() function because although concTCP.go will handle multiple requests, it only needs a single call to net.Listen().
+
+The last chunk of Go code is the following:
+
+```markup
+   for { 
+         c, err := l.Accept() 
+         if err != nil { 
+               fmt.Println(err) 
+               os.Exit(100) 
+         } 
+         go handleConnection(c) 
+   } 
+} 
+```
+
+All the differences in the way concTCP.go processes its requests can be found in the last lines of Go code. Each time the program accepts a new network request using Accept(), a new goroutine gets started and concTCP.go is immediately ready to accept more requests. Note that in order to terminate concTCP.go, you will have to press _Ctrl_ + _C_ because the STOP keyword is used for terminating each goroutine of the program.
+
+Executing concTCP.go and connecting to it using various TCP clients, will generate the following output:
+
+```markup
+$ go run concTCP.go 1234
+-> Hi!
+-> Hello!
+-> STOP
+...
+```
+
+Just Imagine
+
+# Remote procedure call (RPC)
+
+**Remote Procedure Call** (**RPC**) is a client-server mechanism for interprocess communication. Note that the RPC client and the RPC server communicate using TCP/IP, which means that they can exist in different machines.
+
+In order to develop the implementation of an RPC client or RPC server, you will need to follow some steps and call some functions in a given way. Neither of the two implementations is difficult; you just have to follow certain steps.
+
+Also, visit the documentation page of the net/rpc Go standard package that can be found at https://golang.org/pkg/net/rpc/.
+
+Note that the presented RPC example will use TCP for client-server interaction. However, you can also use HTTP for client-server communication.
+
+# An RPC server
+
+This subsection will present an RPC server named RPCserver.go. As you will see in the preamble of the RPCserver.go program, the RPC server imports a package named sharedRPC, which is implemented in the sharedRPC.go file: the name of the package is arbitrary. Its contents are the following:
+
+```markup
+package sharedRPC 
+ 
+type MyInts struct { 
+   A1, A2 uint 
+   S1, S2 bool 
+} 
+type MyInterface interface { 
+   Add(arguments *MyInts, reply *int) error 
+   Subtract(arguments *MyInts, reply *int) error 
+} 
+```
+
+So, here you define a new structure that holds the signs and the values of two unsigned integers and a new interface named MyInterface.
+
+Then, you should install sharedRPC.go, which means that you should execute the following commands before you try to use the sharedRPC package in your programs:
+
+```markup
+$ mkdir ~/go
+$ mkdir ~/go/src
+$ mkdir ~/go/src/sharedRPC
+$ export GOPATH=~/go
+$ vi ~/go/src/sharedRPC/sharedRPC.go
+$ go install sharedRPC
+```
+
+If you are on a macOS machine (darwin\_amd64) and you want to make sure that everything is OK, you can execute the following two commands:
+
+```markup
+$ cd ~/go/pkg/darwin_amd64/
+$ ls -l sharedRPC.a
+-rw-r--r--  1 mtsouk  staff  4698 Jul 27 11:49 sharedRPC.a
+```
+
+What you really must keep in mind is that, at the end of the day, what is being exchanged between an RPC server and an RPC client are function names and their arguments. Only the functions defined in the interface of sharedRPC.go can be used in an RPC interaction: the RPC server will need to implement the functions of the MyInterface interface. The Go code of RPCserver.go will be presented in five parts; the first part of the RPC server has the expected preamble, which also includes the sharedRPC package we made:
+
+```markup
+package main 
+ 
+import ( 
+   "fmt" 
+   "net" 
+   "net/rpc" 
+   "os" 
+   "sharedRPC" 
+) 
+```
+
+The second part of RPCserver.go is the following:
+
+```markup
+type MyInterface int 
+ 
+func (t *MyInterface) Add(arguments *sharedRPC.MyInts, reply *int) error { 
+   s1 := 1 
+   s2 := 1 
+ 
+   if arguments.S1 == true { 
+         s1 = -1 
+   } 
+ 
+   if arguments.S2 == true { 
+         s2 = -1 
+   } 
+ 
+   *reply = s1*int(arguments.A1) + s2*int(arguments.A2) 
+   return nil 
+} 
+```
+
+Here is the implementation of the first function that will be offered to the RPC clients: you can have as many functions as you want, provided that they are included in the interface.
+
+The third part of RPCserver.go has the following Go code:
+
+```markup
+func (t *MyInterface) Subtract(arguments *sharedRPC.MyInts, reply *int) error { 
+   s1 := 1 
+   s2 := 1 
+ 
+   if arguments.S1 == true { 
+         s1 = -1 
+   } 
+ 
+   if arguments.S2 == true { 
+         s2 = -1 
+   } 
+ 
+   *reply = s1*int(arguments.A1) - s2*int(arguments.A2) 
+   return nil 
+} 
+```
+
+This is the second function that is offered to the RPC clients by this RPC server.
+
+The fourth part of RPCserver.go contains the following Go code:
+
+```markup
+func main() { 
+   PORT := ":1234" 
+ 
+   myInterface := new(MyInterface) 
+   rpc.Register(myInterface) 
+ 
+   t, err := net.ResolveTCPAddr("tcp", PORT) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+   l, err := net.ListenTCP("tcp", t) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+```
+
+As our RPC server uses TCP, you need to make calls to net.ResolveTCPAddr() and net.ListenTCP(). However, you will first need to call rpc.Register() in order to be able to serve the desired interface.
+
+The last part of the program is the following:
+
+```markup
+   for { 
+         c, err := l.Accept() 
+         if err != nil { 
+               continue 
+         } 
+         rpc.ServeConn(c) 
+   } 
+} 
+```
+
+Here, you accept a new TCP connection using Accept() as usual, but you serve it using rpc.ServeConn().
+
+You will have to wait for the next section and the development of the RPC client in order to test the operation of RPCserver.go.
+
+# An RPC client
+
+In this section, we will develop an RPC client named RPCclient.go. The Go code of RPCclient.go will be presented in five parts; the first part is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "fmt" 
+   "net/rpc" 
+   "os" 
+   "sharedRPC" 
+) 
+```
+
+Note the use of the sharedRPC package in the RPC client.
+
+The second part of RPCclient.go is the following:
+
+```markup
+func main() { 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         fmt.Println("Please provide a host:port string!") 
+         os.Exit(100) 
+   } 
+ 
+   CONNECT := arguments[1] 
+```
+
+The third part of the program has the following Go code:
+
+```markup
+   c, err := rpc.Dial("tcp", CONNECT) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+ 
+   args := sharedRPC.MyInts{17, 18, true, false} 
+   var reply int 
+```
+
+As the MyInts structure is defined in sharedRPC.go, you need to use it as sharedRPC.MyInts in the RPC client. Moreover, you call rpc.Dial() to connect to the RPC server instead of net.Dial().
+
+The fourth part of the RPC client contains the following Go code:
+
+```markup
+   err = c.Call("MyInterface.Add", args, &reply) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+   fmt.Printf("Reply (Add): %d\n", reply) 
+```
+
+Here, you use the Call() function to execute the desired function in the RPC server. The result of the MyInterface.Add() function is stored in the reply variable, which was previously declared.
+
+The last part of RPCclient.go is the following:
+
+```markup
+   err = c.Call("MyInterface.Subtract", args, &reply) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(100) 
+   } 
+   fmt.Printf("Reply (Subtract): %d\n", reply) 
+} 
+```
+
+Here, you do the same thing as before for executing the MyInterface.Subtract() function.
+
+As you can guess, you cannot test the RPC client without having an RCP server and vice versa: netcat(1) cannot be used for RPC.
+
+First, you will need to start the RPCserver.go process:
+
+```markup
+$ go run RPCserver.go
+```
+
+Then, you will execute the RPCclient.go program:
+
+```markup
+$ go run RPCclient.go localhost:1234
+Reply (Add): 1
+Reply (Subtrack): -35
+```
+
+If the RPCserver.go process is not running and you try to execute RPCclient.go, you will get the following error message:
+
+```markup
+$ go run RPCclient.go localhost:1234
+dial tcp [::1]:1234: getsockopt: connection refused
+exit status 100
+```
+
+Of course, RPC is not for adding integers or natural numbers, but for doing much more complex operations that you want to control from a central point.
 
 Just Imagine
 
 # Exercises
 
-1.  Create a pipeline that reads text files, finds the number of occurrences of a given word, and calculates the total number of occurrences of the word in all files.
-2.  Try to make dWCtotal.go faster.
-3.  Create a simple Go program that plays ping pong using channels. You should define the total number of pings and pongs using a command-line argument.
+1.  Read the documentation of the net package in order to find out about its list of available functions at [https://golang.org/pkg/net/](https://golang.org/pkg/net/).
+2.  Wireshark is a great tool for analyzing network traffic of any kind: try to use it more.
+3.  Change the code of socketClient.go in order to read the input from the user.
+4.  Change the code of socketServer.go in order to return a random number to the client.
+5.  Change the code of TCPserver.go in order to stop when it receives a given Unix signal from the user.
+6.  Change the Go code of concTCP.go in order to keep track of the number of clients it has served and print that number before exiting.
+7.  Add a quit() function to RPCserver.go that does what its name implies.
+8.  Develop your own RPC example.
 
 Just Imagine
 
 # Summary
 
-In this chapter, we talked about creating and synchronizing goroutines as well as about creating and using pipelines and channels to allow goroutines to communicate with each other. Additionally, we developed two versions of the wc(1) utility that use goroutines to process their input files.
+In this chapter, we introduced you to TCP/IP, and we talked about developing TCP and UDP servers and clients in Go and about creating RPC clients and servers.
 
-Make sure that you fully understand the concepts of this chapter before continuing with the next chapter because in the next chapter, we will talk about more advanced features related to goroutines and channels including shared memory, buffered channels, the select keyword, the GOMAXPROCS environment variable, and signal channels.
+At this point, there is no next chapter because this is the last chapter of this book! Congratulations for reading the whole book! You are now ready to start developing useful Unix command-line utilities in Go; so, go ahead and start programming your own tools immediately!

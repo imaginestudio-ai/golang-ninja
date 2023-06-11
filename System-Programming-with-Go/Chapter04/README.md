@@ -1,134 +1,34 @@
-# Files and Directories
+# Processes and Signals
 
-In the previous chapter, we talked about many important topics including developing and using Go packages, Go data structures, algorithms, and GC. However, until now, we have not developed any actual system utility. This will change very soon because starting from this really important chapter, we will begin developing real system utilities in Go by learning how to use Go, to work with the various types of files and directories of a filesystem.
+In the previous chapter, we talked about many interesting topics including working with Unix system files, dealing with dates and times in Go, finding information about file permissions and users as well as regular expressions and pattern matching.
 
-You should always have in mind that Unix considers everything a file including symbolic links, directories, network devices, network sockets, entire hard drives, printers, and plain text files. The purpose of this chapter is to illustrate how the Go standard library allows us to understand if a path exists or not, as well as how to search directory structures to detect the kind of files we want. Additionally, this chapter will prove, using Go code as evidence, that many traditional Unix command-line utilities that work with files and directories do not have a difficult implementation.
+The central subject of this chapter is developing Go applications that can handle the Unix signals that can be caught and handled. Go offers the os/signal package for dealing with signals, which uses Go channels. Although channels are fully explored in the next chapter, this will not stop you from learning how to work with Unix signals in Go programs.
 
-In this chapter, you will learn the following topics:
+Furthermore, you will learn how to create Go command-line utilities that can work with Unix pipes, how to draw bar charts in Go, and how to implement a Go version of the cat(1) utility. So, in this chapter you will learn about the following topics:
 
--   The Go packages that will help you manipulate directories and file
--   Processing command-line arguments and options easily using the flag package
--   Developing a version of the which(1) command-line utility in Go
--   Developing a version of the pwd(1) command-line utility in Go
--   Deleting and renaming files and directories
--   Traversing directory trees easily
--   Writing a version of the find(1) utility in Go
--   Duplicating a directory structure in another place
-
-Just Imagine
-
-# Useful Go packages
-
-The single most important package that allows you to manipulate files and directories as entities is the os package, which we will use extensively in this chapter. If you consider files as boxes with contents, the os package allows you to move them, put them into the wastebasket, change their names, visit them, and decide which ones you want to use, whereas the io package, which will be presented in the next chapter, allows you to manipulate the contents of a box without worrying too much about the box itself!
-
-The flag package, which you will see in a while, lets you define and process your own flags and manipulate the command-line arguments of a Go program.
-
-The filepath package is extremely handy as it includes the filepath.Walk() function that allows you to traverse entire directory structures in an easy way.
+-   Listing the processes of a Unix machine
+-   Signal handling in Go
+-   The signals that a Unix machine supports as well as how to use the kill(1) command to send these signals
+-   Making signals do the work you want
+-   Implementing a simple version of the cat(1) utility in Go
+-   Plotting data in Go
+-   Using pipes in order to send the output of one program to another
+-   Converting a big program into two smaller ones that will cooperate with the help of Unix pipes
+-   Creating a client for a Unix socket
 
 Just Imagine
 
-# Command-line arguments revisited!
+# About Unix processes and signals
 
-As we saw in [Chapter 2](https://subscription.imaginedevops.io/book/programming/9781787125643/2), _Writing Programs in Go_, you cannot work efficiently with multiple command-line arguments and options using if statements. The solution to this problem is to use the flag package, which will be explained here.
-
-Remembering that the flag package is a standard Go package and that you do not have to search for the functionality of a flag elsewhere is extremely important.
-
-# The flag package
-
-The flag package does the dirty work of parsing command-line arguments and options for us; so, there is no need for writing complicated and perplexing Go code. Additionally, it supports various types of parameters, including strings, integers, and Boolean, which saves you time as you do not have to perform any data type conversions.
-
-The usingFlag.go program illustrates the use of the flag Go package and will be presented in three parts. The first part has the following Go code:
-
-```markup
-package main 
- 
-import ( 
-   "flag" 
-   "fmt" 
-) 
-```
-
-The second part, which has the most important Go code of the program, is as follows:
-
-```markup
-func main() { 
-   minusO := flag.Bool("o", false, "o") 
-   minusC := flag.Bool("c", false, "c") 
-   minusK := flag.Int("k", 0, "an int") 
- 
-   flag.Parse() 
-```
-
-In this part, you can see how you can define the flags that interest you. Here, you defined \-o, \-c, and \-k. Although the first two are Boolean flags, the \-k flag requires an integer value, which can be given as \-k=123.
-
-The last part comes with the following Go code:
-
-```markup
-   fmt.Println("-o:", *minusO) 
-   fmt.Println("-c:", *minusC) 
-   fmt.Println("-K:", *minusK) 
- 
-   for index, val := range flag.Args() { 
-         fmt.Println(index, ":", val) 
-   } 
-} 
-```
-
-In this part, you can see how you can read the value of an option, which also allows you to tell whether an option has been set or not. Additionally, flag.Args() allows you to access the unused command-line arguments of the program.
-
-The use and the output of usingFlag.go are showcased in the following output:
-
-```markup
-$ go run usingFlag.go
--o: false
--c: false
--K: 0
-$ go run usingFlag.go -o a b
--o: true
--c: false
--K: 0
-0 : a
-1 : b
-```
-
-However, if you forget to type the value of a command-line option (\-k) or the provided value is of the wrong type, you will get the following messages and the program will terminate:
-
-```markup
-$ ./usingFlag -k
-flag needs an argument: -k
-Usage of ./usingFlag:
-  -c  c
-  -k int
-      an int
-  -o  o$ ./usingFlag -k=abcinvalid value "abc" for flag -k: strconv.ParseInt: parsing "abc": invalid syntax
-Usage of ./usingFlag:
-  -c  c
-  -k int
-      an int
-  -o  o
-```
-
-If you do not want your program to exit when there is a parse error, you can use the ErrorHandling type provided by the flag package, which allows you to change the way flag.Parse() behaves on errors with the help of the NewFlagSet() function. However, in systems programming, you usually want your utility to exit when there is an error in one or more command-line options.
+Strictly speaking, a **process** is an execution environment that contains instructions, user-data and system-data parts, and other kinds of resources that are obtained during runtime, whereas a **program** is a file that contains instructions and data, which are used for initializing the instruction and user-data parts of a process.
 
 Just Imagine
 
-# Dealing with directories
+# Process management
 
-Directories allow you to create a structure and store your files in a way that is easy for you to organize and search for them. In reality, directories are entries on a filesystem that contain lists of other files and directories. This happens with the help of **inodes**, which are data structures that hold information about files and directories.
+Go is not that good at dealing with processes and process management in general. Nevertheless, this section will present a small Go program that lists all the processes of a Unix machine by executing a Unix command and getting its output. The name of the program will be listProcess.go. It works on both Linux and macOS systems, and will be presented in three parts.
 
-As you can see in the following figure, directories are implemented as lists of names assigned to inodes. As a result, a directory contains an entry for itself, its parent directory, and each of its children, which among other things can be regular files or other directories:
-
-What you should remember is that an inode holds metadata about a file, not the actual data of a file.
-
-![](https://static.packt-cdn.com/products/9781787125643/graphics/assets/e74853d3-8d25-49c3-a968-dc7713c53a72.png)
-
-A graphical representation of inodes
-
-# About symbolic links
-
-**Symbolic links** are pointers to files or directories, which are resolved at the time of access. Symbolic links, which are also called **soft links**, are not equal to the file or the directory they are pointing to and are allowed to point to nowhere, which can sometimes complicate things.
-
-The following Go code, saved in symbLink.go and presented in two parts, allows you to check whether a path or file is a symbolic link or not. The first part is as follows:
+The first part of the program is the following:
 
 ```markup
 package main 
@@ -136,459 +36,277 @@ package main
 import ( 
    "fmt" 
    "os" 
-   "path/filepath" 
+   "os/exec" 
+   "syscall" 
 ) 
- 
-func main() { 
-   arguments := os.Args 
-   if len(arguments) == 1 { 
-         fmt.Println("Please provide an argument!") 
-         os.Exit(1) 
-   } 
-   filename := arguments[1] 
 ```
 
-Nothing special is happening here: you just need to make sure that you get one command-line argument in order to have something to test. The second part is the following Go code:
+The second part of listProcess.go has the following Go code:
 
 ```markup
-   fileinfo, err := os.Lstat(fil /etcename) 
+func main() { 
+ 
+   PS, err := exec.LookPath("ps") 
    if err != nil { 
          fmt.Println(err) 
-         os.Exit(1) 
    } 
+fmt.Println(PS) 
  
-   if fileinfo.Mode()&os.ModeSymlink != 0 { 
-         fmt.Println(filename, "is a symbolic link") 
-         realpath, err := filepath.EvalSymlinks(filename) 
-         if err == nil { 
-               fmt.Println("Path:", realpath) 
-         } 
-   } 
- 
-}
+   command := []string{"ps", "-a", "-x"} 
+   env := os.Environ() 
+   err = syscall.Exec(PS, command, env) 
 ```
 
-The aforementioned code of symbLink.go is more cryptic than usual because it uses lower-level functions. The technique for finding out whether a path is a real path or not involves the use of the os.Lstat() function that gives you information about a file or directory and the use of the Mode() function on the return value of the os.Lstat() call in order to compare the outcome with the os.ModeSymlink constant, which is the symbolic link bit.
+As you can see, you first need to get the path of the executable file using exec.LookPath() to make sure that you are not going to accidentally execute another binary file and then define the command you want to execute, including the parameters of the command, using a slice. Next, you will have to read the Unix environment using os.Environ(). Also, you execute the desired command using syscall.Exec(), which will automatically print its output, which is not a very elegant way to execute commands because you have no control over the task and because you are calling processes at the lowest level instead of using a higher level library such as os/exec.
 
-Additionally, there exists the filepath.EvalSymlinks() function that allows you to evaluate any symbolic links that exist and return the true path of a file or directory, which is also used in symbLink.go. This might make you think that we are using lots of Go code for such a simple task, which is partially true, but when you are developing systems software, you are obliged to consider all possibilities and be cautious.
-
-Executing symbLink.go, which only takes one command-line argument, generates the following output:
+The last part of the program is for printing the error message of the previous code, in case there is one:
 
 ```markup
-$ go run symbLink.go /etc
-/etc is a symbolic link
-Path: /private/etc
-```
-
-You will also see some of the aforementioned Go code as a part of bigger programs in the rest of this chapter.
-
-# Implementing the pwd(1) command
-
-When I start thinking about how to implement a program, so many ideas come to my mind that sometimes it becomes too difficult to decide what to do! The key here is to do something instead of waiting because as you write code, you will be able to tell whether the approach you are taking is good or not, and whether you should try another approach or not.
-
-The pwd(1) command-line utility is pretty simplistic, yet it does a pretty good job. If you write lots of shell scripts, you should already know about pwd(1) because it is pretty handy when you want to get the full path of a file or a directory that resides in the same directory as the script that is being executed.
-
-The Go code of pwd.go will be presented in two parts and will only support the \-P command-line option, which resolves all symbolic links and prints the physical current working directory. The first part of pwd.go is as follows:
-
-```markup
-package main 
- 
-import ( 
-   "fmt" 
-   "os" 
-   "path/filepath" 
-) 
- 
-func main() { 
-   arguments := os.Args 
- 
-   pwd, err := os.Getwd() 
-   if err == nil { 
-         fmt.Println(pwd) 
-   } else { 
-         fmt.Println("Error:", err) 
-   } 
-```
-
-The second part is as follows:
-
-```markup
-   if len(arguments) == 1 { 
-         return 
-   } 
- 
-   if arguments[1] != "-P" { 
-         return 
-   } 
- 
-   fileinfo, err := os.Lstat(pwd) 
-   if fileinfo.Mode()&os.ModeSymlink != 0 { 
-         realpath, err := filepath.EvalSymlinks(pwd) 
-         if err == nil { 
-               fmt.Println(realpath) 
-         } 
-   } 
-} 
-```
-
-Note that if the current directory can be described by multiple paths, which can happen if you are using symbolic links, os.Getwd() can return any one of them. Additionally, you need to reuse some of the Go code found in symbLink.go to discover the physical current working directory in case the \-P option is given and you are dealing with a directory that is a symbolic link. Also, the reason for not using the flag package in pwd.go is that I find the code much simpler the way it is.
-
-Executing pwd.go will generate the following output:
-
-```markup
-$ go run pwd.go
-/Users/mtsouk/Desktop/goCourse/ch/ch5/code
-```
-
-On macOS machines, the /tmp directory is a symbolic link, which can help us verify that pwd.go works as expected:
-
-```markup
-$ go run pwd.go
-/tmp
-$ go run pwd.go -P
-/tmp
-/private/tmp
-```
-
-# Developing the which(1) utility in Go
-
-The which(1) utility searches the value of the PATH environment variable in order to find out if an executable file can be found in one of the directories of the PATH variable. The following output shows the way the which(1) utility works:
-
-```markup
-$ echo $PATH
-/home/mtsouk/bin:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
-$ which ls
-/home/mtsouk/bin/ls
-code$ which -a ls
-/home/mtsouk/bin/ls
-/bin/ls
-```
-
-Our implementation of the Unix utility will support the two command-line options supported by the macOS version of which(1), which are \-a and \-s with the help of the flag package: the Linux version of which(1) does not support the \-s option. The \-a option lists all the instances of the executable instead of just the first one while the \-s returns 0 if the executable was found and 1 otherwise: this is not the same as printing 0 or 1 using the fmt package.
-
-In order to check the return value of a Unix command-line utility in the shell, you should do the following:
-
-```markup
-$ which -s ls$ echo $?
-0
-```
-
-Note that go run prints out nonzero exit codes.
-
-The Go code for which(1) will be saved in which.go and will be presented in four parts. The first part of which.go has the following Go code:
-
-```markup
-package main 
- 
-import ( 
-   "flag" 
-   "fmt" 
-   "os" 
-   "strings" 
-) 
-```
-
-The strings package is needed in order to split the contents of the PATH variable after you read it. The second part of which.go deals with the use of the flag package:
-
-```markup
-func main() { 
-   minusA := flag.Bool("a", false, "a") 
-   minusS := flag.Bool("s", false, "s") 
- 
-   flag.Parse() 
-   flags := flag.Args() 
-   if len(flags) == 0 { 
-         fmt.Println("Please provide an argument!") 
-         os.Exit(1) 
-   } 
-   file := flags[0] 
-   fountIt := false 
-```
-
-One very important part of which.go is the part that reads the PATH shell environment variable in order to split it and use it, which is presented in the third part here:
-
-```markup
-   path := os.Getenv("PATH") 
-   pathSlice := strings.Split(path, ":") 
-   for _, directory := range pathSlice { 
-         fullPath := directory + "/" + file 
-```
-
-The last statement here constructs the full path of the file we are searching for, as if it existed in each separate directory of the PATH variable because if you have the full path of a file, you do not have to search for it!
-
-The last part of which.go is as follows:
-
-```markup
-         fileInfo, err := os.Stat(fullPath) 
-         if err == nil { 
-               mode := fileInfo.Mode() 
-               if mode.IsRegular() { 
-                     if mode&0111 != 0 { 
-                           fountIt = true 
-                           if *minusS == true { 
-                                 os.Exit(0) 
-                           } 
-                           if *minusA == true { 
-                                 fmt.Println(fullPath) 
-                           } else { 
-                                 fmt.Println(fullPath) 
-                                 os.Exit(0) 
-                           } 
-                     } 
-               } 
-         } 
-   } 
-   if fountIt == false { 
-         os.Exit(1) 
-   } 
-} 
-```
-
-Here, the call to os.Stat() tells whether the file we are looking for actually exists or not. In case of success, the mode.IsRegular() function checks whether the file is a regular file or not because we are not looking for directories or symbolic links. However, we are not done yet! The which.go program performs a test to find out whether the file that was found is indeed an executable file: if it is not an executable file, it will not get printed. So, the if mode&0111 != 0 statement verifies that the file is actually an executable file using a binary operation.
-
-Next, if the \-s flag is set to \*minusS == true, then the \-a flag does not really matter because the program will terminate as soon as it finds a match.
-
-As you can see, there are lots of tests involved in which.go, which is not rare for systems software. Nevertheless, you should always examine all possibilities in order to avoid surprises later. The good thing is that most of these tests will be used later on in the Go implementation of the find(1) utility: it is good practice to test some features by writing small programs before putting them all together into bigger programs because by doing so, you learn the technique better and you can detect silly bugs more easily.
-
-Executing which.go will produce the following output:
-
-```markup
-$ go run which.go ls
-/home/mtsouk/bin/ls
-$ go run which.go -s ls
-$ echo $?
-0
-$ go run which.go -s ls123123
-exit status 1
-$ echo $?
-1
-$ go run which.go -a ls
-/home/mtsouk/bin/ls
-/bin/ls
-```
-
-# Printing the permission bits of a file or directory
-
-With the help of the ls(1) command, you can find out the permissions of a file:
-
-```markup
-$ ls -l /bin/ls
--rwxr-xr-x  1 root  wheel  38624 Mar 23 01:57 /bin/ls
-```
-
-In this subsection, we will look at how to print the permissions of a file or directory using Go: the Go code will be saved in permissions.go and will be presented in two parts. The first part is as follows:
-
-```markup
-package main 
- 
-import ( 
-   "fmt" 
-   "os" 
-) 
- 
-func main() { 
-   arguments := os.Args 
-   if len(arguments) == 1 { 
-         fmt.Println("Please provide an argument!") 
-         os.Exit(1) 
-   } 
- 
-   file := arguments[1] 
-```
-
-The second part contains the important Go code:
-
-```markup
-   info, err := os.Stat(file) 
    if err != nil { 
-         fmt.Println("Error:", err) 
-         os.Exit(1) 
+         fmt.Println(err) 
    } 
-   mode := info.Mode() 
-   fmt.Print(file, ": ", mode, "\n") 
 } 
 ```
 
-Once again, most of the Go code is for dealing with the command-line argument and making sure that you have one! The Go code that does the actual job is mainly the call to the os.Stat() function, which returns a FileInfo structure that describes the file or directory examined by os.Stat(). From the FileInfo structure, you can discover the permissions of a file by calling the Mode() function.
-
-Executing permissions.go produces the following output:
+Executing listProcess.go will generate the following output: the head(1) utility is used to get a smaller output:
 
 ```markup
-$ go run permissions.go /bin/ls
-/bin/ls: -rwxr-xr-x
-$ go run permissions.go /usr
-/usr: drwxr-xr-x
-$ go run permissions.go /us
-Error: stat /us: no such file or directory
-exit status 1
+$ go run listProcess.go | head -3
+/bin/ps
+  PID TTY           TIME CMD
+    1 ??         0:30.72 /sbin/launchd
+signal: broken pipe
 ```
+
+# About Unix signals
+
+Have you ever pressed _Ctrl_ + _C_ in order to stop a program from running? If yes, then you are already familiar with signals because _Ctrl_ + _C_ sends the SIGINT signal to the program.
+
+Strictly speaking, Unix **signals** are software interrupts that can be accessed either by a name or number and offer a way of handling asynchronous events such as when a child process exits or a process is told to pause on a Unix system.
+
+A program cannot handle all signals; some of them are non-catchable and non-ignorable. The SIGKILL and SIGSTOP signals cannot be caught, blocked, or ignored. The reason for this is that they provide the kernel and the root user a way of stopping any process. The SIGKILL signal, which is also known by the number 9, is usually called in extreme conditions where you need to act fast; so, it is the only signal that is usually called by number because it is quicker to do so. The most important thing to remember here is that not all Unix signals can be handled!
 
 Just Imagine
 
-# Dealing with files in Go
+# Unix signals in Go
 
-An extremely important task of an operating system is working with files because all data is stored in files. In this section, we will show you how to delete and rename files, and in the next section, _Developing find(1) in Go_, we will teach you how to search directory structures in order to find the files you want.
+Go provides the os/signal package to programmers to help them handle incoming signals. However, we will start the discussion about handling by presenting the kill(1) utility.
 
-# Deleting a file
+Just Imagine
 
-In this section, we will illustrate how to delete files and directories using the os.Remove() Go function.
+# The kill(1) command
 
-When testing programs that delete files and directories be extra careful and use common sense!
+The kill(1) command is used for either terminating a process or sending a less cruel signal to it. Keep in mind that the fact that you can send a signal to a process does not mean that the process can or has code to handle this signal.
 
-The rm.go file is a Go implementation of the rm(1) tool that illustrates how you can delete files in Go. Although the core functionality of rm(1) is there, the options of rm(1) are missing: it would be a good exercise to try to implement some of them. Just pay extra attention when implementing the \-f and \-R options.
+By default, kill(1) sends the SIGTERM signal. If you want to find out all the supported signals of your Unix machine, you should execute the kill -l command. On a macOS Sierra machine, the output of kill -l is the following:
 
-The Go code of rm.go is as follows:
+```markup
+$ kill -l
+1) SIGHUP   2) SIGINT        3) SIGQUIT   4) SIGILL
+5) SIGTRAP  6) SIGABRT       7) SIGEMT    8) SIGFPE
+9) SIGKILL 10) SIGBUS        11) SIGSEGV 12) SIGSYS
+13) SIGPIPE 14) SIGALRM       15) SIGTERM 16) SIGURG
+17) SIGSTOP 18) SIGTSTP       19) SIGCONT 20) SIGCHLD
+21) SIGTTIN 22) SIGTTOU       23) SIGIO   24) SIGXCPU
+25) SIGXFSZ 26) SIGVTALRM     27) SIGPROF 28) SIGWINCH
+29) SIGINFO 30) SIGUSR1       31) SIGUSR2
+```
+
+If you execute the same command on a Debian Linux machine, you will get a more enriched output:
+
+```markup
+$ kill -l
+ 1) SIGHUP   2) SIGINT   3) SIGQUIT  4) SIGILL   5) SIGTRAP
+ 6) SIGABRT  7) SIGBUS   8) SIGFPE   9) SIGKILL 10) SIGUSR1
+11) SIGSEGV 12) SIGUSR2 13) SIGPIPE 14) SIGALRM 15) SIGTERM
+16) SIGSTKFLT     17) SIGCHLD 
+18) SIGCONT       19) SIGSTOP 20) SIGTSTP
+21) SIGTTIN       22) SIGTTOU 
+23) SIGURG        24) SIGXCPU 25) SIGXFSZ
+26) SIGVTALRM     27) SIGPROF 28) SIGWINCH      
+29) SIGIO         30) SIGPWR
+31) SIGSYS        34) SIGRTMIN      
+35) SIGRTMIN+1    36) SIGRTMIN+2    37) SIGRTMIN+3
+38) SIGRTMIN+4    39) SIGRTMIN+5    
+40) SIGRTMIN+6    41) SIGRTMIN+7    42) SIGRTMIN+8
+43) SIGRTMIN+9    44) SIGRTMIN+10   
+45) SIGRTMIN+11   46) SIGRTMIN+12   47) SIGRTMIN+13
+48) SIGRTMIN+14   49) SIGRTMIN+15   
+50) SIGRTMAX-14   51) SIGRTMAX-13   52) SIGRTMAX-12
+53) SIGRTMAX-11   54) SIGRTMAX-10   
+55) SIGRTMAX-9    56) SIGRTMAX-8    57) SIGRTMAX-7
+58) SIGRTMAX-6    59) SIGRTMAX-5    
+60) SIGRTMAX-4    61) SIGRTMAX-3    62) SIGRTMAX-2
+63) SIGRTMAX-1    64) SIGRTMAX
+```
+
+If you try to kill or send another signal to the process of another user without having the required permissions, which most likely will happen if you are not the _root_ user, kill(1) will not do the job and you will get an error message similar to the following:
+
+```markup
+$ kill 2908
+-bash: kill: (2908) - Operation not permitted
+```
+
+# A simple signal handler in Go
+
+This subsection will present a naive Go program that handles only the SIGTERM and SIGINT signals. The Go code of h1s.go will be presented in three parts; the first part is the following:
 
 ```markup
 package main 
+ 
 import ( 
    "fmt" 
    "os" 
+   "os/signal" 
+   "syscall" 
+   "time" 
 ) 
  
+func handleSignal(signal os.Signal) { 
+   fmt.Println("Got", signal) 
+} 
+```
+
+Apart from the preamble of the program, there is also a function named handleSignal() that will be called when the program receives any of the two supported signals.
+
+The second part of h1s.go contains the following Go code:
+
+```markup
 func main() { 
-   arguments := os.Args 
-   if len(arguments) == 1 { 
-         fmt.Println("Please provide an argument!") 
-         os.Exit(1) 
-   } 
- 
-   file := arguments[1] 
-   err := os.Remove(file) 
-   if err != nil { 
-         fmt.Println(err) 
-         return 
+   sigs := make(chan os.Signal, 1) 
+   signal.Notify(sigs, os.Interrupt, syscall.SIGTERM) 
+   go func() { 
+         for { 
+               sig := <-sigs 
+               fmt.Println(sig) 
+               handleSignal(sig) 
+         } 
+   }() 
+```
+
+The previous code uses a **goroutine** and a Go **channel**, which are Go features that have not been discussed in this book. Unfortunately, you will have to wait until [Chapter 9](https://subscription.imaginedevops.io/book/programming/9781787125643/9)_,_ _Goroutines - Basic Features_, to learn more about both of them. Note that although os.Interrupt and syscall.SIGTERM belong to different Go packages, they are both signals.
+
+For now, understanding the technique is important; it includes three steps:
+
+1.  The definition of a channel, which acts as a way of passing data around, that is required for the technique (sigs).
+2.  Calling signal.Notify() in order to define the list of signals you want to be able to catch.
+3.  The definition of an anonymous function that runs in a goroutine (go func()) right after signal.Notify(), which is used for deciding what you are going to do when you get any of the desired signals.
+
+In this case, the handleSignal() function will be called. The for loop inside the anonymous function is used to make the program to keep handling all signals and not stop after receiving its first signal.
+
+The last part of h1s.go is the following:
+
+```markup
+   for { 
+         fmt.Printf(".") 
+         time.Sleep(10 * time.Second) 
    } 
 } 
 ```
 
-If rm.go is executed without any problems, it will create no output according to the Unix philosophy. So, what is interesting here is watching the error messages you can get when the file you are trying to delete does not exist: both when you do not have the necessary permissions to delete it and when a directory is not empty:
+This is an endless for loop that delays the ending of the program forever: in its place you would most likely put the actual code of your program. Executing h1s.go and sending signals to it from another Terminal will make h1s.go generate the following output:
 
 ```markup
-$ go run rm.go 123
-remove 123: no such file or directory
-$ ls -l /tmp/AlTest1.err-rw-r--r--  1 root  wheel  1278 Apr 17 20:13 /tmp/AlTest1.err
-$ go run rm.go /tmp/AlTest1.err
-remove /tmp/AlTest1.err: permission denied
-$ go run rm.go test
-remove test: directory not empty
+$ ./h1s
+......................^CinterruptGot interrupt
+^Cinterrupt
+Got interrupt
+.Hangup: 1
 ```
 
-# Renaming and moving files
+The bad thing here is that h1s.go will stop when it receives the SIGHUP signal because the default action for SIGHUP when it is not being specifically handled by a program is to kill the process! The next subsection will show how to handle three signals in a better way, and the subsection after that will teach you how to handle all signals that can be handled.
 
-In this subsection, we will show you how to rename and move a file using Go code: the Go code will be saved as rename.go. Although the same code can be used for renaming or moving directories, rename.go is only allowed to work with files.
+# Handling three different signals!
 
-When performing things that cannot be easily undone, such as overwriting a file, you should be extra careful and maybe inform the user that the destination file already exists in order to avoid unpleasant surprises. Although the default operation of the traditional mv(1) utility will automatically overwrite the destination file if it exists, I do not think that this is very safe. Therefore, rename.go will not overwrite destination files by default.
+This subsection will teach you how to create a Go application that can handle three different signals: the name of the program will be h2s.go, and it will handle the SIGTERM, SIGINT, and SIGHUP signals.
 
-When developing systems software, you have to deal with all the details or the details will reveal themselves as bugs when least expected! Extensive testing will allow you to find the details you missed and correct them.
+The Go code of h2s.go will be presented in four parts.
 
-The code of rename.go will be presented in four parts. The first part includes the expected preamble as well as the Go code for dealing with the setup of the flag package:
+The first part of the program contains the expected preamble:
 
 ```markup
 package main 
  
 import ( 
-   "flag" 
    "fmt" 
    "os" 
-   "path/filepath" 
+   "os/signal" 
+   "syscall" 
+   "time" 
 ) 
- 
-func main() { 
-   minusOverwrite := flag.Bool("overwrite", false, "overwrite") 
- 
-   flag.Parse() 
-   flags := flag.Args() 
- 
-   if len(flags) < 2 { 
-         fmt.Println("Please provide two arguments!") 
-         os.Exit(1) 
-   } 
 ```
 
 The second part has the following Go code:
 
 ```markup
-   source := flags[0] 
-   destination := flags[1] 
-   fileInfo, err := os.Stat(source) 
-   if err == nil { 
-         mode := fileInfo.Mode() 
-         if mode.IsRegular() == false { 
-               fmt.Println("Sorry, we only support regular files as source!") 
-               os.Exit(1) 
-         } 
-   } else { 
-         fmt.Println("Error reading:", source) 
-         os.Exit(1) 
-   } 
-```
-
-This part makes sure the source file exists, is a regular file, and is not a directory or something else like a network socket or a pipe. Once again, the trick with os.Stat() you saw in which.go is used here.
-
-The third part of rename.go is as follows:
-
-```markup
-   newDestination := destination 
-   destInfo, err := os.Stat(destination) 
-   if err == nil { 
-         mode := destInfo.Mode() 
-         if mode.IsDir() { 
-               justTheName := filepath.Base(source) 
-               newDestination = destination + "/" + justTheName 
-         } 
-   } 
-```
-
-There is another tricky point here; you will need to consider the case where the source is a plain file and the destination is a directory, which is implemented with the help of the newDestination variable.
-
-Another special case that you should consider is when the source file is given in a format that contains an absolute or relative path in it like ./aDir/aFile. In this case, when the destination is a directory, you should get the basename of the path, which is what follows the last / character and in this case is aFile, and add it to the destination directory in order to correctly construct the newDestination variable. This happens with the help of the filepath.Base() function, which returns the last element of a path.
-
-Finally, the last part of rename.go has the following Go code:
-
-```markup
-   destination = newDestination 
-   destInfo, err = os.Stat(destination) 
-   if err == nil { 
-         if *minusOverwrite == false { 
-               fmt.Println("Destination file already exists!") 
-               os.Exit(1) 
-         } 
-   } 
- 
-   err = os.Rename(source, destination) 
-   if err != nil { 
-         fmt.Println(err) 
-         os.Exit(1) 
-   } 
+func handleSignal(signal os.Signal) { 
+   fmt.Println("* Got:", signal) 
 } 
+ 
+func main() { 
+   sigs := make(chan os.Signal, 1) 
+   signal.Notify(sigs, os.Interrupt, syscall.SIGTERM, syscall.SIGHUP) 
 ```
 
-The most important Go code of rename.go has to do with recognizing whether the destination file exists or not. Once again, this is implemented with the support of the os.Stat() function. If os.Stat() returns an error message, this means that the destination file does not exist; so, you are free to call os.Rename(). If os.Stat() returns nil, this means that the os.Stat() call was successful and that the destination file exists. In this case, you should check the value of the overwrite flag to see if you are allowed to overwrite the destination file or not.
+Here, the last statement tells you that the program will only handle the os.Interrupt, syscall.SIGTERM, and syscall.SIGHUP signals.
 
-When everything is OK, you are free to call os.Rename() and perform the desired task!
-
-If rename.go is executed correctly, it will create no output. However, if there are problems, rename.go will generate some output:
+The third part of h2s.go is the following:
 
 ```markup
-$ touch newFILE
-$ ./rename newFILE regExpFind.go
-Destination file already exists!
-$ ./rename -overwrite newFILE regExpFind.go
-$
+   go func() { 
+         for { 
+               sig := <-sigs 
+               switch sig { 
+               case os.Interrupt: 
+                     handleSignal(sig) 
+               case syscall.SIGTERM: 
+                     handleSignal(sig) 
+               case syscall.SIGHUP: 
+                     fmt.Println("Got:", sig) 
+                     os.Exit(-1) 
+               } 
+         } 
+   }() 
 ```
 
-Just Imagine
+Here, you can see that it is not compulsory to call a separate function when a given signal is caught; it is also allowed to handle it inside the for loop as it happens with syscall.SIGHUP. However, I find the use of a named function better because it makes the Go code easier to read and modify. The good thing is that Go has a central place for handling all signals, which makes it easy to find out what is going on with your program.
 
-# Developing find(1) in Go
+Additionally, h2s.go specifically handles the SIGHUP signal, although a SIGHUP signal will still terminate the program; however, this time this is our decision.
 
-This section will teach you the necessary things that you need to know in order to develop a simplified version of the find(1) command-line utility in Go. The developed version will not support all the command-line options supported by find(1), but it will have enough options to be truly useful.
+Keep in mind that it is considered good practice to make one of the signal handlers to stop the program because otherwise you will have to terminate it by issuing a kill -9 command.
 
-What you will see in the following subsections is the entire process in small steps. So, the first subsection will show you the Go way for visiting all files and directories in a given directory tree.
+The last part of h2s.go is the following:
 
-# Traversing a directory tree
+```markup
+   for { 
+         fmt.Printf(".") 
+         time.Sleep(10 * time.Second) 
+   } 
+}
+```
 
-The most important task that find(1) needs to support is being able to visit all files and sub directories starting from a given directory. So, this section will implement this task in Go. The Go code of traverse.go will be presented in three parts. The first part is the expected preamble:
+Executing h2s.go and sending four signals to it (SIGINT, SIGTERM, SIGHUP, and SIGKILL) from another shell will generate the following output:
+
+```markup
+$ go build h2s.go
+$ ./h2s
+..* Got: interrupt
+* Got: terminated
+.Got: hangup
+.Killed: 9
+```
+
+The reason for building h2s.go is that it is easier to find the process ID of an autonomous program: the go run command builds a temporary executable program behind the scenes, which in this case offers less flexibility. If you want to improve h2s.go, you can make it call os.Getpid() in order to print its process ID, which will save you from having to find it on your own.
+
+The program handles three signals before getting a SIGKILL that cannot be handled and therefore terminates it!
+
+# Catching every signal that can be handled
+
+This subsection will present a simple technique that allows you to catch every signal that can be handled: once again, you should keep in mind that you cannot handle all signals! The program will stop once it gets a SIGTERM signal.
+
+The name of the program will be catchAll.go and will be presented in three parts.
+
+The first part is the following:
 
 ```markup
 package main 
@@ -596,609 +314,1336 @@ package main
 import ( 
    "fmt" 
    "os" 
-   "path/filepath" 
+   "os/signal" 
+   "syscall" 
+   "time" 
 ) 
+ 
+func handleSignal(signal os.Signal) { 
+   fmt.Println("* Got:", signal) 
+} 
 ```
 
-The second part is about implementing a function named walkFunction() that will be used as an argument to a Go function named filepath.Walk():
+The second part of the program is the following:
 
 ```markup
-func walkFunction(path string, info os.FileInfo, err error) error { 
-   _, err = os.Stat(path) 
+func main() { 
+   sigs := make(chan os.Signal, 1) 
+   signal.Notify(sigs) 
+   go func() { 
+         for { 
+               sig := <-sigs 
+               switch sig { 
+               case os.Interrupt: 
+                     handleSignal(sig) 
+               case syscall.SIGTERM: 
+                     handleSignal(sig) 
+                     os.Exit(-1) 
+               case syscall.SIGUSR1: 
+                     handleSignal(sig) 
+               default: 
+                     fmt.Println("Ignoring:", sig) 
+               } 
+         } 
+   }() 
+```
+
+In this case, all the difference is made by the way you call signal.Notify() in your code. As you do not define any particular signals, the program will be able to handle any signal that can be handled. However, the for loop inside the anonymous function only takes care of three signals while ignoring the remaining ones! Note that I believe that this is the best way to handle signals in Go: catch everything while processing only the signals that interest you. However, some people believe that being explicit about what you handle is a better approach. There is no right or wrong here.
+
+The catchAll.go program will not terminate when it gets SIGHUP because the default case of the switch block handles it.
+
+The last part is the expected call to the time.Sleep() function:
+
+```markup
+   for { 
+         fmt.Printf(".") 
+         time.Sleep(10 * time.Second) 
+   } 
+} 
+```
+
+Executing catchAll.go will create the following output:
+
+```markup
+$ ./catchAll
+.Ignoring: hangup.......................................* Got: interrupt
+* Got: user defined signal 1
+.Ignoring: user defined signal 2
+Ignoring: hangup
+.* Got: terminated
+$
+```
+
+# Rotating log files revisited!
+
+As I told you back in [](https://subscription.imaginedevops.io/book/programming/9781787125643/7)[Chapter 7](https://subscription.imaginedevops.io/book/programming/9781787125643/7)_,_ _Working with System Files_, this chapter will present you with a technique that will allow you to end the program and rotate log files in a more conventional way with the help of signals and signal handling.
+
+The name of the new version of rotateLog.go will be rotateSignals.go and will be presented in four parts. Moreover, when the utility receives os.Interrupt, it will rotate the current log file, whereas when it receives syscall.SIGTERM, it will terminate its execution. Every other signal that can be handled will create a log entry without any other action.
+
+The first part of the rotateSignals.go is the expected preamble:
+
+```markup
+package main 
+ 
+import ( 
+   "fmt" 
+   "log" 
+   "os" 
+   "os/signal" 
+   "strconv" 
+   "syscall" 
+   "time" 
+) 
+ 
+var TOTALWRITES int = 0 
+var openLogFile os.File 
+```
+
+The second part of rotateSignals.go has the following Go code:
+
+```markup
+func rotateLogFile(filename string) error { 
+   openLogFile.Close() 
+   os.Rename(filename, filename+"."+strconv.Itoa(TOTALWRITES)) 
+   err := setUpLogFile(filename) 
+   return err 
+} 
+ 
+func setUpLogFile(filename string) error { 
+   openLogFile, err := os.OpenFile(filename, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0644) 
    if err != nil { 
          return err 
    } 
- 
-   fmt.Println(path) 
+   log.SetOutput(openLogFile) 
    return nil 
 } 
 ```
 
-Once again, the os.Stat() function is used because a successful os.Stat() function call means that we are dealing with something (file, directory, pipe, and so on) that actually exists!
+You have just defined two functions here that perform two tasks. The third part of rotateSignals.go contains the following Go code:
 
-Do not forget that between the time filepath.Walk() is called and the time walkFunction() is called and executed, many things can happen in an active and busy filesystem, which is the main reason for calling os.Stat().
+```markup
+func main() { 
+   filename := "/tmp/myLog.log" 
+   err := setUpLogFile(filename) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(-1) 
+   } 
+ 
+   sigs := make(chan os.Signal, 1) 
+   signal.Notify(sigs) 
+```
 
-The last part of the code is as follows:
+Once again, all signals will be caught. The last part of rotateSignals.go is the following:
+
+```markup
+   go func() { 
+         for { 
+               sig := <-sigs 
+               switch sig { 
+               case os.Interrupt: 
+                     rotateLogFile(filename) 
+                     TOTALWRITES++ 
+               case syscall.SIGTERM: 
+                     log.Println("Got:", sig) 
+                     openLogFile.Close() 
+                     TOTALWRITES++ 
+                     fmt.Println("Wrote", TOTALWRITES, "log entries in total!") 
+                     os.Exit(-1) 
+               default: 
+                     log.Println("Got:", sig) 
+                     TOTALWRITES++ 
+               } 
+         } 
+   }() 
+ 
+   for { 
+         time.Sleep(10 * time.Second) 
+   } 
+} 
+```
+
+As you can see, rotateSignals.go records information about the signals it has received by writing one log entry for each signal. Although presenting the entire code of rotateSignals.go is good, it would be very educational to see the output of the diff(1) utility to show the code differences between rotateLog.go and rotateSignals.go:
+
+```markup
+$ diff rotateLog.go rotateSignals.go
+6a7
+>     "os/signal"
+7a9
+>     "syscall"
+12,13d13
+< var ENTRIESPERLOGFILE int = 100
+< var WHENTOSTOP int = 230
+33d32
+<     numberOfLogEntries := 0
+41,51c40,59
+<     for {
+<           log.Println(numberOfLogEntries, "This is a test log entry")
+<           numberOfLogEntries++
+<           TOTALWRITES++
+<           if numberOfLogEntries > ENTRIESPERLOGFILE {
+<                 _ = rotateLogFile(filename)
+<                 numberOfLogEntries = 0
+<           }
+<           if TOTALWRITES > WHENTOSTOP {
+<                 _ = rotateLogFile(filename)
+<                 break
+---
+>     sigs := make(chan os.Signal, 1)
+>     signal.Notify(sigs)
+>
+>     go func() {
+>           for {
+>                 sig := <-sigs
+>                 switch sig {
+>                 case os.Interrupt:
+>                       rotateLogFile(filename)
+>                       TOTALWRITES++
+>                 case syscall.SIGTERM:
+>                       log.Println("Got:", sig)
+>                       openLogFile.Close()
+>                       TOTALWRITES++
+>                       fmt.Println("Wrote", TOTALWRITES, "log entries in total!")
+>                       os.Exit(-1)
+>                 default:
+>                       log.Println("Got:", sig)
+>                       TOTALWRITES++
+>                 }
+53c61,64
+<           time.Sleep(time.Second)
+---
+>     }()
+>
+>     for {
+>           time.Sleep(10 * time.Second)
+55d65
+<     fmt.Println("Wrote", TOTALWRITES, "log entries!")
+```
+
+The good thing here is that the use of signals in rotateSignals.go makes most of the global variables used in rotateLog.go unnecessary because you can now control the utility by sending signals. Additionally, the design and the structure of rotateSignals.go are simpler than rotateLog.go because you only have to understand what the anonymous function does.
+
+After executing rotateSignals.go and sending some signals to it, the contents of /tmp/myLog.log will look like the following:
+
+```markup
+$ cat /tmp/myLog.log
+2017/06/03 14:53:33 Got: user defined signal 1
+2017/06/03 14:54:08 Got: user defined signal 1
+2017/06/03 14:54:12 Got: user defined signal 2
+2017/06/03 14:54:19 Got: terminated
+```
+
+Additionally, you will have the following files inside /tmp:
+
+```markup
+$ ls -l /tmp/myLog.log*
+-rw-r--r--  1 mtsouk  wheel  177 Jun  3 14:54 /tmp/myLog.log
+-rw-r--r--  1 mtsouk  wheel  106 Jun  3 13:42 /tmp/myLog.log.0
+```
+
+Just Imagine
+
+# Improving file copying
+
+The original cp(1) utility prints useful information when it receives a SIGINFO signal, as shown in the following output:
+
+```markup
+$ cp FileToCopy /tmp/copy
+FileToCopy -> /tmp/copy  26%
+FileToCopy -> /tmp/copy  29%
+FileToCopy -> /tmp/copy  31%
+```
+
+So, the rest of this section will implement the same functionality to the Go implementation of the cp(1) command. The Go code in this section will be based on the cp.go program because it can be very slow when used with a small buffer size giving us time for testing. The name of the new copy utility will be cpSignal.go and will be presented in four parts.
+
+The fundamental difference between cpSignal.go and cp.go is that cpSignal.go should find the size of the input file and keep the number of bytes that have been written at a given point. Apart from those modifications there is nothing else that you should worry about because the core functionality of the two versions, which is copying a file, is exactly the same.
+
+The first part of the program is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "fmt" 
+   "io" 
+   "os" 
+   "os/signal" 
+   "path/filepath" 
+   "strconv" 
+   "syscall" 
+) 
+ 
+var BUFFERSIZE int64 
+var FILESIZE int64 
+var BYTESWRITTEN int64 
+```
+
+In order to make things simpler for the developer, the program introduces two global variables called FILESIZE and BYTESWRITTEN and these keep the size of the input file and the number of bytes that have been written, respectively. Both variables are used by the function that handles the SIGINFO signal.
+
+The second part is as follows:
+
+```markup
+func Copy(src, dst string, BUFFERSIZE int64) error { 
+   sourceFileStat, err := os.Stat(src) 
+   if err != nil { 
+         return err 
+   } 
+ 
+   FILESIZE = sourceFileStat.Size() 
+ 
+   if !sourceFileStat.Mode().IsRegular() { 
+         return fmt.Errorf("%s is not a regular file.", src) 
+   } 
+ 
+   source, err := os.Open(src) 
+   if err != nil { 
+         return err 
+   } 
+   defer source.Close() 
+ 
+   _, err = os.Stat(dst) 
+   if err == nil { 
+         return fmt.Errorf("File %s already exists.", dst) 
+   } 
+ 
+   destination, err := os.Create(dst) 
+   if err != nil { 
+         return err 
+   } 
+   defer destination.Close() 
+ 
+   if err != nil { 
+         panic(err) 
+   } 
+ 
+   buf := make([]byte, BUFFERSIZE) 
+   for { 
+         n, err := source.Read(buf) 
+         if err != nil && err != io.EOF { 
+               return err 
+         } 
+         if n == 0 { 
+               break 
+         } 
+         if _, err := destination.Write(buf[:n]); err != nil { 
+               return err 
+         } 
+         BYTESWRITTEN = BYTESWRITTEN + int64(n) 
+   } 
+   return err 
+} 
+```
+
+Here, you use the sourceFileStat.Size() function to get the size of the input file and set the value of the FILESIZE global variable.
+
+The third part is where you define the signal handling:
+
+```markup
+func progressInfo() { 
+   progress := float64(BYTESWRITTEN) / float64(FILESIZE) * 100 
+   fmt.Printf("Progress: %.2f%%\n", progress) 
+} 
+ 
+func main() { 
+   if len(os.Args) != 4 { 
+         fmt.Printf("usage: %s source destination BUFFERSIZE\n", filepath.Base(os.Args[0])) 
+         os.Exit(1) 
+   } 
+ 
+   source := os.Args[1] 
+   destination := os.Args[2] 
+   BUFFERSIZE, _ = strconv.ParseInt(os.Args[3], 10, 64) 
+   BYTESWRITTEN = 0 
+ 
+   sigs := make(chan os.Signal, 1) 
+   signal.Notify(sigs) 
+```
+
+Here, you choose to catch all signals. However, the Go code of the anonymous function will only call progressInfo() after receiving a syscall.SIGINFO signal.
+
+If you want to have a way of gracefully terminating the program, you might want to use the SIGINT signal because when capturing all signals, gracefully terminating a program is no longer possible: you will need to send a SIGKILL in order to terminate your program, which is a little cruel.
+
+The last part of cpSignal.go is the following:
+
+```markup
+   go func() { 
+         for {               sig := <-sigs 
+               switch sig { 
+               case syscall.SIGINFO:
+                     progressInfo() 
+               default: 
+                     fmt.Println("Ignored:", sig) 
+               } 
+         } 
+   }() 
+ 
+   fmt.Printf("Copying %s to %s\n", source, destination) 
+   err := Copy(source, destination, BUFFERSIZE) 
+   if err != nil { 
+         fmt.Printf("File copying failed: %q\n", err) 
+   } 
+} 
+```
+
+Executing cpSignal.go and sending two SIGINFO signals to it will generate the following output:
+
+```markup
+$ ./cpSignal FileToCopy /tmp/copy 2
+Copying FileToCopy to /tmp/copy
+Ignored: user defined signal 1
+Progress: 21.83%
+^CIgnored: interrupt
+Progress: 29.78%
+```
+
+Just Imagine
+
+# Plotting data
+
+The utility that will be developed in this section will read multiple log files and will create a graphical image with as many bars as the number of log files read. Each bar will represent the number of times a given IP address has been found in a log file.
+
+However, the Unix philosophy tells us that instead of developing a single utility, we should make two distinct utilities: one for processing the log files and creating a report and another for plotting the data generated by the first utility: the two utilities will communicate using Unix pipes. Although this section will implement the first approach, you will see the implementation of the second approach later in _The_ plotIP.go _utility revisited_ section of this chapter.
+
+The idea for the presented utility came from a tutorial that I wrote for a magazine where I developed a small Go program that did some plotting: even small and naive programs can inspire you to develop bigger things, so do not underestimate their power.
+
+The name of the utility will be plotIP.go, and it will be presented in seven parts: the good thing is that plotIP.go will reuse some of the code of countIP.go and findIP.go. The only thing that plotIP.go does not do is writing text to the image, so you can only plot the bars without knowing the actual values or the corresponding log file of a particular bar: you can try to add text capabilities to the program as an exercise.
+
+Also, plotIP.go will require at least three parameters, which are the width and height of the image and the name of the log file that will be used: in order to make plotIP.go smaller, plotIP.go will not use the flag package and assume that you will give its parameters in the correct order. If you give it more parameters, it will consider them as log files.
+
+The first part of plotIP.go is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "bufio" 
+   "fmt" 
+   "image" 
+   "image/color" 
+   "image/png" 
+   "io" 
+   "os" 
+   "path/filepath" 
+   "regexp" 
+   "strconv" 
+) 
+var m *image.NRGBAvar x int 
+var y int 
+var barWidth int 
+```
+
+These global variables related to the dimensions of the image (x and y), the image as a Go variable (m), and the width of one of its bars (barWidth) that depends on the size of the image and the number of the bars that will be plotted. Note that using x and y as variable names instead of something like IMAGEWIDTH and IMAGEHEIGHT might be a little wrong and dangerous here.
+
+The second part is the following:
+
+```markup
+func findIP(input string) string { 
+   partIP := "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])" 
+   grammar := partIP + "\\." + partIP + "\\." + partIP + "\\." + partIP 
+   matchMe := regexp.MustCompile(grammar) 
+   return matchMe.FindString(input) 
+} 
+ 
+func plotBar(width int, height int, color color.RGBA) { 
+   xx := 0   for xx < barWidth { 
+         yy := 0 
+         for yy < height { 
+               m.Set(xx+width, y-yy, color) 
+               yy = yy + 1 
+         } 
+         xx = xx + 1 
+   } 
+} 
+```
+
+Here, you implement a Go function named plotBar() that does the plotting of each bar, given its height, its width, and its color of the bar. This function is the most challenging part of plotIP.go.
+
+The third part has the following Go code:
+
+```markup
+func getColor(x int) color.RGBA { 
+   switch { 
+   case x == 0: 
+         return color.RGBA{0, 0, 255, 255} 
+   case x == 1: 
+         return color.RGBA{255, 0, 0, 255} 
+   case x == 2: 
+         return color.RGBA{0, 255, 0, 255} 
+   case x == 3: 
+         return color.RGBA{255, 255, 0, 255} 
+   case x == 4: 
+         return color.RGBA{255, 0, 255, 255} 
+   case x == 5: 
+         return color.RGBA{0, 255, 255, 255} 
+   case x == 6: 
+         return color.RGBA{255, 100, 100, 255} 
+   case x == 7: 
+         return color.RGBA{100, 100, 255, 255} 
+   case x == 8: 
+         return color.RGBA{100, 255, 255, 255} 
+   case x == 9: 
+         return color.RGBA{255, 255, 255, 255} 
+   } 
+   return color.RGBA{0, 0, 0, 255} 
+} 
+```
+
+This function lets you define the colors that will be present in the output: you can change them if you want.
+
+The fourth part contains the following Go code:
+
+```markup
+func main() { 
+   var data []int 
+   arguments := os.Args 
+   if len(arguments) < 4 { 
+         fmt.Printf("%s X Y IP input\n", filepath.Base(arguments[0])) 
+         os.Exit(0) 
+   } 
+ 
+   x, _ = strconv.Atoi(arguments[1]) 
+   y, _ = strconv.Atoi(arguments[2]) 
+   WANTED := arguments[3] 
+   fmt.Println("Image size:", x, y) 
+```
+
+Here, you read the desired IP address, which is saved in the WANTED variable and you read the dimensions of the generated PNG image.
+
+The fifth part contains the following Go code:
+
+```markup
+   for _, filename := range arguments[4:] { 
+         count := 0 
+         fmt.Println(filename) 
+         f, err := os.Open(filename) 
+         if err != nil { 
+               fmt.Fprintf(os.Stderr, "Error: %s\n", err) 
+               continue 
+         } 
+         defer f.Close() 
+ 
+         r := bufio.NewReader(f) 
+         for { 
+               line, err := r.ReadString('\n') 
+               if err == io.EOF { 
+                     break 
+               } 
+ 
+if err != nil { 
+                fmt.Fprintf(os.Stderr, "Error in file: %s\n", err) 
+                     continue 
+               } 
+               ip := findIP(line) 
+               if ip == WANTED { 
+                     count++ 
+               } 
+         } 
+         data = append(data, count) 
+   } 
+```
+
+Here, you process the input log files one by one and store the values you calculate in the data slice. Error messages are printed to os.Stderr: the main advantage you get from printing error messages to os.Stderr is that you can easily redirect error messages to a file while using data written to os.Stdout in a different way.
+
+The sixth part of plotIP.go contains the following Go code:
+
+```markup
+   fmt.Println("Slice length:", len(data)) 
+   if len(data)*2 > x { 
+         fmt.Println("Image size (x) too small!") 
+         os.Exit(-1) 
+   } 
+ 
+   maxValue := data[0] 
+   for _, temp := range data { 
+         if maxValue < temp { 
+               maxValue = temp 
+         } 
+   } 
+ 
+   if maxValue > y { 
+         fmt.Println("Image size (y) too small!") 
+         os.Exit(-1) 
+   } 
+   fmt.Println("maxValue:", maxValue) 
+   barHeighPerUnit := int(y / maxValue) 
+   fmt.Println("barHeighPerUnit:", barHeighPerUnit) 
+   PNGfile := WANTED + ".png" 
+   OUTPUT, err := os.OpenFile(PNGfile, os.O_CREATE|os.O_WRONLY, 0644) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(-1) 
+   } 
+   m = image.NewNRGBA(image.Rectangle{Min: image.Point{0, 0}, Max: image.Point{x, y}}) 
+```
+
+Here, you calculate things about the plot and create the output image file using os.OpenFile(). The PNG file generated by the plotIP.go utility is named after the given IP address to make things simpler.
+
+The last part of the Go code of plotIP.go is the following:
+
+```markup
+   i := 0 
+   barWidth = int(x / len(data)) 
+   fmt.Println("barWidth:", barWidth) 
+   for _, v := range data { 
+         c := getColor(v % 10) 
+         yy := v * barHeighPerUnit 
+         plotBar(barWidth*i, yy, c) 
+         fmt.Println("plotBar", barWidth*i, yy) 
+         i = i + 1 
+   } 
+   png.Encode(OUTPUT, m) 
+} 
+```
+
+Here, you read the values of the data slice and create a bar for each one of them by calling the plotBar() function.
+
+Executing plotIP.go will generate the following output:
+
+```markup
+$ go run plotIP.go 1300 1500 127.0.0.1 /tmp/log.*
+Image size: 1300 1500
+/tmp/log.1
+/tmp/log.2
+/tmp/log.3
+Slice length: 3
+maxValue: 1500
+barHeighPerUnit: 1
+barWidth: 433
+plotBar 0 1500
+plotBar 433 1228
+plotBar 866 532
+$  ls -l 127.0.0.1.png
+-rw-r--r-- 1 mtsouk mtsouk 11023 Jun  5 18:36 127.0.0.1.png
+```
+
+However, apart from the generated text output, what is important is the produced PNG file that can be seen in the following figure:
+
+![](https://static.packt-cdn.com/products/9781787125643/graphics/assets/0705a55e-044d-4918-bfea-70d6b7d9377e.png)
+
+The output generated by the plotIP.go utility
+
+If you want to save the error messages to a different file, you can use a variation of the following command:
+
+```markup
+$ go run plotIP.go 130 150 127.0.0.1 doNOTExist 2> err
+Image size: 130 150
+doNOTExist
+Slice length: 0
+$ cat err
+Error: open doNOTExist: no such file or directory
+panic: runtime error: index out of range
+    
+goroutine 1 [running]:
+main.main()
+     /Users/mtsouk/Desktop/goCourse/ch/ch8/code/plotIP.go:112 +0x12de
+exit status 2
+```
+
+The following command discards all error messages by sending them to /dev/null:
+
+```markup
+$ go run plotIP.go 1300 1500 127.0.0.1 doNOTExist 2>/dev/null
+Image size: 1300 1500
+doNOTExist
+Slice length: 0  
+```
+
+Just Imagine
+
+# Unix pipes in Go
+
+We first talked about pipes in _[](https://subscription.imaginedevops.io/book/programming/9781787125643/6)_[Chapter 6](https://subscription.imaginedevops.io/book/programming/9781787125643/6)_,_ _File Input and Output_. Pipes have two serious limitations: first, they usually communicate in one direction, and second, they can only be used between processes that have a common ancestor.
+
+The general idea behind pipes is that if you do not have a file to process, you should wait to get your input from standard input. Similarly, if you are not told to save your output to a file, you should write your output to standard output, either for the user to see it or for another program to process it. As a result, pipes can be used for streaming data between two processes without creating any temporary files.
+
+This section will present some simple utilities written in Go that use Unix pipes for clarity.
+
+# Reading from standard input
+
+The first thing that you need to know in order to develop Go applications that support Unix pipes is how to read from standard input.
+
+The developed program is named readSTDIN.go and will be presented in three parts.
+
+The first part of the program is the expected preamble:
+
+```markup
+package main 
+ 
+import ( 
+   "bufio" 
+   "fmt" 
+   "os" 
+) 
+```
+
+The second part of readSTDIN.go has the following Go code:
+
+```markup
+func main() { 
+   filename := "" 
+   var f *os.File 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         f = os.Stdin 
+   } else { 
+         filename = arguments[1] 
+         fileHandler, err := os.Open(filename) 
+         if err != nil { 
+               fmt.Printf("error opening %s: %s", filename, err) 
+               os.Exit(1) 
+         } 
+         f = fileHandler 
+   } 
+   defer f.Close() 
+```
+
+Here, you resolve whether you have an actual file to process, which can be determined by the number of the command-line arguments of your program. If you do not have a file to process, you will try to read data from os.Stdin. Make sure that you understand the presented technique because it will be used many times in this chapter.
+
+The last part of readSTDIN.go is the following:
+
+```markup
+   scanner := bufio.NewScanner(f) 
+   for scanner.Scan() { 
+         fmt.Println(">", scanner.Text()) 
+   } 
+} 
+```
+
+This code is the same whether you are processing an actual file or os.Stdin, which happens because everything in Unix is a file. Note that the program output begins with the \> character.
+
+Executing readSTDIN.go will generate the following output:
+
+```markup
+$ cat /tmp/testfile
+1
+2
+$ go run readSTDIN.go /tmp/testFile
+> 1
+> 2
+$ cat /tmp/testFile | go run readSTDIN.go
+> 1
+> 2
+$ go run readSTDIN.go
+3
+> 3
+2
+> 2
+1
+> 1
+```
+
+In the last case, readSTDIN.go echoes each line it reads because the input is read line by line: the cat(1) utility works the same way.
+
+# Sending data to standard output
+
+This subsection will show you how to send data to standard output in a better way than just using fmt.Println() or any other function from the fmt standard Go package. The Go program will be named writeSTDOUT.go and will be presented to you in three parts.
+
+The first part is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "io" 
+   "os" 
+) 
+```
+
+The second part of writeSTDOUT.go has the following Go code:
+
+```markup
+func main() { 
+   myString := "" 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         myString = "You did not give an argument!" 
+   } else { 
+         myString = arguments[1] 
+   } 
+```
+
+The last part of writeSTDOUT.go is the following:
+
+```markup
+   io.WriteString(os.Stdout, myString) 
+   io.WriteString(os.Stdout, "\n") 
+} 
+```
+
+The only subtle thing is that you need to put your text into a slice before using io.WriteString() to write data to os.Stdout.
+
+Executing writeSTDOUT.go will generate the following output:
+
+```markup
+$ go run writeSTDOUT.go 123456
+123456
+$ go run writeSTDOUT.go
+You do not give an argument!
+```
+
+# Implementing cat(1) in Go
+
+This subsection will present a Go version of the cat(1) command-line utility. If you give one or more command-line arguments to cat(1), then cat(1) will print their contents on the screen. However, if you just type cat(1) on your Unix shell, then cat(1) will wait for your input, which will be terminated when you type _Ctrl_ + _D_.
+
+The name of the Go implementation will be cat.go and will be presented in three parts.
+
+The first part of cat.go is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "bufio" 
+   "fmt" 
+   "io" 
+   "os" 
+) 
+```
+
+The second part is the following:
+
+```markup
+func catFile(filename string) error { 
+   f, err := os.Open(filename) 
+   if err != nil { 
+         return err 
+   } 
+   defer f.Close() 
+   scanner := bufio.NewScanner(f) 
+   for scanner.Scan() { 
+         fmt.Println(scanner.Text()) 
+   } 
+   return nil 
+} 
+```
+
+The catFile() function is called when the cat.go utility has to process real files. Having a function to do your job makes the design of the program better.
+
+The last part has the following Go code:
+
+```markup
+func main() { 
+   filename := "" 
+   arguments := os.Args 
+   if len(arguments) == 1 { 
+         io.Copy(os.Stdout, os.Stdin) 
+         os.Exit(0) 
+   } 
+ 
+   filename = arguments[1] 
+   err := catFile(filename) 
+   if err != nil { 
+         fmt.Println(err) 
+   } 
+} 
+```
+
+So, if the program has no arguments, then it assumes that it has to read os.Stdin. In that case, it just echoes each line you give to it. If the program has arguments, then it processes the first argument as a file using the catFile() function.
+
+Executing cat.go will generate the following output:
+
+```markup
+$ go run cat.go /tmp/testFile  |  go run cat.go
+1
+2
+$ go run cat.go
+Mihalis
+Mihalis
+Tsoukalos
+Tsoukalos$ echo "Mihalis Tsoukalos" | go run cat.go
+Mihalis Tsoukalos
+```
+
+# The plotIP.go utility revisited
+
+As promised in a previous section of this chapter, this section will create two separate utilities, which when combined will implement the functionality of plotIP.go. Personally, I prefer to have two separate utilities and combine them when needed than having just one utility that does two or more tasks.
+
+The names of the two utilities will be extractData.go and plotData.go. As you can easily understand, only the second utility would have to be able to get input from standard input as long as the first utility prints its output on standard output either using os.Stdout, which is the correct way, or using fmt.Println(), which usually does the job.
+
+I think that I should now tell you my little secret: I created extractData.go and plotData.go first and then developed plotIP.go because it is easier to develop two separate utilities than a bigger one that does everything! Additionally, the use of two different utilities allows you to filter the output of extractData.go using standard Unix utilities such as tail(1), sort(1), and head(1), which means that you can modify your data in different ways without the need for writing any extra Go code.
+
+Taking two command-line utilities and creating one utility that implements the functionality of both utilities is easier than taking one big utility and dividing its functionality into two or more distinct utilities because the latter usually requires more variables and more error checking.
+
+The extractData.go utility will be presented in four parts; the first part is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "bufio" 
+   "fmt" 
+   "io" 
+   "os" 
+   "path/filepath" 
+   "regexp" 
+) 
+```
+
+The second part of extractData.go has the following Go code:
+
+```markup
+func findIP(input string) string { 
+   partIP := "(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])" 
+   grammar := partIP + "\\." + partIP + "\\." + partIP + "\\." + partIP 
+   matchMe := regexp.MustCompile(grammar) 
+   return matchMe.FindString(input) 
+} 
+```
+
+You should be familiar with the findIP() function, which you saw in findIP.go in _[](https://subscription.imaginedevops.io/book/programming/9781787125643/7)_[Chapter 7](https://subscription.imaginedevops.io/book/programming/9781787125643/7)_,_ _Working with System files_.
+
+The third part of extractData.go is the following:
 
 ```markup
 func main() { 
    arguments := os.Args 
-   if len(arguments) == 1 { 
-         fmt.Println("Not enough arguments!") 
-         os.Exit(1) 
+   if len(arguments) < 3 { 
+         fmt.Printf("%s IP <files>\n", filepath.Base(os.Args[0])) 
+         os.Exit(-1) 
    } 
  
-   Path := arguments[1] 
-   err := filepath.Walk(Path, walkFunction) 
-   if err != nil { 
-         fmt.Println(err) 
-         os.Exit(1) 
-   } 
-} 
-```
-
-All the dirty jobs here are automatically done by the filepath.Walk() function with the help of the walkFunction() function that was defined previously. The filepath.Walk() function takes two parameters: the path of a directory and the walk function it will use.
-
-Executing traverse.go will generate the following kind of output:
-
-```markup
-$ go run traverse.go ~/code/C/cUNL
-/home/mtsouk/code/C/cUNL
-/home/mtsouk/code/C/cUNL/gpp
-/home/mtsouk/code/C/cUNL/gpp.c
-/home/mtsouk/code/C/cUNL/sizeofint
-/home/mtsouk/code/C/cUNL/sizeofint.c
-/home/mtsouk/code/C/cUNL/speed
-/home/mtsouk/code/C/cUNL/speed.c
-/home/mtsouk/code/C/cUNL/swap
-/home/mtsouk/code/C/cUNL/swap.c
-```
-
-As you can see, the code of traverse.go is pretty naive, as among other things, it cannot differentiate between directories, files, and symbolic links. However, it does the pretty tedious job of visiting every file and directory under a given directory tree, which is the basic functionality of the find(1) utility.
-
-# Visiting directories only!
-
-Although it is good to be able to visit everything, there are times when you want to visit only directories and not files. So, in this subsection, we will modify traverse.go in order to still visit everything but only print the directory names. The name of the new program will be traverseDir.go. The only part of traverse.go that needs to change is the definition of the walkFunction():
-
-```markup
-func walkFunction(path string, info os.FileInfo, err error) error { 
-   fileInfo, err := os.Stat(path) 
-   if err != nil { 
-         return err 
-   } 
- 
-   mode := fileInfo.Mode() 
-   if mode.IsDir() { 
-         fmt.Println(path) 
-   } 
-   return nil 
-} 
-```
-
-As you can see, here you need to use the information returned by the os.Stat() function call in order to check whether you are dealing with a directory or not. If you have a directory, then you print its path and you are done.
-
-Executing traverseDir.go will generate the following output:
-
-```markup
-$ go run traverseDir.go ~/code
-/home/mtsouk/code
-/home/mtsouk/code/C
-/home/mtsouk/code/C/cUNL
-/home/mtsouk/code/C/example
-/home/mtsouk/code/C/sysProg
-/home/mtsouk/code/C/system
-/home/mtsouk/code/Haskell
-/home/mtsouk/code/aLink
-/home/mtsouk/code/perl
-/home/mtsouk/code/python  
-```
-
-Just Imagine
-
-# The first version of find(1)
-
-The Go code in this section is saved as find.go and will be presented in three parts. As you will see, find.go uses a large amount of the code found in traverse.go, which is the main benefit you get when you are developing a program step by step.
-
-The first part of find.go is the expected preamble:
-
-```markup
-package main 
- 
-import ( 
-   "flag" 
-   "fmt" 
-   "os" 
-   "path/filepath" 
-) 
-```
-
-As we already know that we will improve find.go in the near future, the flag package is used here even if this is the first version of find.go and it does not have any flags!
-
-The second part of the Go code contains the implementation of the walkFunction():
-
-```markup
-func walkFunction(path string, info os.FileInfo, err error) error { 
- 
-   fileInfo, err := os.Stat(path) 
-   if err != nil { 
-         return err 
-   } 
- 
-   mode := fileInfo.Mode() 
-   if mode.IsDir() || mode.IsRegular() { 
-         fmt.Println(path) 
-   } 
-   return nil 
-} 
-```
-
-From the implementation of the walkFunction() you can easily understand that find.go only prints regular files and directories, and nothing else. Is this a problem? Not, if this is what you want. Generally speaking, this is not good. Nevertheless, having a first version of something that works despite some restrictions is a good starting point! The next version, which will be named improvedFind.go, will improve find.go by adding various command-line options to it.
-
-The last part of find.go contains the code that implements the main() function:
-
-```markup
-func main() { 
-   flag.Parse() 
-   flags := flag.Args() 
- 
-   if len(flags) == 0 { 
-         fmt.Println("Not enough arguments!") 
-         os.Exit(1) 
-   } 
- 
-   Path := flags[0] 
-   err := filepath.Walk(Path, walkFunction) 
-   if err != nil { 
-         fmt.Println(err) 
-         os.Exit(1) 
-   } 
-} 
-```
-
-Executing find.go will create the following output:
-
-```markup
-$ go run find.go ~/code/C/cUNL
-/home/mtsouk/code/C/cUNL
-/home/mtsouk/code/C/cUNL/gpp
-/home/mtsouk/code/C/cUNL/gpp.c
-/home/mtsouk/code/C/cUNL/sizeofint
-/home/mtsouk/code/C/cUNL/sizeofint.c
-/home/mtsouk/code/C/cUNL/speed
-/home/mtsouk/code/C/cUNL/speed.c
-/home/mtsouk/code/C/cUNL/swap
-/home/mtsouk/code/C/cUNL/swap.c
-```
-
-# Adding some command-line options
-
-This subsection will try to improve the Go version of find(1) that you created earlier. Keep in mind that this is the process used for developing real programs because you do not implement every possible command-line option in the first version of a program.
-
-The Go code of the new version is going to be saved as improvedFind.go. Among other things, the new version will be able to ignore symbolic links: symbolic links will only be printed when improvedFind.go is used with the appropriate command-line option. To do this, we will use some of the Go code of symbLink.go.
-
-The improvedFind.go program is a real system tool that you can use on your own Unix machines.
-
-The supported flags will be the following:
-
--   **\-s**: This is for printing socket files
--   **\-p**: This is for printing pipes
--   **\-sl**: This is for printing symbolic links
--   **\-d**: This is for printing directories
--   **\-f**: This is for printing files
-
-As you will see, most of the new Go code is for supporting the flags added to the program. Additionally, by default, improvedFind.go prints every type of file or directory, and you are allowed to combine any of the preceding flags in order to print the types of files you want.
-
-Apart from the various changes in the implementation of the main() function in order to support all these flags, most of the remaining changes will take place in the code of the walkFunction() function. Additionally, the walkFunction() function will be defined inside the main() function, which happens in order to avoid the use of global variables.
-
-The first part of improvedFind.go is as follows:
-
-```markup
-package main 
- 
-import ( 
-   "flag" 
-   "fmt" 
-   "os" 
-   "path/filepath" 
-) 
- 
-func main() { 
- 
-   minusS := flag.Bool("s", false, "Sockets") 
-   minusP := flag.Bool("p", false, "Pipes") 
-   minusSL := flag.Bool("sl", false, "Symbolic Links") 
-   minusD := flag.Bool("d", false, "Directories") 
-   minusF := flag.Bool("f", false, "Files") 
- 
-   flag.Parse() 
-   flags := flag.Args() 
- 
-   printAll := false 
-   if *minusS && *minusP && *minusSL && *minusD && *minusF { 
-         printAll = true 
-   } 
- 
-   if !(*minusS || *minusP || *minusSL || *minusD || *minusF) { 
-         printAll = true 
-   } 
- 
-   if len(flags) == 0 { 
-         fmt.Println("Not enough arguments!") 
-         os.Exit(1) 
-   } 
- 
-   Path := flags[0] 
-```
-
-So, if all the flags are unset, the program will print everything, which is handled by the first if statement. Similarly, if all the flags are set, the program will also print everything. So, a new Boolean variable named printAll is needed.
-
-The second part of improvedFind.go has the following Go code, which is mainly the definition of the walkFunction variable, which in reality is a function:
-
-```markup
-   walkFunction := func(path string, info os.FileInfo, err error) error { 
-         fileInfo, err := os.Stat(path) 
+   WANTED := arguments[1] 
+   for _, filename := range arguments[2:] { 
+         count := 0 
+         buf := []byte(filename)         io.WriteString(os.Stdout, string(buf)) 
+         f, err := os.Open(filename) 
          if err != nil { 
-               return err 
+               fmt.Fprintf(os.Stderr, "Error: %s\n", err) 
+               continue 
          } 
- 
-         if printAll { 
-               fmt.Println(path) 
-               return nil 
-         } 
- 
-         mode := fileInfo.Mode() 
-         if mode.IsRegular() && *minusF { 
-               fmt.Println(path) 
-               return nil 
-         } 
- 
-         if mode.IsDir() && *minusD { 
-               fmt.Println(path) 
-               return nil 
-         } 
- 
-         fileInfo, _ = os.Lstat(path) 
-         if fileInfo.Mode()&os.ModeSymlink != 0 { 
-               if *minusSL { 
-                     fmt.Println(path) 
-                     return nil 
-               } 
-         } 
- 
-         if fileInfo.Mode()&os.ModeNamedPipe != 0 { 
-               if *minusP { 
-                     fmt.Println(path) 
-                     return nil 
-               } 
-         } 
- 
-         if fileInfo.Mode()&os.ModeSocket != 0 { 
-               if *minusS { 
-                     fmt.Println(path) 
-                     return nil 
-               } 
-         } 
- 
-         return nil 
-   } 
+         defer f.Close() 
 ```
 
-Here, the good thing is that once you find a match and print a file, you do not have to visit the rest of the if statements, which is the main reason for putting the minusF check first and the minusD check second. The call to os.Lstat() is used to find out whether we are dealing with a symbolic link or not. This happens because os.Stat() follows symbolic links and returns information about the file the link references, whereas os.Lstat() does not do so: the same occurs with stat(2) and lstat(2).
+The use of the buf variable is redundant here because filename is a string and io.WriteString() expects a string: it is just my habit to put the value of filename into a byte slice. You can remove it if you want.
 
-You should be pretty familiar with the last part of improvedFind.go:
+Once again, most of the Go code is from the plotIP.go utility. The last part of extractData.go is the following:
 
 ```markup
-   err := filepath.Walk(Path, walkFunction) 
-   if err != nil { 
-         fmt.Println(err) 
-         os.Exit(1) 
+         r := bufio.NewReader(f) 
+         for { 
+               line, err := r.ReadString('\n') 
+               if err == io.EOF { 
+                     break 
+               } else if err != nil { 
+                     fmt.Fprintf(os.Stderr, "Error in file: %s\n", err) 
+                     continue 
+               } 
+ 
+               ip := findIP(line) 
+               if ip == WANTED { 
+                     count = count + 1 
+               } 
+         } 
+         buf = []byte(strconv.Itoa(count))         io.WriteString(os.Stdout, " ") 
+         io.WriteString(os.Stdout, string(buf)) 
+         io.WriteString(os.Stdout, "\n") 
    } 
 } 
 ```
 
-Executing improvedFind.go generates the following output, which is an enriched version of the output of find.go:
+Here, extractData.go writes its output to standard output (os.Stdout) instead of using the functions of the fmt package in order to be more compatible with pipes. The extractData.go utility requires at least two parameters: an IP address and a log file, but it can process as many log files as you wish.
+
+You might want to move the printing of the filename value from the third part here in order to have all printing commands at the same place.
+
+Executing extractData.go will generate the following output:
 
 ```markup
-$ go run improvedFind.go -d ~/code/C
-/home/mtsouk/code/C
-/home/mtsouk/code/C/cUNL
-/home/mtsouk/code/C/example
-/home/mtsouk/code/C/sysProg
-/home/mtsouk/code/C/system
-$ go run improvedFind.go -sl ~/code
-/home/mtsouk/code/aLink
+$ ./extractData 127.0.0.1 access.log{,.1}
+access.log 3099
+access.log.1 6333
 ```
 
-# Excluding filenames from the find output
-
-There are times when you do not need to display everything from the output of find(1). So, in this subsection, you will learn a technique that allows you to manually exclude files from the output of improvedFind.go based on their filenames.
-
-Note that this version of the program will not support regular expressions and will only exclude filenames that are an exact match.
-
-So, the improved version of improvedFind.go will be named excludeFind.go. The output of the diff(1) utility can reveal the code differences between improvedFind.go and excludeFind.go:
+Although extractData.go prints two values in each line, only the second field will be used by plotData.go. The best way to do that is filter the output of extractData.go using awk(1):
 
 ```markup
-$ diff excludeFind.go improvedFind.go
-10,19d9
-< func excludeNames(name string, exclude string) bool {`
-<     if exclude == "" {
-<           return false
-<     }
-<     if filepath.Base(name) == exclude {
-<           return true
-<     }
-<     return false
-< }
-<
-27d16
-<     minusX := flag.String("x", "", "Files")
-54,57d42
-<           if excludeNames(path, *minusX) {
-<                 return nil
-<           }
-<
+$ ./extractData 127.0.0.1 access.log{,.1} | awk '{print $2}'
+3099
+6333
 ```
 
-The most significant change is the introduction of a new Go function, named excludeNames(), that deals with filename exclusion and the addition of the \-x flag, which is used for setting the filename you want to exclude from the output. All the job is done by the file path. The Base() function finds the last part of a path, even if the path is not a file but a directory, and compares it against the value of the \-x flag.
+As you can understand, awk(1) allows you to do many more things with the generated values.
 
-Note that a more appropriate name for the excludeNames() function could have been isExcluded() or something similar because the \-x option accepts a single value.
-
-Executing excludeFind.go with and without the \-x flag will prove that the new Go code actually works:
-
-```markup
-$ go run excludeFind.go -x=dT.py ~/code/python
-/home/mtsouk/code/python
-/home/mtsouk/code/python/dataFile.txt
-/home/mtsouk/code/python/python
-$ go run excludeFind.go ~/code/python
-/home/mtsouk/code/python
-/home/mtsouk/code/python/dT.py
-/home/mtsouk/code/python/dataFile.txt
-/home/mtsouk/code/python/python
-```
-
-# Excluding a file extension from the find output
-
-A file extension is the part of a filename after the last dot (.) character. So, the file extension of the image.png file is png, which applies to both files and directories.
-
-Once again, you will need a separate command-line option followed by the file extension you want to exclude in order to implement this functionality: the new flag will be named \-ext. This version of the find(1) utility will be based on the code of excludeFind.go and will be named finalFind.go. Some of you might say that a more appropriate name for this option would have been \-xext and you would be right about that!
-
-Once again, the diff(1) utility will help us spot the code differences between excludeFind.go and finalFind.go: the new functionality is implemented in a Go function named excludeExtensions(), which makes things easier to understand:
-
-```markup
-$ diff finalFind.go excludeFind.go
-8d7
-<     "strings"
-21,34d19
-< func excludeExtensions(name string, extension string) bool {
-<     if extension == "" {
-<           return false
-<     }
-<     basename := filepath.Base(name)
-<     s := strings.Split(basename, ".")
-<     length := len(s)
-<     basenameExtension := s[length-1]
-<     if basenameExtension == extension {
-<           return true
-<     }
-<     return false
-< }
-<
-43d27
-<     minusEXT := flag.String("ext", "", "Extensions")
-74,77d57
-<           if excludeExtensions(path, *minusEXT) {
-<                 return nil
-<           }
-< 
-```
-
-As we are looking for the string after the last dot in the path, we use strings.Split() to split the path based on the dot characters it contains. Then, we take the last part of the return value of strings.Split() and we compare it against the extension that was given with the \-ext flag. Therefore, nothing special here, just some string manipulation code. Once again, a more appropriate name for excludeExtensions() would have been isExcludedExtension().
-
-Executing finalFind.go will generate the following output:
-
-```markup
-$ go run finalFind.go -ext=py ~/code/python
-/home/mtsouk/code/python
-/home/mtsouk/code/python/dataFile.txt
-/home/mtsouk/code/python/python
-$ go run finalFind.go ~/code/python
-/home/mtsouk/code/python
-/home/mtsouk/code/python/dT.py
-/home/mtsouk/code/python/dataFile.txt
-/home/mtsouk/code/python/python
-```
-
-Just Imagine
-
-# Using regular expressions
-
-This section will illustrate how to add support for regular expressions in finalFind.go: the name of the last version of the tool will be regExpFind.go. The new flag will be called \-re and it will require a string value: anything that matches this string value will be included in the output unless it is excluded by another command-line option. Additionally, due to the flexibility that flags offer, we do not need to delete any of the previous options in order to add another one!
-
-Once again, the diff(1) command will tell us the code differences between regExpFind.go and finalFind.go:
-
-```markup
-$ diff regExpFind.go finalFind.go
-8d7
-<     "regexp"
-36,44d34
-< func regularExpression(path, regExp string) bool {
-<     if regExp == "" {
-<           return true
-<     }
-<     r, _ := regexp.Compile(regExp)
-<     matched := r.MatchString(path)
-<     return matched
-< }
-<
-54d43
-<     minusRE := flag.String("re", "", "Regular Expression")
-71a61
->
-75,78d64
-<           if regularExpression(path, *minusRE) == false {
-<                 return nil
-<           }
-< 
-```
-
-In [Chapter 7](https://subscription.imaginedevops.io/book/programming/9781787125643/7)_,_ _Working with System Files_, we ;will talk more about pattern matching and regular expressions in Go: for now, it is enough to understand that regexp.Compile() creates a regular expression and MatchString() tries to do the matching in the regularExpression() function.
-
-Executing regExpFind.go will generate the following output:
-
-```markup
-$ go run regExpFind.go -re=anotherPackage /Users/mtsouk/go
-/Users/mtsouk/go/pkg/darwin_amd64/anotherPackage.a
-/Users/mtsouk/go/src/anotherPackage
-/Users/mtsouk/go/src/anotherPackage/anotherPackage.go
-$ go run regExpFind.go -ext=go -re=anotherPackage /Users/mtsouk/go
-/Users/mtsouk/go/pkg/darwin_amd64/anotherPackage.a
-/Users/mtsouk/go/src/anotherPackage 
-```
-
-The previous output can be verified by using the following command:
-
-```markup
-$ go run regExpFind.go /Users/mtsouk/go | grep anotherPackage
-/Users/mtsouk/go/pkg/darwin_amd64/anotherPackage.a
-/Users/mtsouk/go/src/anotherPackage
-/Users/mtsouk/go/src/anotherPackage/anotherPackage.go
-```
-
-# Creating a copy of a directory structure
-
-Armed with the knowledge you gained in the previous sections, we will now develop a Go program that creates a copy of a directory structure in another directory: this means that any files in the input directory will not be copied to the destination directory, only the directories will be copied. This can be handy when you want to save useful files from a directory structure somewhere else while keeping the same directory structure or when you want to take a backup of a filesystem manually.
-
-As you are only interested in directories, the code of cpStructure.go is based on the code of traverseDir.go you saw earlier in this chapter: once again, a small program that was developed for learning purposes helps you implement a bigger program! Additionally, the test option will show what the program will do without actually creating any directories.
-
-The code of cpStructure.go will be presented in four parts. The first one is as follows:
+The plotData.go utility will also be presented in six parts; its first part is the following:
 
 ```markup
 package main 
  
 import ( 
-   "flag" 
+   "bufio" 
    "fmt" 
+   "image" 
+   "image/color" 
+   "image/png" 
    "os" 
    "path/filepath" 
+   "strconv" 
+) 
+ 
+var m *image.NRGBA 
+var x int 
+var y int 
+var barWidth int 
+```
+
+Once again, the use of global variables is for avoiding the passing of too many arguments to some of the functions of the utility.
+
+The second part of plotData.go contains the following Go code:
+
+```markup
+func plotBar(width int, height int, color color.RGBA) { 
+   xx := 0   for xx < barWidth { 
+         yy := 0 
+         for yy < height { 
+               m.Set(xx+width, y-yy, color) 
+               yy = yy + 1 
+         } 
+         xx = xx + 1 
+   } 
+} 
+```
+
+The third part of plotData.go has the following Go code:
+
+```markup
+func getColor(x int) color.RGBA { 
+   switch {   case x == 0: 
+         return color.RGBA{0, 0, 255, 255} 
+   case x == 1: 
+         return color.RGBA{255, 0, 0, 255} 
+   case x == 2: 
+         return color.RGBA{0, 255, 0, 255} 
+   case x == 3: 
+         return color.RGBA{255, 255, 0, 255} 
+   case x == 4: 
+         return color.RGBA{255, 0, 255, 255} 
+   case x == 5: 
+         return color.RGBA{0, 255, 255, 255} 
+   case x == 6: 
+         return color.RGBA{255, 100, 100, 255} 
+   case x == 7: 
+         return color.RGBA{100, 100, 255, 255} 
+   case x == 8: 
+         return color.RGBA{100, 255, 255, 255} 
+   case x == 9: 
+         return color.RGBA{255, 255, 255, 255} 
+   } 
+   return color.RGBA{0, 0, 0, 255} 
+} 
+```
+
+The fourth part of plotData.go contains the following Go code:
+
+```markup
+func main() { 
+   var data []int 
+   var f *os.File 
+   arguments := os.Args 
+   if len(arguments) < 3 { 
+         fmt.Printf("%s X Y input\n", filepath.Base(arguments[0])) 
+         os.Exit(0) 
+   } 
+ 
+   if len(arguments) == 3 { 
+         f = os.Stdin 
+   } else { 
+         filename := arguments[3] 
+         fTemp, err := os.Open(filename) 
+         if err != nil { 
+               fmt.Println(err) 
+               os.Exit(0) 
+         } 
+         f = fTemp 
+   } 
+   defer f.Close() 
+ 
+   x, _ = strconv.Atoi(arguments[1]) 
+   y, _ = strconv.Atoi(arguments[2]) 
+   fmt.Println("Image size:", x, y) 
+```
+
+The fifth part of plotData.go is the following:
+
+```markup
+   scanner := bufio.NewScanner(f) 
+   for scanner.Scan() { 
+         value, err := strconv.Atoi(scanner.Text()) 
+         if err == nil { 
+               data = append(data, value) 
+         } else { 
+               fmt.Println("Error:", value) 
+         } 
+   } 
+ 
+   fmt.Println("Slice length:", len(data)) 
+   if len(data)*2 > x { 
+         fmt.Println("Image size (x) too small!") 
+         os.Exit(-1) 
+   } 
+ 
+   maxValue := data[0] 
+   for _, temp := range data { 
+         if maxValue < temp { 
+               maxValue = temp 
+         } 
+   } 
+ 
+   if maxValue > y { 
+         fmt.Println("Image size (y) too small!") 
+         os.Exit(-1) 
+   } 
+   fmt.Println("maxValue:", maxValue) 
+   barHeighPerUnit := int(y / maxValue) 
+   fmt.Println("barHeighPerUnit:", barHeighPerUnit) 
+```
+
+The last part of plotData.go is the following:
+
+```markup
+   PNGfile := arguments[1] + "x" + arguments[2] + ".png" 
+   OUTPUT, err := os.OpenFile(PNGfile, os.O_CREATE|os.O_WRONLY, 0644) 
+   if err != nil { 
+         fmt.Println(err) 
+         os.Exit(-1) 
+   } 
+   m = image.NewNRGBA(image.Rectangle{Min: image.Point{0, 0}, Max: image.Point{x, y}}) 
+ 
+   i := 0 
+   barWidth = int(x / len(data)) 
+   fmt.Println("barWidth:", barWidth) 
+   for _, v := range data { 
+         c := getColor(v % 10) 
+         yy := v * barHeighPerUnit 
+         plotBar(barWidth*i, yy, c) 
+         fmt.Println("plotBar", barWidth*i, yy) 
+         i = i + 1 
+   } 
+ 
+   png.Encode(OUTPUT, m) 
+} 
+```
+
+Although you can use plotData.go on its own, using the output of extractData.go as the input to plotData.go is as easy as executing the following command:
+
+```markup
+$ ./extractData.go 127.0.0.1 access.log{,.1} | awk '{print $2}' | ./plotData 6000 6500
+Image size: 6000 6500
+Slice length: 2
+maxValue: 6333
+barHeighPerUnit: 1
+barWidth: 3000
+plotBar 0 3129
+plotBar 3000 6333
+$ ls -l 6000x6500.png
+-rw-r--r-- 1 mtsouk mtsouk 164915 Jun  5 18:25 6000x6500.png
+```
+
+The graphical output from the previous command can be an image like the one you can see in the following figure:
+
+![](https://static.packt-cdn.com/products/9781787125643/graphics/assets/ee09e9bd-e219-47d1-98f4-47de7bc75848.png)
+
+The output generated by the plotData.go utility
+
+Just Imagine
+
+# Unix sockets in Go
+
+There exist two kinds of sockets: Unix sockets and network sockets. Network sockets will be explained in _[](https://subscription.imaginedevops.io/book/programming/9781787125643/12)_[Chapter 12](https://subscription.imaginedevops.io/book/programming/9781787125643/12)_,_ _Network Programming_, whereas Unix sockets will be briefly explained in this section. However, as the presented Go functions also work with TCP/IP sockets, you will still have to wait till [](https://subscription.imaginedevops.io/book/programming/9781787125643/12)[Chapter 12](https://subscription.imaginedevops.io/book/programming/9781787125643/12), _Network Programming_, in order to fully understand them as they will not be explained here. So, this section will just present the Go code of a Unix socket client, which is a program that uses a Unix socket, which is a special Unix file, to read and write data. The name of the program will be readUNIX.go and will be presented in three parts.
+
+The first part is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "fmt" 
+   "io" 
+   "net" 
+   "strconv" 
+   "time" 
+) 
+```
+
+The second part of readUNIX.go is the following:
+
+```markup
+func readSocket(r io.Reader) { 
+   buf := make([]byte, 1024) 
+   for { 
+         n, _ := r.Read(buf[:]) 
+         fmt.Print("Read: ", string(buf[0:n])) 
+   } 
+} 
+```
+
+The last part contains the following Go code:
+
+```markup
+func main() { 
+   c, _ := net.Dial("unix", "/tmp/aSocket.sock") 
+   defer c.Close() 
+ 
+   go readSocket(c) 
+   n := 0 
+   for { 
+         message := []byte("Hi there: " + strconv.Itoa(n) + "\n") 
+         _, _ = c.Write(message) 
+         time.Sleep(5 * time.Second) 
+         n = n + 1 
+   } 
+} 
+```
+
+The use of readUNIX.go requires the presence of another process that also reads and writes to the same socket file (/tmp/aSocket.sock).
+
+The generated output depends on the implementation of the other part: in this case, that output was the following:
+
+```markup
+$ go run readUNIX.go
+Read: Hi there: 0
+Read: Hi there: 1
+```
+
+If the socket file cannot be found or if no program is watching it, you will get the following error message:
+
+```markup
+panic: runtime error: invalid memory address or nil pointer dereference
+[signal SIGSEGV: segmentation violation code=0x1 addr=0x0 pc=0x10cfe77]
+    
+goroutine 1 [running]:
+main.main()
+      /Users/mtsouk/Desktop/goCourse/ch/ch8/code/readUNIX.go:21 +0x67
+exit status 2
+```
+
+Just Imagine
+
+# RPC in Go
+
+RPC stands for **Remote Procedure Call** and is a way of executing function calls to a remote server and getting the answer back in your clients. Once again, you will have to wait until _[](https://subscription.imaginedevops.io/book/programming/9781787125643/12)_[Chapter 12](https://subscription.imaginedevops.io/book/programming/9781787125643/12)_,_ _Network Programming_, in order to learn how to develop an RPC server and an RPC client in Go.
+
+Just Imagine
+
+# Programming a Unix shell in Go
+
+This section will briefly and naively present Go code that can be used as the foundation for the development of a Unix shell. Apart from the exit command, the only other command that the program can recognize is the version command that just prints the version of the program. All other user input will be echoed on the screen.
+
+The Go code of UNIXshell.go will be presented in three parts. However, before that I will present to you the first version of the shell, which mainly contains comments in order to better understand how I usually start the implementation of a relatively challenging program:
+
+```markup
+package main 
+ 
+import ( 
+   "fmt" 
+) 
+ 
+func main() { 
+ 
+   // Present prompt 
+ 
+   // Read a line 
+ 
+   // Get the first word of the line 
+ 
+   // If it is a built-in shell command, execute the command 
+ 
+   // otherwise, echo the command 
+ 
+} 
+```
+
+This is more or less the algorithm that I would use as a starting point: the good thing is that the comments briefly show how the program will operate. Keep in mind that the algorithm does not depend on the programming language. After that, it is easier to start implementing things because you know what you want to do.
+
+So, the first part of the final version of the shell is the following:
+
+```markup
+package main 
+ 
+import ( 
+   "bufio" 
+   "fmt" 
+   "os" 
    "strings" 
 ) 
+ 
+var VERSION string = "0.2" 
 ```
 
-There is nothing special here, just the expected preamble. The second part is as follows:
+The second part is the following:
 
 ```markup
 func main() { 
-   minusTEST := flag.Bool("test", false, "Test run!") 
+   scanner := bufio.NewScanner(os.Stdin) 
+   fmt.Print("> ") 
+   for scanner.Scan() { 
  
-   flag.Parse() 
-   flags := flag.Args() 
- 
-   if len(flags) == 0 || len(flags) == 1 { 
-         fmt.Println("Not enough arguments!") 
-         os.Exit(1) 
-   } 
- 
-   Path := flags[0] 
-   NewPath := flags[1] 
- 
-   permissions := os.ModePerm 
-   _, err := os.Stat(NewPath) 
-   if os.IsNotExist(err) { 
-         os.MkdirAll(NewPath, permissions) 
-   } else { 
-         fmt.Println(NewPath, "already exists - quitting...") 
-         os.Exit(1) 
-   } 
+         line := scanner.Text() 
+         words := strings.Split(line, " ") 
+         command := words[0] 
 ```
 
-The cpStructure.go program demands that the destination directory does not exist in advance in order to avoid unnecessary surprises and errors afterwards.
+Here, you just read the input from the user line by line and find out the first word of the input.
 
-The third part contains the code of the walkFunction variable:
-
-```markup
-   walkFunction := func(currentPath string, info os.FileInfo, err error) error { 
-         fileInfo, _ := os.Lstat(currentPath) 
-         if fileInfo.Mode()&os.ModeSymlink != 0 { 
-               fmt.Println("Skipping", currentPath) 
-               return nil 
-         } 
- 
-         fileInfo, err = os.Stat(currentPath) 
-         if err != nil { 
-               fmt.Println("*", err) 
-               return err 
-         } 
- 
-         mode := fileInfo.Mode() 
-         if mode.IsDir() { 
-               tempPath := strings.Replace(currentPath, Path, "", 1) 
-               pathToCreate := NewPath + "/" + filepath.Base(Path) + tempPath 
- 
-               if *minusTEST { 
-                     fmt.Println(":", pathToCreate) 
-                     return nil 
-               } 
- 
-               _, err := os.Stat(pathToCreate) 
-               if os.IsNotExist(err) { 
-                     os.MkdirAll(pathToCreate, permissions) 
-               } else { 
-                     fmt.Println("Did not create", pathToCreate, ":", err) 
-               } 
-         } 
-         return nil 
-   } 
-```
-
-Here, the first if statement makes sure that we will deal with symbolic links because symbolic links can be dangerous and create problems: always try to treat special situations in order to avoid problems and nasty bugs.
-
-The os.IsNotExist() function allows you to make sure that the directory you are trying to create is not already there. So, if the directory is not there, you create it using ;os.MkdirAll(). The os.MkdirAll() function creates a directory path including all the necessary parents, which makes things simpler for the developer.
-
-Nevertheless, the trickiest part that the code of the walkFunction variable has to deal with is removing the unnecessary parts of the source path and constructing the new path correctly. The strings.Replace() function used in the program replaces the occurrences of its second argument (Path) that can be found in the first argument (currentPath) with its third argument ("") as many times as its last argument (1). If the last argument is a negative number, which is not the case here, then there will be no limit to the number of replacements. In this case, it removes the value of the Path variable, which is the source directory, from the currentPath variable, which is the directory that is being examined.
-
-The last part of the program is as follows:
+The last part of UNIXshell.go is the following:
 
 ```markup
-   err = filepath.Walk(Path, walkFunction) 
-   if err != nil { 
-         fmt.Println(err) 
-         os.Exit(1) 
+         switch command { 
+         case "exit": 
+               fmt.Println("Exiting...") 
+               os.Exit(0) 
+         case "version": 
+               fmt.Println(VERSION) 
+         default: 
+               fmt.Println(line) 
+         } 
+ 
+         fmt.Print("> ") 
    } 
 } 
 ```
 
-Executing cpStructure.go will generate the following output:
+The aforementioned Go code checks the command that the user gave and acts accordingly.
+
+Executing UNIXshell.go and interacting with it will generate the following output:
 
 ```markup
-$ go run cpStructure.go ~/code /tmp/newCode
-Skipping /home/mtsouk/code/aLink
-$ ls -l /home/mtsouk/code/aLink
-lrwxrwxrwx 1 mtsouk mtsouk 14 Apr 21 18:10 /home/mtsouk/code/aLink -> /usr/local/bin 
+$ go run UNIXshell.go
+> version
+0.2
+> ls -l
+ls -l
+> exit
+Exiting...
 ```
 
-The following figure shows a graphical representation of the source and destination directory structures used in the aforementioned example:
+Should you wish to learn more about creating your own Unix shell in Go, you can visit [https://github.com/elves/elvish](https://github.com/elves/elvish).
 
-![](https://static.packt-cdn.com/products/9781787125643/graphics/assets/ecf2e299-f496-48f4-9622-d1225bd52ad4.png)
+Just Imagine
 
-A graphical representation of two directory structures with their files
+# Yet another minor Go update
+
+While I was writing this chapter, Go was updated: this is a minor update, which mainly fixes bugs:
+
+```markup
+$ date
+Thu May 25 06:30:53 EEST 2017
+$ go version
+go version go1.8.3 darwin/amd64
+```
 
 Just Imagine
 
 # Exercises
 
-1.  Read the documentation page of the os package at [https://golang.org/pkg/os/](https://golang.org/pkg/os/).
-2.  Visit [https://golang.org/pkg/path/filepath/](https://golang.org/pkg/path/filepath/) to learn more about the filepath.Walk() function.
-3.  Change the code of rm.go in order to support multiple command-line arguments, and then try to implement the \-v command-line option of the rm(1) utility.
-4.  Make the necessary changes to the Go code of which.go in order to support multiple command-line arguments.
-5.  Start implementing a version of the ls(1) utility in Go. Do not try to support every ls(1) option at once.
-6.  Change the code of traverseDir.go in order to print regular files only.
-7.  Check the manual page of find(1) and try to add support for some of its options in regExpFind.go.
+1.  Put the plotting functionality of plotIP.go into a Go package and use that package to rewrite both plotIP.go and plotData.go.
+2.  Review the Go code of ddGo.go from _[](https://subscription.imaginedevops.io/book/programming/9781787125643/6)_[Chapter 6](https://subscription.imaginedevops.io/book/programming/9781787125643/6)_,_ _File Input and Output_, in order to print information about its progress when receiving a SIGINFO signal.
+3.  Change the Go code of cat.go to add support for multiple input files.
+4.  Change the code of plotData.go in order to print gridlines to the generated image.
+5.  Change the code of plotData.go in order to leave a little space between the bars of the plot.
+6.  Try to make the UNIXshell.go program a little better by adding new features to it.
 
 Just Imagine
 
 # Summary
 
-In this chapter, we talked about many things including the use of the flag standard package, Go functions that allow you to work with directories and files, and traverse directory structures, and we developed Go versions of various Unix command-line utilities including pwd(1), which(1), rm(1), and find(1).
+In this chapter, we talked about many interesting and handy topics, including signal handling and creating graphical images in Go. Additionally, we taught you how to add support for Unix pipes in your Go programs.
 
-In the next chapter, we will continue talking about file operations, but this time you will learn how to read files and write to files in Go: as you will see there are many ways to do this. Although this gives you versatility, it also demands that you should be able to choose the right technique to do your job as efficiently as possible! So, you will start by learning more about the io package as well as the bufio package and by the end of the chapter, you will have Go versions of the wc(1) and dd(1) utilities!
+In the next chapter, we will talk about the most unique feature of Go, which is goroutines. You will learn what a goroutine is, how to create and synchronize them as well as how to create channels and pipelines. Have in mind that many people come to Go in order to learn a modern and safe programming language, but stay for its goroutines!

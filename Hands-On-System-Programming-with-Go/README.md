@@ -1,7 +1,4 @@
-
-
-
-# Hands-On System Programming with Go 
+# System Programming with Go 
 
 
 # Writing Programs in Go
@@ -14,8 +11,6 @@
 -   Go functions and the defer keyword
 -   Go data structures and interfaces
 -   Creating random numbers
-
-Just Imagine
 
 # Compiling Go code
 

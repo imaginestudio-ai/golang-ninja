@@ -1,13 +1,13 @@
 # audiofile
-In Chapter 6, we discuss about handling timeouts an errors.  In this next revision of the command line interface, we add a function to check the response from the client and add a timeout value of fifteen seconds to the client.
+In Chapter 7, we discuss about how to build for multiple platforms.  You'll see the addition of files that are built specific to certain plaforms.  However, cross compilation will be handled in later chapters.  This build only has a make build command for darwin only.
 
-## To generate the audiofile command line interface:
-make build
+## To generate the audiofile command line interface on MacOS:
+make build-darwin
 
-## To start the audiofile API (required for the CLI to run):
+## [UNIX] To start the audiofile API (required for the CLI to run):
 The API must be started and running before the CLI.  Start the APi in a separate terminal.  Within the working directory:
 ./bin/audiofile api
 
-## To call the audiofile command line interface:
+## [UNIX] To call the audiofile command line interface:
 ./bin/audiofile
 

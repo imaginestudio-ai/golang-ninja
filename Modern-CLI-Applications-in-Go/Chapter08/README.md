@@ -1,986 +1,875 @@
-# Interactivity with Prompts and Terminal Dashboards
+# Building for Humans versus Machines
 
-One powerful way to increase usability for users is to integrate interactivity with either prompts or terminal dashboards. Prompts are useful because they create a conversational approach while requesting input. Dashboards are useful because they allow developers to create a graphical interface from ASCII characters. That graphical interface, via a dashboard, can create powerful visual cues to allow users to navigate through different commands.
+Thinking about your end user while you develop your command-line application will make you a more empathic developer. Consider not just how you feel about the way certain **command-line interfaces** (**CLIs**) behave but also how you could improve the experience for yourself and others. Much goes into usability and it’s not possible to cram it all into a single chapter, so we suggest following up with the suggested article and book in the _Further_ _reading_ section.
 
-This chapter will give you examples of how to build user surveys from a series of prompts, and a terminal dashboard – whether learning about the Termdash library, designing the mockup, or implementing it for the audio file CLI.
+One of the first points to consider when building your command-line interface is that while it will be primarily used by humans, it can also be called within scripts, and the output from your program could be used as input into another application, such as **grep** or **awk**. Within this chapter, we’ll go over how to build for both and how to tell when you’re outputting to one versus the other.
 
-Interactivity is fun. It’s the more human and empathetic approach to a command-line interface. However, remember to disable interactivity if you are not outputting to a terminal. This chapter will cover the basics of surveys and dive deep into the terminal dashboard. By the end of this chapter, you’ll have everything you need to create your own survey or dashboard. We will cover the following:
+The second point is the use of ASCII art to increase information density. Whether you’re outputting data as a table, or adding color or emojis, the idea is to make information jump out of the terminal in a way that the end user can quickly understand the data presented to them.
 
--   Guiding users with prompts
--   Designing a useful terminal dashboard
--   Implementing a terminal dashboard
+Finally, consistency also increases clarity for your users. When your CLI uses consistency within flag names and positional arguments across different commands and subcommands, your user can feel more confident in the steps they need to take when navigating your CLI. By the end of the chapter, you’ll hopefully have more to consider when building your CLI and be prompted to make usability improvements. Within this chapter, we’ll cover the following topics:
 
-# Guiding users with prompts
+-   Building for humans versus machines
+-   Increasing information density with ASCII art
+-   Being consistent across CLIs
 
-There are many ways to simply prompt the user, but if you want to create a whole survey that can retrieve information using a variety of different prompts – text input, multi-select, single-select, multi-line text, password, and more – it might be useful to use a preexisting library to handle this for you. Let’s create a generic customer survey using the `survey` package.
 
-To show you how to use this package, I’ll create a survey that can prompt the user for different types of input:
+# Building for humans versus machines
 
--   **Text input** – for example, an email address
--   **Select** – for example, a user’s experience with the CLI
--   **Multiselect** – for example, any issues encountered
--   **Multiline** – for example, open-ended feedback
+CLIs have a long history where their interactions were tailored for other programs and machines. Their design was more similar to functions within a program than a graphical interface. Because of this, many Unix programs today still operate under the assumption that they will be interacting with another program.
 
-In the `Chapter-10` repository, a survey has been written to handle these four prompts. The questions, stored in the `qs` variable, are defined as a slice of `*survey.Question`:
+Today, however, CLIs are more often used by humans than other machines while still carrying an outdated interaction design. It’s time that we built CLIs for their primary user—the human.
+
+In this section, we will compare the machine-first design to the human-first design and learn how to check whether you are outputting to the TTY. As we can recall from [_Chapter 1_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_01.xhtml#_idTextAnchor014), _Understanding CLI Standards_, **TTY** is short for **TeleTYpewriter**, which evolved into the input and output device to interact with large mainframes. In today’s world, desktop environments for operating systems, or **OSs** for short, provide a terminal window. This terminal window is a virtual teletypewriter. They are often called **pseudo-teletypes**, or **PSY** for short. It’s also an indication that a human is on the other end, versus a program.
+
+## Is it a TTY?
+
+First, let’s understand devices. **Devices** can be anything from hard drives, RAM disks, DVD players, keyboards, mouses, printers, tape drivers, to TTYs. A **device driver** provides the interface between the operating system and the device; it provides an API that the operating system understands and accepts.
+
+![Figure 8.1 – Figure showing communication from OS to the TTY device via a device driver](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_8.1._B18883.jpg)
+
+Figure 8.1 – Figure showing communication from OS to the TTY device via a device driver
+
+On Unix-based OSs, there are two major device drivers:
+
+-   **Block** – interfaces for devices such as hard drives, RAM disks, and DVD players
+-   **Character** – interfaces for the keyboard, mouse, printers, tape drivers, TTYs, and so on
+
+If you check that the standard input, **stdin**, or standard output, **stdout**, is a **character** device, then you can assume that you are receiving input from or sending output to a human.
+
+### Is it a TTY on a Unix or Linux operating system?
+
+In a terminal, if you type the `tty` command, it will output the file name connected to **stdin**. Effectively, it is the number of the terminal window.
+
+Let’s run the command in our Unix terminal window and see what the result is:
 
 ```markup
-questions := []*survey.Question{
-    {
-        Name: "email",
-        Prompt: &survey.Input{
-          Message: "What is your email address?"
-   },
-        Validate: survey.Required,
-        Transform: survey.Title,
+mmontagnino@Marians-MacCourse-Pro marianina8 % tty
+/dev/ttys014
+```
+
+There is a shorthand silent, `-s`, flag that can be used to suppress output. However, the application still returns an exit code:
+
+-   Exit code 0 – standard input is coming from a TTY
+-   Exit code 1 – standard input is not coming from a TTY
+-   Exit code 2 – syntax error from invalid parameters
+-   Exit code 3 – a write error
+
+In Unix, typing `&&` after a command means that the second command will only execute if the first command runs successfully, with exit code 0. So, let’s try this code to see if we’re running in a TTY:
+
+```markup
+mmontagnino@Marians-MacCourse-Pro marianina8 % tty -s && echo "this is a tty"
+this is a tty
+```
+
+Since we ran those commands in a terminal, the result is `this is` `a tty`.
+
+### Programmatically check on a Unix or Linux operating system
+
+There are a few ways to do this programmatically. We can use the code located in the `Chapter-8/isatty.go` file:
+
+```markup
+func IsaTTY() {
+  fileInfo, _ := os.Stdout.Stat()
+  if (fileInfo.Mode() & os.ModeCharDevice) != 0 {
+    fmt.Println("Is a TTY")
+  } else {
+    fmt.Println("Is not a TTY")
+  }
+}
+```
+
+The preceding code grabs the file info from the standard output, **stdout**, file with the following code:
+
+```markup
+fileInfo, _ := os.Stdout.Stat()
+```
+
+Then, we check the result of a bitwise operation, `&`, between `fileInfo.Mode()` and `os.ModeCharDevice`. The bitwise operator, `&`, copies a bit to the result if it exists in both operands.
+
+Let’s take a quite simple example: `7&6` within a truth table. `7` values are represented by binary `111` and `6` values are represented by `110`.
+
+![Figure 8.2 – Truth table to show the & operation calculation](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_8.2._B18883.jpg)
+
+Figure 8.2 – Truth table to show the & operation calculation
+
+The `&` operation checks each bit and whether they are the same, and if so, carry a bit over, or 1. If the bits differ, no bit is carried over, or 0. The resulting value is `110`.
+
+Now, in our more complicated example, the following code, `fileInfo.Mode() & os.ModeCharDevice`, performs a bitwise operation between `fileInfo.Mode()` and `os.ModeCharDevice`. Let’s look at what this operation looks like when the code standard output is connected to a terminal:
+
+<table id="table001-2" class="No-Table-Style"><colgroup><col> <col></colgroup><tbody><tr class="No-Table-Style"><td class="No-Table-Style" colspan="2"><p><strong class="bold">Is </strong><span class="No-Break"><strong class="bold">a TTY</strong></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break">Code</span></p></td><td class="No-Table-Style"><p><span class="No-Break">Value</span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">fileInfo.Mode()</code></span></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">Dcrw--w----</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">os.ModeCharDevice</code></span></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">c---------</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><code class="literal">fileInfo.Mode()</code> <code class="literal">&amp; </code><span class="No-Break"><code class="literal">os.ModeCharDevice</code></span></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">c---------</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p>(<code class="literal">fileInfo.Mode()</code> <code class="literal">&amp;</code> <code class="literal">os.ModeCharDevice)</code> <code class="literal">!= 0</code></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">TRUE</code></span></p></td></tr></tbody></table>
+
+Figure 8.3 – The code next to its value when standard output is connected to a TTY
+
+In _Figure 8__.3_, the file mode of the standard output is defined by the `fileInfo.Mode()` method call; its value is **Dcrw--w----**. If you look at the documentation for the **os** package at [https://pkg.go.dev/os](https://pkg.go.dev/os), you will see that the `os.ModeDevice`, **D**, bit is set to indicate that the file is a device file, followed by the `os.ModeCharDevice`, **c**, bit set to indicate that it is a Unix character device. When we do a bitwise operation against the mode of `stdin` against `os.ModCharDevice`, we see that the same bits are carried over and the result does not equal zero, hence `(fileInfo.Mode() & os.ModeCharDevice) != 0` is **true**, and the device is a TTY.
+
+What would this code look like if the output were piped into another process? Let’s look:
+
+<table id="table002" class="No-Table-Style"><colgroup><col> <col></colgroup><tbody><tr class="No-Table-Style"><td class="No-Table-Style" colspan="2"><p><strong class="bold">Is not </strong><span class="No-Break"><strong class="bold">a TTY</strong></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break">Code</span></p></td><td class="No-Table-Style"><p><span class="No-Break">Value</span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">fileInfo.Mode()</code></span></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">prw-rw----</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">os.ModeCharDevice</code></span></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">c---------</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><code class="literal">fileInfo.Mode()</code> <code class="literal">&amp;</code> <span class="No-Break"><code class="literal">os.ModeCharDevice</code></span></p></td><td class="No-Table-Style"><p><code class="literal">----------</code></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p>(<code class="literal">fileInfo.Mode()</code> <code class="literal">&amp;</code> <code class="literal">os.ModeCharDevice)</code> <code class="literal">!= 0</code></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">FALSE</code></span></p></td></tr></tbody></table>
+
+Figure 8.4 – The code next to its value when standard output is not connected to a TTY
+
+Now the standard output’s value is **prw-rw----**. The `os.ModeNamedPipe`, **p**, bit is set to indicate that it is connected to a **pipe**, a redirection to another process. When the bitwise operation is performed against `os.ModeCharDevice`, we see that no bits are copied over, hence `(fileInfo.Mode() & os.ModeCharDevice) != 0` is **false**, and the device is not a TTY.
+
+### Programmatically check on any operating system
+
+We suggest using a package that has already gone through the trouble of determining the code for a larger set of operating systems to check whether standard output is sent to a TTY. The most popular package we found was [github.com/mattn/go-isatty](https://github.com/mattn/go-isatty), which we used in the `Chapter-8/utils/isatty.go` file:
+
+```markup
+package utils
+import (
+  "fmt"
+  "os"
+  isatty "github.com/mattn/go-isatty"
+)
+func IsaTTY() {
+  if isatty.IsTerminal(os.Stdout.Fd()) ||  isatty.
+     IsCygwinTerminal(os.Stdout.Fd()) {
+    fmt.Println("Is a TTY")
+  } else {
+    fmt.Println("Is not a TTY")
+  }
+}
+```
+
+Now that we know whether we are outputting to a TTY, which indicates that there is a human on the other end, versus not a TTY, we can tailor our output accordingly.
+
+## Designing for a machine
+
+As aforementioned, CLIs were originally designed for machines first. It is important to understand what it exactly means to design another program. Although we would want to tailor our applications toward a human-first design, there will be times when we would need to output in a way that can easily be passed as input to the `grep` or `awk` command, because other applications will expect streams of either plain or JSON text.
+
+Users will be using your CLI in many unexpected ways. Some of those ways are often within a bash script that pipes the output of your command as input into another application. If your application, as it should, outputs in the human-readable format first, it needs to also output in machine-readable format when the standard input is not connected to a TTY terminal. In the latter case, make sure any color and ASCII art, in the form of progress bars, for example, are disabled. The text should also be single-lined tabular data that can easily be integrated with the `grep` and `awk` tools.
+
+Also, it is important that you offer several persistent flags for your users to output in machine-readable output when necessary:
+
+-   `--plain`, for outputting plain text with one record of data per line
+-   `--json`, for outputting JSON text that can be piped to and from the curl command
+-   `--quiet`, `-q`, or `--silent`, `-s`, for suppressing nonessential output
+
+Provide plain text when it does not impact usability. In other cases, offer the optional previous flags to give the user the ability to pipe its output easily into the input of another.
+
+## Designing for a human
+
+The modern command-line application is designed for its primary consumer—the human. This may seemingly complicate the interface because there’s a bit more to consider. The way data is output and how quickly the data is returned can affect how a user perceives the quality and robustness of your CLI. We’ll go over some key areas of design:
+
+-   Conversation as the norm
+-   Empathy
+-   Personalization
+-   Visual language
+
+Let’s go into each in more detail so we can fully understand how this impacts a human-centred design.
+
+### Conversation as the norm
+
+Since your CLI will be responding to a human and not another program, interaction should flow like a conversation. As an application leans toward a conversational language, the user will feel more at ease. Consider your application as the guide, as well, toward usage of the CLI.
+
+When a user runs a command and is missing important flags or arguments, then your application can prompt for these values. Prompts, or surveys, are a way to include a conversational back-and-forth flow of asking questions and receiving answers from the user. However, prompts should not be a requirement as flags and arguments should be available options for your commands. We will be going over prompts in more detail in [_Chapter 10_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_10.xhtml#_idTextAnchor225), _Interactivity with Prompts and_ _Terminal Dashboards_.
+
+If your application contains a state, then communicate the current state similar to how `git` provides a `status` command and notifies the user when any commands change the state. Similarly, if your application provides workflows, typically defined by a chain of commands, then you can suggest commands to run next.
+
+Being succinct is important when communicating with your user. Just like in conversation, if we muddle our words with too much extraneous information, people can become confused about the point we are trying to make. By communicating what’s important, but keeping it brief, our users will get the most important information quickly.
+
+Context is important. If you are communicating with an end user versus a developer, that makes a difference. In that case, unless you are in verbose mode, there’s no reason to output anything only a developer would understand.
+
+If the user is doing anything dangerous, ask for confirmation and match the level of confirmation with the level of danger that can be invoked by the command:
+
+-   **Mild**:
+    -   Example: deleting a file
+    -   Confirmation:
+        -   If the command is a `delete` command, you don’t need to confirm
+        -   If not a `delete` command, prompt for confirmation
+-   **Moderate**:
+    -   Example: deleting a directory, remote resource, or bulk modification that cannot easily be reverted
+    -   Confirmation:
+        -   Prompt for confirmation.
+        -   Provide a **dry run** operation. A **dry run** operation is used to see the results of the operation without actually making any modifications to the data.
+-   **Severe**:
+    -   Example: deleting something complex, such as an entire remote application or server
+    -   Confirmation:
+        -   Prompt for confirmation along with asking them to either type something non-trivial, such as the name of the resource they are deleting, or use a flag such as `–confirm="name-of-resource"` so it is still scriptable
+
+In general, we want to make it increasingly more difficult for the user to do something more difficult. It is a way of guiding the user away from any accidents.
+
+Any user input should always be validated early on to prevent anything unnecessarily bad from happening. Make the error returned understandable to the user who passed in bad data.
+
+In a conversation, any confidential information must be secured. Make sure that any passwords are protected and provide secure methods for users to submit their credentials. For example, consider only accepting sensitive data via files only. You can offer a `–password-file` flag that allows the user to pass in a file or data via standard input. This method provides a discreet method for passing in secret data.
+
+Be transparent in conversation. Any actions that cross the boundaries of the program should be stated explicitly. This includes reading or writing files that the user did not pass in as arguments unless these files are storing an internal state within a cache. This may also include any actions when talking to a remote server.
+
+Finally, response time is more important than speed. Print something to the user in under 100 milliseconds. If you are making a network request, print out something before the request is made so it doesn’t look like the application is hanging or appearing broken. This will make your application appear more robust to its end user.
+
+Let’s revisit our audio metadata CLI project. Under [_Chapter 8_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_08.xhtml#_idTextAnchor166)’s `audiofile` repo, we’ll make some changes to create a conversational flow where it might be missing.
+
+#### Example 1: Prompt for information when a flag is missing
+
+Using the Cobra CLI, if a flag is required, it would automatically return an error if the flag were missing when the command is called. Based on some of the guidelines mentioned in this section, rather than just returning an error, let’s prompt for missing data instead. In the `audiofile` code for [_Chapter 8_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_08.xhtml#_idTextAnchor166), in the `utils/ask.go` file, we create two functions using the survey package [github.com/AlecAivazis/survey/v2](https://github.com/AlecAivazis/survey/v2) as follows:
+
+```markup
+func AskForID() (string, error) {
+  id := ""
+  prompt := &survey.Input{
+    Message: "What is the id of the audiofile?",
+  }
+  survey.AskOne(prompt, &id)
+  if id == "" {
+    return "", fmt.Errorf("missing required argument: id")
+  }
+  return id, nil
+}
+func AskForFilename() (string, error) {
+  file := ""
+  prompt := &survey.Input{
+    Message: "What is the filename of the audio to upload
+      for metadata extraction?",
+    Suggest: func(toComplete string) []string {
+      files, _ := filepath.Glob(toComplete + "*")
+      return files
     },
-    {
-        Name: "rating",
-        Prompt: &survey.Select{
-            Message: "How would you rate your experience with 
-                     the CLI?",
-            Options: []string{"Hated it", "Disliked", "Decent", 
-                             "Great", "Loved it"},
-       },
-    },
-    {
-        Name: "issues",
-            Prompt: &survey.MultiSelect{
-            Message: "Have you encountered any of these 
-                     issues?",
-            Options: []string{"audio player issues", "upload 
-                             issues", "search issues", "other 
-                             technical issues"},
-        },
-    },
-    {
-        Name: "suggestions",
-        Prompt: &survey.Multiline{
-            Message: "Please provide any other feedback or 
-                     suggestions you may have.",
-        },
-    },
+  }
+  survey.AskOne(prompt, &file)
+  if file == "" {
+    return "", fmt.Errorf("missing required argument:
+      file")
+  }
+  return file, nil
 }
 ```
 
-We’ll need an `answers` struct to store all the results from the prompts:
+These two functions can now be called when checking the flags that are passed and whether the values are still empty. For example, in the `cmd/get.go` file, we check for the `id` flag value and if it’s still empty, prompt the user for the `id`:
 
 ```markup
-results := struct {
-    Email string
-    Rating string
-    Issues []string
-    Suggestions string
-}{}
+id, _ := cmd.Flags().GetString("id")
+if id == "" {
+  id, err = utils.AskForID()
+  if err != nil {
+    return nil, err
+  }
+}
 ```
 
-And finally, the method that asks the questions and stores the results:
+Running this gives the user the following experience:
 
 ```markup
-err := survey.Ask(questions, &results)
+mmontagnino@Marians-MBP audiofile % ./bin/audiofile get
+? What is the id of the audiofile?
+```
+
+Similarly, in the `cmd/upload.go` file, we check for the filename flag value and if it’s still empty, prompt the user for the filename. Because the prompt allows the user to drill down suggested files, we now get the following experience:
+
+```markup
+mmontagnino@Marians-MBP audiofile % ./bin/audiofile upload
+? What is the filename of the audio to upload for metadata extraction? [tab for suggestions]
+```
+
+Then, press the Tab key for suggestions to reveal a drill-down menu:
+
+```markup
+mmontagnino@Marians-MBP audiofile % ./bin/audiofile upload
+? What is the filename of the audio to upload for metadata extraction? audio/beatdoctor.mp3 [Use arrows to move, enter to select, type to continue]
+ audio/algorithms.mp3
+> audio/beatdoctor.mp3
+ audio/nightowl.mp3
+```
+
+Providing a prompt helps to guide the user and for them to understand how to run the command works.
+
+#### Example 2: Confirm deletion
+
+Another way we can help to guide users toward safely using the CLI and protecting them from making any mistakes is to ask the user for confirmation when doing something dangerous. Although it is not necessary to do so during an explicit delete operation, we created a confirmation function that can be used with a configurable message in any type of dangerous situation. The function exists under the `utils/confirm.go` file:
+
+```markup
+func Confirm(confirmationText string) bool {
+  confirmed := false
+  prompt := &survey.Confirm{
+    Message: confirmationText,
+  }
+  survey.AskOne(prompt, &confirmed)
+  return confirmed
+}
+```
+
+#### Example 3: Notify users when making a network request
+
+Before any HTTP request is made, notifying the user helps them to understand what’s going on, especially if the request hangs or becomes unresponsive. We’ve added a message prior to each network request in each command. The `get` command now has the following line prior to the client running the `Do` method:
+
+```markup
+fmt.Printf("Sending request: %s %s %s...\n",
+           http.MethodGet, path, payload)
+resp, err := client.Do(req)
 if err != nil {
-    fmt.Println(err.Error())
-    return
+  return nil, err
 }
 ```
 
-Now that we’ve created the survey, we can try it out:
+### Empathy
+
+There are some simple modifications you can make to your command-line application to empathize with your users:
+
+-   Be helpful:
+    -   Provide help text and documentation
+    -   Suggest commands
+    -   Rewrite errors in an understandable way
+-   Invite user feedback and bug submission
+
+In [_Chapter 9_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_09.xhtml#_idTextAnchor190), _The Empathic Side of Development_, we will go through the ways in which you can help guide your users toward success using help text, documentation, widespread support, and providing an effortless way for users to provide feedback and submit bugs.
+
+#### Example 1: Offering command suggestions
+
+The Cobra CLI offers some empathy when a user mistypes a command. Let’s look at the following example where the user mistypes `upload` as `upolad`:
 
 ```markup
-mmontagnino@Marians-MacCourse-Pro Chapter-10 % go run main.go
-? What is your email? mmontagnino@gmail.com
-? How would you rate your experience with the CLI? Great
-? Have you encountered any of these issues? audio player issues, search issues
-? Please provide any other feedback or suggestions you may have. [Enter 2 empty lines to finish]I want this customer survey embedded into the CLI and email myself the results!
+mmontagnino@Marians-MacCourse-Pro audiofile % ./bin/audiofile upolad
+Error: unknown command "upolad" for "audiofile"
+Did you mean this?
+        upload
+Run 'audiofile --help' for usage.
 ```
 
-Prompting the user is an easy way to integrate interactivity into your command-line application. However, there are even more colorful and fun ways to interact with your users. In the next section, we’ll discuss the terminal dashboard, the `termdash` package in detail, and how to mock up and implement a terminal dashboard.
+#### Example 2 – Offer an effortless way to submit bugs
 
-Just Imagine
-
-# Designing a useful terminal dashboard
-
-Command-line interfaces don’t have to be limited to text. With **termdash**, a popular Golang library, you can build a terminal dashboard providing users with a user interface to visually see progress, alerts, text, and more. Colorful widgets placed within a clean dashboard that’s been neatly laid out can increase information density and present a lot of information to the user in a very user-friendly manner. In this section, we’ll learn about the library and the different layout choices and widget options. At the end of the chapter, we’ll design a terminal dashboard that we can implement in our **audio file** command-line interface.
-
-## Learning about Termdash
-
-Termdash is a Golang library that provides a customizable and cross-platform, terminal-based dashboard. On the project’s GitHub page, a fun and colorful demo provides an example of all possible widgets demonstrated within a dynamic layout. From the demo, you can see that you can go all out on a fancy dashboard. To do so, you’ll need to understand how to lay out a dashboard, interact with keyboard and mouse events, add widgets, and fine-tune the appearance with alignment and color. Within this section, we will break down the layers of a Termdash interface and the widgets that can be organized within it.
-
-A Termdash dashboard consists of four main layers:
-
--   The terminal layer
--   The infrastructure layer
--   The container layer
--   The widgets layer
-
-Let’s take a deep dive into each of them.
-
-### The terminal layer
-
-Think of the terminal layer of a dashboard as a 2D grid of cells that exist within a buffer. Each cell contains either an ASCII or Unicode character with the option to customize the foreground color, the color of text, the background color, or the color of the non-character space within the cell. Interactions with the mouse and keyboard happen on this layer as well.
-
-Two terminal libraries can be used to interact at the cell level of a terminal:
-
--   **tcell**: Inspired by **termbox** and has many new improvements
--   **termbox**: No longer supported, although it is still an option
-
-The following examples will utilize the `tcell` package to interact with the terminal. To start, create a new `tcell` instance to interact via the terminal API:
+In [_Chapter 9_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_09.xhtml#_idTextAnchor190)_, The Empathic Side of Development,_ we define a bug command that will launch the default browser and navigate to the GitHub repository's new issue page to file a bug report:
 
 ```markup
-terminalLayer, err := tcell.New()
-if err != nil {
-   return err
-}
-defer terminalLayer.Close()
+mmontagnino@Marians-MacCourse-Pro audiofile % ./bin/audiofile bug --help
+Bug opens the default browser to start a bug report which will include useful system information.
+Usage:
+  audiofile bug [flags]
+Examples:
+audiofile bug
 ```
 
-Notice that in this example, `tcell` has two methods: `New` and `Close`. `New` creates a new `tcell` instance in order to interact with the terminal and `Close` closes the terminal. It’s a good practice to defer closing access to `tcell` right after creation. Although there are no options passed into the `New` method, there are a few optional methods that can be called:
+#### Example 3: Print usage command is used incorrectly
 
--   `ColorMode` sets the color mode when initializing a terminal
--   `ClearStyle` sets the foreground and background color when a terminal is cleared
-
-An example of initializing a cell in `ColorMode` to access all 256 available terminal colors would look like this:
+Suppose a user does not input a value to search for when running the search command. The CLI application will prompt for a value to search for. If a value is not passed in by the user, the CLI will output the proper usage of the command:
 
 ```markup
-terminalLayer, err := tcell.New(tcell.ColorMode(terminalapi.ColorMode256))
-if err != nil {
-   return err
-}
-defer terminalLayer.Close()
+mmontagnino@Marians-MacCourse-Pro audiofile % ./bin/audiofile search
+?  What value are you searching for?
+Error: missing required argument (value)
+Usage:
+  audiofile search [flags]
+Flags:
+  -h, --help           help for search
+      --json           return json format
+      --plain          return plain format
+      --value string   string to search for in metadata
 ```
 
-`ClearStyle`, by default, will use `ColorDefault` if no specific `ClearStyle` is set. This `ColorDefault` is usually the default foreground and background colors of the terminal emulator, which are typically black and white. To set a terminal to use a yellow foreground and navy background style when the terminal is cleared, the `New` method, which accepts a slice of options, would be modified in the following way:
+### Personalization
+
+In general, make the default the right thing for most users, but also allow users to personalize their experience with your CLI. The configuration gives the users a chance to personalize their experience with your CLI and make it more their own.
+
+#### Example 1: Technical configuration with Viper
+
+Using `audiofile` as an example, let’s create a simple configuration setup with Viper to offer the user the ability to change any defaults to their liking. The configurations that we’ve created are for the API and CLI applications. For the API, we’ve defined the `configs/api.json` file, which contains the following:
 
 ```markup
-terminalLayer, err := tcell.New(tcell.ColorMode(terminalapi.ColorMode256), tcell.ClearStyle(cell.ColorYellow, cell.ColorNavy))
-if err != nil {
-   return err
-}
-defer terminalLayer.Close()
-```
-
-Now that we’ve created a new `tcell` that gives us access to the Terminal API, let’s discuss the next layer – infrastructure.
-
-### The infrastructure layer
-
-The infrastructure of a terminal dashboard provides the organization of the structure. The three main elements of the infrastructure layer include alignment, line style, and Termdash.
-
-#### Alignment
-
-Alignment is provided by the `align` package, which provides two alignment options – `align.Horizonal`, which includes predefined values of `left`, `center`, and `right` and `align.Vertical` with predefined values of `top`, `middle`, and `bottom`.
-
-#### Line style
-
-The line style defines the style of the line drawn on the terminal either when drawing boxes or borders.
-
-The package exposes the options available via `LineStyle`. The `LineStyle` type represents a style that follows the Unicode options.
-
-#### Termdash
-
-Termdash provides the developer with the main entry point. Its most important purpose is to start and stop the dashboard application, control screen refreshing, process any runtime errors, and subscribe and listen for keyboard and mouse events. The `termdash.Run` method is the simplest way to start a Termdash application. The terminal may run until the context expires, a keyboard shortcut is called, or it times out. The simplest way to get started with the dashboard is with the following minimal code example, which creates a new `tcell` for the terminal layer, and a new **container** for the container layer. A container is another module within the `termdash` package, which we will dive into in the next section. We create context with a 2-minute timeout and then call the `Run` method of the `termdash` package:
-
-```markup
-if terminalLayer, err := tcell.New()
-if err != nil {
-   return err
-}
-defer terminalLayer.Close()
-containerLayer, err := container.New(terminalLayer)
-if err != nil {
-   return err
-}
-ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
-defer cancel()
-if err := termdash.Run(ctx, terminalLayer, containerLayer); err != nil {
-   return err
+{
+  "api": {
+    "port": 8000
+  }
 }
 ```
 
-In the preceding code example, the dashboard will run until the context expires, in 60 seconds.
-
-Screen redrawing, or refreshing, for your Terminal dashboard can be done in a few ways: periodic, time-based redraws or manually triggered redraws. Only one method may be used, as using one means the other method is ignored. Besides that, the screen will refresh each time an input event occurs. The `termdash.RedrawInterval` method is an option that can be passed into the `Run` method to tell the dashboard application to redraw, or refresh, the screen at a particular interval. The `Run` method can be modified with the option to refresh every 5 seconds:
+The API will always execute locally to where it’s being executed. Then, for the CLI, we’ve defined a similar simple file, `configs/cli.json`, containing the following:
 
 ```markup
-termdash.Run(ctx, terminalLayer, containerLayer, termdash.RedrawInterval(5*time.Second))
+{
+  "cli": {
+    "hostname": "localhost",
+    "port": 8000
+  }
+}
 ```
 
-The dashboard may also be redrawn using a controller, which can be triggered manually. This option means that the dashboard is drawn only once and unlike the `Run` method, the user maintains control of the main goroutine. An example of this code, using the previously defined `tcell` and `container` variables defined earlier, can be passed into a new controller to be drawn manually:
+If the API is running on an external host with a different port, then these values can be modified within the configuration. For the CLI to point to the new hostname, we’ll need to update any references within the CLI commands to use the value in the configuration. For example, in the `cmd/get.go` file, the path is defined as:
 
 ```markup
-termController, err := termdash.NewController(terminalLayer, containerLayer)
-if err != nil {
+path := fmt.Sprintf("http://%s:%d/request?%s",
+    viper.Get("cli.hostname"), viper.GetInt("cli.port"),
+    params)
+```
+
+To initialize these values and provide defaults if any required values are missing from the configuration, we run a `Configure` function defined in `cmd/root.go`:
+
+```markup
+func Configure() {
+  viper.AddConfigPath("./configs")
+  viper.SetConfigName("cli")
+  viper.SetConfigType("json")
+  viper.ReadInConfig()
+  viper.SetDefault("cli.hostname", "localhost")
+  viper.SetDefault("cli.port", 8000)
+}
+```
+
+A similar code exists within the `cmd/api.go` file to gather some of the same information. Now that this is set up, if there are any changes the user wants to make to the hostname, log level, or port, there is only one configuration file to modify.
+
+#### Example 2: Environment variable configuration
+
+Suppose there is an environment variable specific to the application that allows users to define the foreground and background color to use. This environment variable could be named `AUDIOFILE_COLOR_MODE`. Using the Viper configuration again, values for the foreground and background texts may be used to overwrite default settings. While this is not implemented within our CLI, the Viper configuration may look like the following:
+
+```markup
+{
+  "cli": {
+    "colormode": {
+      "foreground": "white",
+      "background": "black",
+    }
+  }
+}
+```
+
+#### Example 3: Storage location
+
+Sometimes users want the location of certain output, logging, for example, to be stored in a particular area. Providing details within Viper can allow defaults to be overwritten. Again, this is not currently implemented within our CLI, but if we were to provide this option within our configuration, it may look like this:
+
+```markup
+{
+  "api": {
+    "local_storage": "/Users/mmontagnino/audiofile"
+  }
+}
+```
+
+Any other new configuration values can be added with a similar approach. Providing the ability to configure your application is the start for personalization. Think of the many ways you can configure your CLI: color settings, disabling prompts or ASCII art, default formatting, and more.
+
+### Pagination
+
+Use a pager when you are outputting a lot of text, but be careful because sometimes the implementation can be error-prone.
+
+#### Pagination for Unix or Linux
+
+On a Unix or Linux machine, you may use the `less` command for pagination. Calling the `less` command with a sensible set of options, such as `less -FIRX`, pagination does not occur if the contents fit on a single screen, case is ignored when searching, color and formatting are enabled, and the content is kept on the screen when `less` quits. We will use this as an example within the next section when outputting table data, and in preparation, within the `utils` package, we add the following files: `pager_darwin.go` and `pager_linux.go`, with a `Pager` function. In our case, though, we use the `–r` flag only because we want to continue displaying colors in the table:
+
+```markup
+func Pager(data string) error {
+  lessCmd := exec.Command("less", "-r")
+  lessCmd.Stdin = strings.NewReader(data)
+  lessCmd.Stdout = os.Stdout
+  lessCmd.Stderr = os.Stderr
+  err := lessCmd.Run()
+  if err != nil {
     return err
-}
-defer termController.Close()
-if err := termController.Redraw(); err != nil {
-    return fmt.Errorf("error redrawing dashboard: %v", err)
+  }
+  return nil
 }
 ```
 
-The Termdash API provides a `termdash.ErrorHandler` option, which tells the dashboard how to handle errors gracefully. Without providing an implementation for this error handler, the dashboard will panic on all runtime errors. Errors can occur when processing or retrieving events, subscribing to an event, or when a container fails to draw itself.
+#### Pagination for Windows
 
-An error handler is a callback method that receives an error and handles the error appropriately. It can be defined as a variable and, in the simplest case, just prints the runtime error:
-
-```markup
-errHandler := func(err error) {
-   fmt.Printf("runtime error: %v", err)
-}
-```
-
-When starting a Termdash application using the `Run` or `NewController` method, the error handler may be passed in as an option using the `termdash.ErrorHandler` method. For example, the `Run` method can be modified with a new option:
+On a Windows machine, we use the `more` command instead. Within the `utils` package, we add the `pager_windows.go` file following with a `Pager` function:
 
 ```markup
-termdash.Run(ctx, terminalLayer, containerLayer, termdash.ErrorHandler(errHandler))
-```
-
-While the `NewController` method can be modified similarly:
-
-```markup
-termdash.NewController(terminalLayer, containerLayer, termdash.ErrorHandler(errHandler))
-```
-
-Through the `termdash` package, you can also subscribe to keyboard and mouse events. Typically, the container and certain widgets subscribe to keyboard and mouse events. Developers can also subscribe to certain mouse and keyboard events to take global action. For example, a developer may want the terminal to run a specific function when a specific key is set. `termdash.KeyboardSubscriber` is used to implement this functionality. With the following code, the user subscribes to the letters `q` and `Q` and responds to the keyboard events by running code to quit the dashboard:
-
-```markup
-keyboardSubscriber := func(k *terminalapi.Keyboard) {
-    switch k.Key {
-      case 'q':
-      case 'Q':
-          cancel()
-    }
-}
-if err := termdash.Run(ctx, terminalLayer, containerLayer, termdash.KeyboardSubscriber(keyboardSubscriber)); err != nil {
-return fmt.Errorf("error running termdash with keyboard subscriber: %v", err)
-}
-```
-
-Another option is to call the `Run` method with the option to listen to mouse events using `termdash.MouseSubscriber`. Similarly, the following code can be called to do something random when the mouse button is clicked within the dashboard:
-
-```markup
-mouseClick := func(m *terminalapi.Mouse) {
-    switch m.Button {
-        case mouse.ButtonRight:
-        // when the left mouse button is clicked - cancel
-        cancel()
-        case mouse.ButtonLeft:
-        // when the left mouse button is clicked
-        case mouse.ButtonMiddle:
-        // when the middle mouse button is clicked
-    }
-}
-if err := termdash.Run(ctx, terminalLayer, containerLayer, termdash.MouseSubscriber(mouseClick)); err != nil {
-    return fmt.Errorf("error running termdash with mouse subscriber: %v", err)
-}
-```
-
-### The container layer
-
-The container layer provides options for dashboard layouts, container styles, keyboard focus, and margin and padding. It also provides a method for placing a widget within a container.
-
-From the previous examples, we see that a new container is called using the `container.New` function. We’ll provide some new examples of how to organize your container and set it up with different layouts.
-
-There are two main layout options:
-
--   Binary tree
--   Grid layouts
-
-The **binary tree layout** organizes containers in a binary tree structure where each container is a node in a tree, which, unless empty, may contain either two sub-containers or a widget. Sub-containers can be split further with the same rules. There are two kinds of splits:
-
--   **Horizontal splits**, created with the `container.SplitHorizontal` method, will create top and bottom sub-containers specified by `container.Top` and `container.Bottom`
--   **Vertical splits**, created with the `container.SplitVertical` method, will create left and right sub-containers, specified by `container.Left` and `container.Right`
-
-The `container.SplitPercent` option specifies the percentage of container split to use when spitting either vertically or horizontally. When the split percentage is not specified, a default of 50% is used. The following is a simple example of a binary tree layout using all the methods described:
-
-```markup
-    terminalLayer, err := tcell.New(tcell.ColorMode(terminalapi.ColorMode256),
-        tcell.ClearStyle(cell.ColorYellow, cell.ColorNavy))
+func Pager(data string) error {
+    moreCmd := exec.Command("cmd", "/C", "more")
+    moreCmd.Stdin = strings.NewReader(data)
+    moreCmd.Stdout = os.Stdout
+    moreCmd.Stderr = os.Stderr
+    err := moreCmd.Run()
     if err != nil {
-        return fmt.Errorf("tcell.New => %v", err)
+        return err
     }
-    defer terminalLayer.Close()
-leftContainer := container.Left(
-container.Border(linestyle.Light),
-)
-rightContainer :=
-container.Right(
-container.SplitHorizontal(
-container.Top(
-container.Border(linestyle.Light),
-),
-container.Bottom(
-container.SplitVertical(
-     container.Left(
-     container.Border(linestyle.Light),
-     ),
-     container.Right(
-     container.Border(linestyle.Light),
-     ),
-     ),
-      ),
-    )
-)
-containerLayer, err := container.New(
-terminalLayer,
-container.SplitVertical(
-leftContainer,
-rightContainer,
-container.SplitPercent(60),
-),
-)
-```
-
-Notice how we drill down when splitting up the terminal into containers. First, we split vertically to divide the terminal into left and right portions. Then, we split the right portion horizontally. The bottom-right horizontally split portion is split vertically. Running this code will present the following dashboard:
-
-![Figure 10.1 – Dashboard showing a container split using the binary layout](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.1_B18883.jpg)
-
-Figure 10.1 – Dashboard showing a container split using the binary layout
-
-Notice that the container to the left takes up about 60% percent of the full width. The other splits do not define a percentage and take up 50% of the container.
-
-The other option for a dashboard is to use a **grid layout**, which organizes the layout into rows and columns. Unlike the binary tree layout, the grid layout requires a grid builder object. Rows, columns, or widgets are then added to the grid builder object.
-
-Columns are defined using either the `grid.ColWidhPerc` function, which defines a column with a specified width percentage of the parent’s width, or `grid.ColWidthPercWithOpts`, which is an alternative that allows developers to additionally specify options when representing the column.
-
-Rows are defined using either the `grid.RowHeightPerc` function, which defines a row with a specified height percentage of the parent’s height, or `grid.RowHeightPercWithOpts`, which is an alternative that allows developers to additionally specify options when representing the row.
-
-To add a widget within the grid layout, utilize the `grid.Widget` method. The following is a simple example of a layout implemented by the `grid` package. The code uses all the related methods and adds an ellipses text widget within each cell:
-
-```markup
-    t, err := tcell.New()
-    if err != nil {
-        return fmt.Errorf("error creating tcell: %v", err)
-    }
-    rollingText, err := text.New(text.RollContent())
-    if err != nil {
-        return fmt.Errorf("error creating rolling text: %v", 
-          err)
-    }
-    err = rollingText.Write("...")
-    if err != nil {
-        return fmt.Errorf("error writing text: %v", err)
-    }
-    builder := grid.New()
-    builder.Add(
-        grid.ColWidthPerc(60,
-            grid.Widget(rollingText,
-                container.Border(linestyle.Light),
-            ),
-        ),
-    )
-    builder.Add(
-        grid.RowHeightPerc(50,
-            grid.Widget(rollingText,
-                container.Border(linestyle.Light),
-            ),
-        ),
-    )
-    builder.Add(
-        grid.ColWidthPerc(20,
-            grid.Widget(rollingText,
-                container.Border(linestyle.Light),
-            ),
-        ),
-    )
-    builder.Add(
-        grid.ColWidthPerc(20,
-            grid.Widget(rollingText,
-                container.Border(linestyle.Light),
-            ),
-        ),
-    )
-    gridOpts, err := builder.Build()
-    if err != nil {
-        return fmt.Errorf("error creating builder: %v", err)
-    }
-    c, err := container.New(t, gridOpts...)
-```
-
-Running the code generates the following dashboard:
-
-![Figure 10.2 – Dashboard showing the container created using the grid layout](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.2_B18883.jpg)
-
-Figure 10.2 – Dashboard showing the container created using the grid layout
-
-Notice that the column width percentage equals 100%; anything more would cause a compilation error.
-
-There is also the option of a dynamic layout that allows you to switch between different layouts on the dashboard. Using the `container.ID` option, you can identify a container with some text, which can be referenced later so there’s a way to identify which container will be dynamically updated using the `container.Update` method:
-
-```markup
-    t, err := tcell.New()
-    if err != nil {
-        return fmt.Errorf("error creating tcell: %v", err)
-    }
-    defer t.Close()
-    b1, err := button.New("button1", func() error {
-        return nil
-    })
-    if err != nil {
-        return fmt.Errorf("error creating button: %v", err)
-    }
-    b2, err := button.New("button2", func() error {
-        return nil
-    })
-    if err != nil {
-        return fmt.Errorf("error creating button: %v", err)
-    }
-    c, err := container.New(
-        t,
-        container.PlaceWidget(b1),
-        container.ID("123"),
-    )
-    if err != nil {
-        return fmt.Errorf("error creating container: %v", err)
-    }
-    update := func(k *terminalapi.Keyboard) {
-        if k.Key == 'u' || k.Key == 'U' {
-            c.Update(
-                "123",
-                container.SplitVertical(
-                    container.Left(
-                        container.PlaceWidget(b1),
-                    ),
-                    container.Right(
-                        container.PlaceWidget(b2),
-                    ),
-                ),
-            )
-        }
-    }
-    ctx, cancel := context.WithTimeout(context.Background(), 
-      5*time.Second)
-    defer cancel()
-    if err := termdash.Run(ctx, t, c, termdash.
-       KeyboardSubscriber(update)); err != nil {
-        return fmt.Errorf("error running termdash: %v", err)
-    }
-```
-
-In this code, the container ID is set to `123`. Originally, the widget contained just one button. The `update` method replaces the single button with a container split vertically, with one button on the left and another on the right. When running this code, pressing the _u_ key runs the update on the layout.
-
-The original layout shows a single button:
-
-![Figure 10.3 – Layout showing a single button](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.3_B18883.jpg)
-
-Figure 10.3 – Layout showing a single button
-
-After pressing the _u_ or _U_ key, the layout updates:
-
-![Figure 10.4 – Layout showing two buttons after pressing the u key again](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.4_B18883.jpg)
-
-Figure 10.4 – Layout showing two buttons after pressing the u key again
-
-The container layer can be further configured using margin and padding settings. The margin is the space outside of the container’s border while the padding is the space between the inside of the container’s border and its content. The following image provides the best visual representation of margins and padding:
-
-![Figure 10.5 – Margin and padding](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.5_B18883.jpg)
-
-Figure 10.5 – Margin and padding
-
-The margin and padding can be set with either absolute or relative values. An absolute margin can be set with the following options:
-
--   `container.MarginTop`
--   `container.MarginRight`
--   `container.MarginBottom`
--   `container.MarginLeft`
-
-Absolute padding can be set with the following options:
-
--   `container.PaddingTop`
--   `container.PaddingRight`
--   `container.PaddingBottom`
--   `container.PaddingLeft`
-
-Relative values for the margin and padding are set with percentages. The margin and padding’s top and bottom percentage values are relative to the container’s height:
-
--   `container.MarginTopPercent`
--   `container.MarginBottomPercent`
--   `container.PaddingTopPercent`
--   `container.PaddingBottomPercent`
-
-The margin and padding’s right and left percentage values are relative to the container’s width:
-
--   `container.MarginRightPercent`
--   `container.MarginLeftPercent`
--   `container.PaddingRightPercent`
--   `container.PaddingLeftPercent`
-
-Another form of placement within containers is alignment. The following methods are available from the align API to align content within the container:
-
--   `container.AlignHorizontal`
--   `container.AlignVertical`
-
-Let’s put it all together in a simple example that extends upon the binary tree code example:
-
-```markup
-b, err := button.New("click me", func() error {
     return nil
-})
-if err != nil {
-    return err
 }
-leftContainer :=
-container.Left(
-     container.Border(linestyle.Light),
-           container.PlaceWidget(b),
-           container.AlignHorizontal(align.HorizontalLeft),
-     )
-rightContainer :=
-         container.Right(
-             container.SplitHorizontal(
-                 container.Top(
-                    container.Border(linestyle.Light),
-                    container.PlaceWidget(b),
-                    container.AlignVertical(align.VerticalTop),
-                 ),
-                 container.Bottom(
-                   container.SplitVertical(
-                        container.Left(
-                          container.Border(linestyle.Light),
-                               container.PlaceWidget(b),
-                               container.PaddingTop(3),
-                               container.PaddingBottom(3),
-                               container.PaddingRight(3),
-                               container.PaddingLeft(3),
-                         ),
-                         container.Right(
-                           container.Border(linestyle.Light),
-                             container.PlaceWidget(b),
-                             container.MarginTop(3),
-                             container.MarginBottom(3),
-                             container.MarginRight(3),
-                             container.MarginLeft(3),
-                        ),
-                    ),
-                ),
-           ),
-                )
-containerLayer, err := container.New(
-        terminalLayer,
-        container.SplitVertical(
-            leftContainer,
-            rightContainer,
-            container.SplitPercent(60),
-        ),
-    )
 ```
 
-The resulting layout appears as follows:
+Now you know how to handle the pagination of output on the three major operating systems. This will also help users when you are outputting a large amount of data to scroll through the output easily.
 
-![Figure 10.6 – Container showing different alignments for a button, with different margins and padding](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.6_B18883.jpg)
+### Visual language
 
-Figure 10.6 – Container showing different alignments for a button, with different margins and padding
+Depending on the data, it might be easier for the users to see it in plain text, table format, or in JSON format. Remember to provide the user with options to return data in the format they prefer with the `–plain` or `–``json` flag.
 
-You can also define a key to change the focus to the next or previous container using the `container.KeyFocusNext` and `container.KeyFocusPrevious` options.
+Note
 
-### The widget layer
+Sometimes, for all of the data to appear within a user’s window, some lines may be wrapped within a cell. This will break scripts.
 
-In several of the previous examples, we showed code that placed a widget in either a grid or binary tree container layout and also customized the alignment, margin, and padding. However, besides a simple button or text, there are different widget options, and the demo on the GitHub page shows an example of each:
+There are many visual cues that can be displayed to the user to increase information density. For example, if something is going to take a long time, use a progress bar and provide an estimate of the time remaining. If there is a success or failure, utilize color codes to provide an additional level of information for the user to consume.
 
-![Figure 10.7 – Termdash sample screenshot showing all the widgets in a dashboard](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.7_B18883.jpg)
-
-Figure 10.7 – Termdash sample screenshot showing all the widgets in a dashboard
-
-Let’s do a quick example of each with a snippet of code to understand how each widget is created. To add each widget to a container, just use the `container.PlaceWidget` method that was used earlier for the simple text and button examples. Let’s go over a few other examples: a bar chart, donut, and gauge. For a detailed code of the other widgets, visit the very well-documented termdash wiki and check out the demo pages.
-
-#### A bar chart
-
-Here is some example code for creating a bar chart widget with individual values displayed relative to a `max` value:
-
-```markup
-    barChart, err := barchart.New()
-    if err != nil {
-        return err
-    }
-    values := []int{20, 40, 60, 80, 100}
-    max := 100
-    if err := barChart.Values(values, max); err != nil {
-        return err
-    }
-```
-
-The preceding code creates a new `barchart` instance and adds the values, a slice of `int`, plus the maximum `int` value. The resulting terminal dashboard looks like this:
-
-![Figure 10.8 – Bar chart example](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.8_B18883.jpg)
-
-Figure 10.8 – Bar chart example
-
-Change the values of the `values` and `max` variables to see the chart change. The color of the bars can also be modified based on preference.
-
-#### A donut
-
-A donut, or progress circle chart, represents the completion of progress. Here is some example code for creating a donut chart to show percentages:
-
-```markup
-    greenDonut, err := donut.New(
-        donut.CellOpts(cell.FgColor(cell.ColorGreen)),
-        donut.Label("Green", cell.FgColor(cell.ColorGreen)),
-    )
-    if err != nil {
-        return err
-    }
-    greenDonut.Percent(75)
-```
-
-The preceding code creates a new `donut` instance with options for the label and foreground color set to green. The resulting terminal dashboard looks like this:
-
-![Figure 10.9 – Green donut at 75%](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.9_B18883.jpg)
-
-Figure 10.9 – Green donut at 75%
-
-Again, the color can be modified based on preference, and remember, since Termdash provides dynamic refreshing, the data can be automatically updated and redrawn, making it quite nice for showing progress.
-
-#### A gauge
-
-A gauge, or progress bar, is another way to measure the amount completed. The following is some sample code for showing how to create a progress gauge:
-
-```markup
-    progressGauge, err := gauge.New(
-        gauge.Height(1),
-        gauge.Border(linestyle.Light),
-        gauge.BorderTitle("Percentage progress"),
-    )
-    if err != nil {
-        return err
-    }
-    progressGauge.Percent(75)
-```
-
-This code creates a new instance of a gauge with options for a light border, a title, **Percentage progress**, and a slim height of `1`. The percentage, as with the donut, is 75%. The resulting terminal dashboard looks like this:
-
-![Figure 10.10 – Gauge at 75% percent progress](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.10_B18883.jpg)
-
-Figure 10.10 – Gauge at 75% percent progress
-
-As mentioned before, because of dynamic redrawing, this is another great option for showing progress updates.
-
-Now that we’ve shown examples of different widgets to include within a terminal dashboard, let’s sketch out a design using these widgets that we can later implement in our audio file command-line interface. Suppose we wanted to build a music player in a terminal dashboard. Here is a sample layout:
-
-![Figure 10.11 – Terminal dashboard layout](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.11_B18883.jpg)
-
-Figure 10.11 – Terminal dashboard layout
-
-This layout can be created easily with the binary layout. The music library list section can be generated from a list of songs with number identifiers, which can be used in the text input section, where a song can be selected by ID. Any error messages associated with the input ID will be displayed right below. If the input is good, the selected song section will show rolling ASCII text with the song title, and the metadata section will display the text metadata of the selected song. Hitting the play button will start playing the selected song, and the stop button will stop it. Proceed to the next section where we’ll make this terminal dashboard a reality.
+We now know how to determine whether we are outputting to a human via a terminal or to another application, so knowing the difference allows us to output data appropriately. Let’s continue to the next section to discuss fun examples to provide data with ASCII visualizations to improve information density.
 
 Just Imagine
 
-# Implementing a terminal dashboard
+# Increasing information density with ASCII art
 
-When creating a terminal dashboard, you can create it as a separate standalone application or as a command that is called from the command-line application. In our specific example for the player terminal dashboard, we are going to call the dashboard when the `./bin/audiofile player` command is called.
+As the title of this section states, you can increase information density using ASCII art. For example, running the `ls` command shows file permissions in a way a user can easily scan with their eyes and understand with pattern recognition. Also, using a highlighter pen when studying in a textbook to literally highlight a sentence or group of words makes certain phrases jump out as more important. In this section, we’ll talk about some common uses for ASCII art to increase the understanding of the importance of shared information.
 
-First, from the audio file’s root repository, we’ll need to use `cobra-cli` to create the command:
+## Displaying information with tables
+
+Probably the clearest way that data can be displayed to users is in a table format. Just like the `ls` format, patterns can jump out more easily in a table format. Sometimes records can contain data that is longer than the width of the screen and lines become wrapped. This can break scripts that might be relying on one record per line.
+
+Let’s take our audiofile as an example and instead of returning the JSON output, use the package to return the data cleanly in a table. We can keep the ability to return JSON output for when the user decides to require it using the `–``json` flag.
+
+The simplest way of outputting data as a table with the `pterm` package is using the default table. Next to the models, there currently exists a `JSON()` method that will take the struct and then output it in JSON format. Similarly, we add a `Table()` method on the pointer to the struct. In the `models/audio.go` file, we add the following bit of code for the header table:
 
 ```markup
-cobra-cli add player
-Player created at /Users/mmontagnino/Code/src/github.com/marianina8/audiofile
+var header = []string{
+  "ID",
+  "Path",
+  "Status",
+  "Title",
+  "Album",
+  "Album Artist",
+  "Composer",
+  "Genre",
+  "Artist",
+  "Lyrics",
+  "Year",
+  "Comment",
+}
 ```
 
-Now, we can create the code to generate the terminal dashboard, called within the `Run` field of the `player` command. Remember that the terminal dashboard consists of four main layers: the terminal, infrastructure, container, and widgets. Like a painting, we’ll start with the base layer: the terminal.
-
-## Creating the terminal layer
-
-The first thing you need to do is to create a terminal that provides access to any input and output. Termdash has a `tcell` package for creating a new `tcell`\-based terminal. Many terminals by default only support 16 colors, but other more modern terminals can support up to 256 colors. The following code specifically creates a new terminal with a 265-color mode.
+This defines the header for the audio table. We then add some code to transform an `audio` struct into a row:
 
 ```markup
-t, err := tcell.New(tcell.ColorMode(terminalapi.ColorMode256))
+func row(audio Audio) []string {
+  return []string{
+    audio.Id,
+    audio.Path,
+    audio.Status,
+    audio.Metadata.Tags.Title,
+    audio.Metadata.Tags.Album,
+    audio.Metadata.Tags.AlbumArtist,
+    audio.Metadata.Tags.Composer,
+    audio.Metadata.Tags.Genre,
+    audio.Metadata.Tags.Artist,
+    audio.Metadata.Tags.Lyrics,
+    strconv.Itoa(audio.Metadata.Tags.Year),
+    strings.Replace(audio.Metadata.Tags.Comment, "\r\n",
+        "", -1),
+  }
+}
 ```
 
-After creating a terminal layer, we then create the infrastructure layer.
-
-## Creating the infrastructure layer
-
-The infrastructure layer handles the terminal setup, mouse and keyboard events, and containers. In our terminal dashboard player, we want to handle a few tasks:
-
--   Keyboard event to signal quitting
--   Running the terminal dashboard, which subscribes to this keyboard event
-
-Let’s write the code to handle these two features required of the terminal dashboard.
-
-### Subscribing to keyboard events
-
-If we want to listen for key events, we create a keyboard subscriber to specify the keys to listen to:
+Now we use the `pterm` package to create the table from the header row and function to convert an audio item into a row, each of type `[]string`. The `Table()` method for `Audio` and `AudioList` structs are defined below:
 
 ```markup
-quitter := func(k *terminalapi.Keyboard) {
-    if k.Key == 'q' || k.Key == 'Q' {
-        ...
+func (list *AudioList) Table() (string, error) {
+  data := pterm.TableData{header}
+  for _, audio := range *list {
+    data = append(
+      data,
+      row(audio),
+    )
+  }
+  return pterm.DefaultTable.WithHasHeader()
+     .WithData(data).Srender()
+}
+func (audio *Audio) Table() (string, error) {
+  data := pterm.TableData{header, row(*audio)}
+  return pterm.DefaultTable.WithHasHeader().WithData(data).
+    Srender()
+}
+```
+
+All the data in this example is output one record per line. If you decide on a different implementation and this is not the case for your code, make sure you add the `–plain` flag as an optional flag where once it is called, it will print one record per line. Doing this will ensure that scripts do not break on the output of the command. Regardless, depending on the size of the data and terminal, you may notice that the data wraps around and might be hard to read. If you are running Unix, run the `tput rmam` command to remove line wrapping from `terminal.app` and then `tput smam` to add line wrapping back in. On Windows, there will be a setting under your console properties. Either way, this should make viewing the table data a bit easier!
+
+If a lot of data is returned within the table, then it’s important to add paging for increased usability. As mentioned in the last section, we’ve added a `Pager` function to the `utils` package. Let’s modify the code so that it checks whether the data is being output to a terminal, and if so, page the data using the `Pager` function. In the `utils/print.go` file, within the `Print` function, we paginate the JSON formatted data, for example, as follows:
+
+```markup
+if jsonFormat {
+    if IsaTTY() {
+        err = Pager(string(b))
+        if err != nil {
+            return b, fmt.Errorf("\n paging: %v\n ", err)
+        }
+    } else {
+        return b, fmt.Errorf("not a tty")
     }
 }
 ```
 
-Now that we have defined a keyboard subscriber, we can use this as an input parameter to termdash’s `Run` method.
-
-### Running the terminal
-
-When running the terminal, you’ll need the terminal variable, container, and keyboard and mouse subscribers, as well as the timed redrawing interval and other options. The following code runs the `tcell`\-based terminal we created and the `quitter` keyboard subscriber, which listens for _q_ or _Q_ key events to quit the application:
+If the output is returned to a terminal, then we paginate, otherwise we return the bytes with an error that informs the calling function it is not a terminal. For example, the `cmd/list.go` file calls the preceding `Print` function:
 
 ```markup
-if err := termdash.Run(ctx, t, c, termdash.KeyboardSubscriber(quitter), termdash.RedrawInterval(100*time.Millisecond)); err != nil {
-    panic(err)
+formatedBytes, err := utils.Print(b, jsonFormat)
+if err != nil {
+    fmt.Fprintf(cmd.OutOrStdout(), string(formatedBytes))
 }
 ```
 
-The `c` variable that’s passed into the `termdash.Run` method as the third parameter is the container. Let’s define the container now.
+When it receives the error, then it just prints the string value to standard output.
 
-## Creating the container layer
+## Clarifying with emojis
 
-When creating the container, it helps to look at the bigger picture of the layout and then narrow it down as you go. For example, when you first look at the planned layout, you’ll see the largest sections are made from left and right vertical splits.
+A picture is worth a thousand words. So much information can be shared just by adding an emoji. For example, think of the simple green checkbox, ![](https://static.packt-cdn.com/products/9781804611654/graphics/image/02.png), that is so often used on Slack or in GitHub to signal approval. Then, there is the opposite case with a red x, ![](https://static.packt-cdn.com/products/9781804611654/graphics/image/03.png), to symbolize that something went wrong.
 
-![Figure 10.12 – Initial vertical split](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.12_B18883.jpg)
+Emojis are letters that exist within the UTF-8 (Unicode) character set, which covers almost all the characters and symbols of the world. There are websites that will share this Unicode emoji mapping. Visit `https://unicode.org/emoji/charts/full-emoji-list.html` to view the full character list.
 
-Figure 10.12 – Initial vertical split
+### Example 1 – Green checkmark for successful operations
 
-As we begin to define the container, we’ll slowly drill down with more specifics, but we begin with the following:
-
--   **Vertical Split (Left)** – The music library
--   **Vertical Split (Right)** – All other widget
-
-The final code reflects this drill-down process. Since we keep the left vertical split as the music library, we drill down with containers on the left, always starting with the larger containers and adding smaller ones within.
-
-![Figure 10.13 – Horizontal split of right vertical space](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.13_B18883.jpg)
-
-Figure 10.13 – Horizontal split of right vertical space
-
-The next is a horizontal split that separates the left vertical split into the following:
-
--   **Horizontal Split (Top) 30%** – Text input, error messages, and the rolling song title text
--   **Horizontal Split (Bottom) 70%** – Metadata and play/stop buttons
-
-Let’s take the top horizontal split and split it, again, horizontally:
-
--   **Horizontal Split (Top) 30%** – Text input and error message
--   **Horizontal Split (Bottom) 70%** – The rolling song title text
-
-![Figure 10.14 – Horizontal split of top horizontal space](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.14_B18883.jpg)
-
-Figure 10.14 – Horizontal split of top horizontal space
-
-We split the earlier top part horizontally into the separated text input and error messages:
-
--   **Horizontal Split (Top) 60%** – Text input
--   **Horizontal Split (Bottom) 40%** – Error messages
-
-![Figure 10.15 – Horizontal split of top horizontal space](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.15_B18883.jpg)
-
-Figure 10.15 – Horizontal split of top horizontal space
-
-Now, let’s drill down into the bottom 70% of the initial horizontal split of the right vertical container. Let’s split it up into two horizontal sections:
-
--   **Horizontal Split (Top) 80%** – The metadata section
--   **Horizontal Split (Bottom) 20%** – The button section (play/stop)
-
-![Figure 10.16 – Horizontal split of bottom horizontal space](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.16_B18883.jpg)
-
-Figure 10.16 – Horizontal split of bottom horizontal space
-
-Finally, the last part to drill down to is the bottom horizontal split, which we will split vertically:
-
--   **Vertical Split (Left) 50%** – The play button
--   **Vertical Split (Right) 50%** – The stop button
-
-![Figure 10.17 – Vertical split of bottom horizontal space](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.17_B18883.jpg)
-
-Figure 10.17 – Vertical split of bottom horizontal space
-
-The entire layout broken down with the container code shows this drill-down process – I’ve added comments for where the widgets will be placed for reference:
+In our audiofile, we add the emoji to the output to the `upload` command. At the top of the file, we add the emoji constant with a UTF-8 character code:
 
 ```markup
-c, err := container.New(
-    t,
-    container.SplitVertical(
-        container.Left(), // music library
-        container.Right(
-            container.SplitHorizontal(
-                container.Top(
-                    container.SplitHorizontal(
-                        container.Top(
-                            container.SplitHorizontal(
-                                container.Top(), // text input
-                                container.Bottom(), // error 
-                                                    msgs
-                                container.SplitPercent(60),
-                            ),
-                        ),
-                        container.Bottom(), // rolling song 
-                                            title
-                        container.SplitPercent(30),
-                    ),
-                ),
-                container.Bottom(
-                    container.SplitHorizontal(
-                        container.Top(), // metadata
-                        container.Bottom(
-                            container.SplitVertical(
-                                container.Left(), // play 
-                                                  button
-                                container.Right(), // stop 
-                                                   button
-                            )
-                        ),
-                        container.SplitPercent(80),
-                    ),
-                ),
-                container.SplitPercent(30),
-            ),
-        ),
-    ),
+const (
+  checkMark = "\U00002705"
 )
 ```
 
-Next, let’s create the widgets and place them within the appropriate containers to finalize the terminal dashboard.
-
-## Creating the widgets layer
-
-Going back to the original layout, all the different widgets we’ll need to implement are clear to see:
-
--   The music library list
--   Input text
--   Error messages
--   Rolling text – selected song (title by artist)
--   Metadata
--   The play button
--   The stop button
-
-At this point, I am aware of which widget to use for each item on the list. However, if you have not yet decided, now is the time to determine the best Termdash widget to use for each item:
-
--   Text:
-    -   Music library list
-    -   Error messages
-    -   Rolling text – selected song (title by artist), metadata
--   Text input:
-    -   Input field
--   Button:
-    -   The play button
-    -   The stop button
-
-Let’s create at least one of each type as an example. The full code is available in the `Chapter10` GitHub repository.
-
-### Creating a text widget for the music library list
-
-The music library list will take in the audio list and print the text in a section that will list the index of the song next to the title and artist. We define this widget with the following function:
+Then, we use it in the following output:
 
 ```markup
-func newLibraryContent(audioList *models.AudioList) (*text.Text, error) {
-    libraryContent, err := text.New(text.RollContent(), text.
-      WrapAtWords())
+fmt.Println(checkMark, " Successfully uploaded!")
+fmt.Println(checkMark, " Audiofile ID: ", string(body))
+```
+
+Running the upload command after a new recompile and run shows the emoji next to the output, indicating a successful upload. The green checkmark assures the user that everything ran as expected and that there were no errors:
+
+```markup
+ Successfully uploaded!
+ Audiofile ID: b91a5155-76e9-4a70-90ea-d659c66d39e2
+```
+
+### Example 2 – Magnifying glass for search operations
+
+We’ve also added a magnifying glass, ![](https://static.packt-cdn.com/products/9781804611654/graphics/image/013.png), in a similar way when the user runs the search command without the `--value` flag. The new prompt looks like this:
+
+```markup
+?  What value are you searching for?
+```
+
+### Example 3 – Red for error messages
+
+If there is an invalid operation or an error message, you could also add a red x to symbolize when something goes wrong:
+
+```markup
+ Error message!
+```
+
+Emojis not only add a fun element to your CLI but also a very valuable one. The little emoji is another way to increase information density and get important points across to the user.
+
+## Using color with intention
+
+Adding color highlights important information for the end user. Don’t overdo it, though; if you end up with multiple different colors frequently used throughout, it’s hard for anything to jump out as important. So use it sparingly, but also intentionally.
+
+An obvious color choice for errors is red, and success is green. Some packages make adding color to your CLI easy. One such package we will use in our examples is `https://github.com/fatih/color`.
+
+Within the audiofile, we look at a few examples where we could integrate colors. For example, the ID for the table that we just listed out. We import the library and then use it to change the color of the `ID` field:
+
+```markup
+var IdColor = color.New(color.FgGreen).SprintFunc()
+func row(audio Audio) []string {
+  return []string{
+    IdColor(audio.Id),
+    ...
+  }
+}
+```
+
+In the `utils/ask.go` file, we define an `error` function that can be used within the three ask prompts:
+
+```markup
+var (
+  missingRequiredArumentError =
+    func(missingArg string) error {
+    return fmt.Errorf(errorColor(fmt.Sprintf("missing
+      required argument (%s)", missingArg)))
+  }
+)
+```
+
+The `fmt.Errorf` function receives the `errorColor` function, which is defined within a new `utils/errors.go` file:
+
+```markup
+package utils
+import "github.com/fatih/color"
+var errorColor = color.New(color.BgRed,
+  color.FgWhite).SprintFunc()
+```
+
+Together, we recompile code and try to run it again, purposely omitting required flags from commands. We see that the command errors out and prints the error with a red background and white foreground, defined by the `color.BgRed` and `color.FgWhite` values. There are many ways to add color. In the `color` package we’re using, the prefix `Fg` stands for foreground and the prefix `Bg` stands for background.
+
+Use colors intentionally, and you will visually transfer the most important information easily to the end user.
+
+## Spinners and progress bars
+
+Spinners and progress bars signify that the command is still processing; the only difference is that progress bars visually display progress. Since it is common to build concurrency into applications, you can also show multiple progress bars running simultaneously. Think about how the Docker CLI often shows multiple files being downloaded simultaneously. This helps the user understand that there’s something happening, progress is made, and nothing is stalling.
+
+### Example 1 – Spinner while playing music
+
+There are different ways that you can add spinners to your Golang project. In the audiofile project, we’ll show a quick way to add a spinner using the `github.com/pterm/pterm` package. In the audiofile project, for each play command distinct for each operating system, we add some code to start and stop the spinner. Let’s look at `play_darwin.go`, for example:
+
+```markup
+func play(audiofilePath string) error {
+    cmd := exec.Command("afplay", audiofilePath)
+    if err := cmd.Start(); err != nil {
+        return err
+    }
+    spinnerInfo := &pterm.SpinnerPrinter{}
+    if utils.IsaTTY() {
+        spinnerInfo, _ = pterm.DefaultSpinner.Start("Enjoy the 
+          music...")
+    }
+    err := cmd.Wait()
     if err != nil {
-        panic(err)
+        return err
     }
-    for i, audiofile := range *audioList {
-        libraryContent.Write(fmt.Sprintf("[id=%d] %s by %s\n", 
-          i, audiofile.Metadata.Tags.Title, audiofile.Metadata.
-          Tags.Artist))
+    if utils.IsaTTY() {
+        spinnerInfo.Stop()
     }
-    return libraryContent, nil
+    return nil
 }
 ```
 
-The function is called in the `Run` function field like so:
+Running the `play` command for any audio file shows the following output:
 
 ```markup
-libraryContent, err := newLibraryContent(audioList)
+▀ Enjoy the music... (3m54s)
 ```
 
-The error message and metadata items are also text widgets, so we’ll omit those code examples. Next, we’ll create the input text.
+It’s hard to capture the spinner in the previous line, but the black box spins around in a circle while the music plays.
 
-### Creating an input text widget for setting the current ID of a song
+### Example 2 – Progress bar when uploading a file
 
-The input text section is where a user inputs the ID of the song displayed in the music library section. The input text is defined within the following function:
+Next, within the `upload` command, we can show code to display the progress of uploading a file. Since the API only uses local flat file storage, the upload goes so quickly it’s hard to see the change in the progress bar, but you can add some `time.Sleep` calls in between each increment to see the progress appear more gradually. Within the `cmd/upload.go` file, we’ve added several statements to create the progress bar and then increment the progress along with title updates:
 
 ```markup
-func newTextInput(audioList *models.AudioList, updatedID chan<- int, updateText, errorText chan<- string) *textinput.TextInput {
-    input, _ := textinput.New(
-        textinput.Label("Enter id of song: ", cell.
-          FgColor(cell.ColorNumber(33))),
-        textinput.MaxWidthCells(20),
-        textinput.OnSubmit(func(text string) error {
-            // set the id
-            // set any error text
-        return nil
-    }),
-    textinput.ClearOnSubmit(),
-    )
-    return input
-}
+p, _ := pterm.DefaultProgressbar.WithTotal(4).WithTitle("Initiating upload...").Start()
 ```
 
-### Creating a button to start playing the song associated with the input ID
-
-The last type of widget is a button. There are two different buttons we need, but the following code is for the play button:
+This first line initiates the progress bar, and then to update the progress bar, the following lines are used:
 
 ```markup
-func newPlayButton(audioList *models.AudioList, playID <-chan int) (*button.Button, error) {
-    playButton, err := button.New("Play", func() error {
-        stopTheMusic()
-        }
-        go func() {
-        if audiofileID <= len(*audioList)-1 && audiofileID >= 0 {
-        pID, _ = play((*audioList)[audiofileID].Path, false, 
-                     true)
-        }}()
-        return nil
-    },
-    button.FillColor(cell.ColorNumber(220)),
-    button.GlobalKey('p'),
-    )
-    if err != nil {
-        return playButton, fmt.Errorf("%v", err)
-    }
-    return playButton, nil
-}
+pterm.Success.Println("Created multipart writer")
+p.Increment()
+p.UpdateTitle("Sending request...")
 ```
 
--   The function is called in the `Run` function field:
+Notice that when we first define the progress bar, we call the `WithTotal` method, which takes the total number of steps. This means that for each step where `p.Increment()` is called, the progress bar progresses by 25 percent or 100 divided by the total number of steps. When running a spinner, it’s great to add the visualizer to let the user know that the application is currently running a command that might take a while:
 
 ```markup
-playButton, err := newPlayButton(audioList, playID)
+Process response... [4/4] ███████████             65% | 5s
 ```
 
--   Once all the widgets have been created, they are placed within the container in the appropriate places with the following line of code:
+The progress bar gives the user a quick visual of how quickly the command is progressing. It’s a great visual indicator for any command that will take a long time and can be clearly split into multiple steps for progression. Again, spinners and progress bars should not be displayed unless the output is being displayed to the terminal or TTY. Make sure you add a check for TTY before outputting the progress bar or spinner.
+
+## Disabling colors
+
+There are different reasons why color may be disabled for a CLI. A few of these things include:
+
+-   The standard out or standard error pipe is not connected to a TTY or interactive terminal. There is one exception to this. If the CLI is running within a CI environment, such as Jenkins, then color is usually supported, and it is recommended to keep color on.
+-   The `NO_COLOR` or `MYAPP_NO_COLOR` environment variable is set to true. This can be defined and set to disable color for all programs that check it or specifically for your program.
+-   The `TERM` environment variable is set to dumb.
+-   The user passes in the `–``no-color` flag.
+
+Some percentage of your users may be colorblind. Allowing your users to swap out one color for another is a nice way to consider this specific part of your user base. This could be done within the configuration file or application. Allowing them to specify a color and then overwrite it with a preferred color will again allow the user to customize the CLI. This customization will provide users with an improved experience.
+
+Including ASCII art within your application increases information density—a visual indicator that easily helps users to understand some important information. It adds clarity and conciseness. Now let’s discuss a way to make your CLI more intuitive through consistency.
+
+Just Imagine
+
+# Being consistent across CLIs
+
+Learning about command-line syntax, flags, and environment variables requires an upfront cost that pays off in the long run with efficiency if programs are consistent across the board. For example, terminal conventions are ingrained into our fingertips. Reusing these conventions by following preexisting patterns helps to make a CLI more intuitive and guessable. This is what makes users efficient.
+
+There are times when preexisting patterns break usability. As mentioned earlier, a lot of Unix commands don’t return any output by default, which can cause confusion for people who are new to using the terminal or CLI. In this case, it’s fine to break the pattern for the benefit of increased usability.
+
+There are specific topics to consider when maintaining consistency with the larger community of CLIs, but also within the application itself:
+
+-   Naming
+-   Positional versus flag arguments
+-   Flag naming
+-   Usage
+
+## Naming
+
+Use consistent command, subcommand, and flag names to help users intuit your command-line application. Some modern command-line applications, such as the AWS command-line application, will use Unix commands to stay consistent. For example, look at this AWS command:
 
 ```markup
-container.PlaceWidget(widget)
+aws s3 ls s3://mybucket --summarize
 ```
 
--   Once the widgets have been placed within the container, we can run the terminal dashboard with the following command:
+The previous command uses the `ls` command to list `S3` objects in the `S3` bucket. It’s important to use common, and non-ambiguous, command names outside of reusing shell commands in your CLI. Take the following as examples that can be logically grouped by type:
+
+![](https://static.packt-cdn.com/products/9781804611654/graphics/image/Table_8.1_B18883.jpg)
+
+Table 8.1 – Example grouping commands by type
+
+These are common names across CLIs. You can also consider integrating some common Unix commands:
+
+-   `cp` (copy)
+-   `ls` (list)
+-   `mv` (move)
+
+These common command names remove confusion from a long list of ambiguous or unique names. One common confusion is the difference between the update and upgrade commands. It’s best to use one or the other as keeping both will only confuse your users. Also, for the command names that are used often, follow the standard shorthand for these popular commands as well. For example:
+
+-   `-``v`, `--version`
+-   `-``h`, `--help`
+-   `-``a`, `--all`
+-   `-``p`, `--port`
+
+Rather than listing all examples, just consider some of the most common command-line applications you use. Think about which command names make sense for consistency across the board. This will benefit not only your application but the community of command-line applications as a whole as further standards are solidified.
+
+## Positional versus flag arguments
+
+It’s important to stay consistent with arguments and their position. For example, in the AWS CLI, the `s3` argument is consistently next to its arguments:
 
 ```markup
-./bin/audiofile player
+aws s3 ls s3://<target-bucket>
+aws s3 cp <local-file> <s3-target-location>/<local-file>
 ```
 
--   Magically, the player terminal dashboards appear and we can select an ID to enter and play a song:
+The consistent position of specific arguments will build a clear pattern that users will follow intuitively.
 
-![Figure 10.18 – Audio file player terminal dashboard](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.18_B18883.jpg)
+If flags, that we had mentioned before, are available with one command, they can be available for another command where they make sense. Rather than changing the flag name for each command, stay consistent between commands. Do the same with subcommands. Let’s look at some examples from the GitHub CLI:
 
-Figure 10.18 – Audio file player terminal dashboard
+```markup
+gh codespace list --json
+gh issue list –json
+```
 
--   Voila! We’ve created a terminal dashboard to play the music in our audio file library. While you can view the metadata through the command-line application’s `get` and `list` commands and play music with the `play` command, the new player terminal dashboard allows you to view what exists in the audio file library in a more user-friendly fashion.
+The GitHub CLI keeps the list subcommand consistent across different commands and reuses the `–json` flag, which has the same behavior across the application.
+
+Note
+
+Required arguments are usually better as positional rather than flags.
+
+## Flag naming
+
+Not only is it important to stay consistent on the position of arguments and the flag names across different commands, but it’s also important to be consistent within the naming. For example, there are flags that can be defined in camel case, `–camelCase`, snake case, `--SnakeCase`, or with dashes, `--flag-with-dashes`. Staying consistent with the way you are naming your flags in your application is also important!
+
+## Usage
+
+In previous chapters, we discussed the grammar of a command and how applications can be defined with a consistent structure: **noun-verb** or **verb-noun**. Staying consistent with the structure also lends to a more intuitive design.
+
+When building your command-line application, if you think about how to stay consistent across other programs and internal to your application, you will create a more intuitive and easier to learn command-line application where your users feel naturally supported.
 
 Just Imagine
 
 # Summary
 
-In this chapter, you learned how to create a survey with different interactive prompts and a terminal dashboard containing a variety of widgets. These are just examples that can hopefully inspire you in terms of interactivity within your own command-line application.
+In this chapter, you learned some specific points to consider when building for a machine versus a human. Machines like simple text and have certain expectations of the data that is returned from other applications. Machine output can sometimes break usability. Designing for humans first, we talked about how we can easily switch to machine-friendly output when needed with the use of some popular flags: `--json`, `--plain`, and `--silence`.
 
-The survey example showed you how to use a variety of different types of prompts; you can prompt the user for their user experience, but as you’ve seen within the audio file CLI, you can also just prompt for missing information. These prompts can be input throughout your code in places where prompts may come in handy, or they can be strung along a list of other questions and you can create a more thorough survey for your users.
+Much goes into a usable design, and we went over some of the ways you can increase the usability of your CLI—from using color with intention, outputting data in tables, paging through long text, and being consistent. All of the aforementioned elements will help the user feel more comfortable and guided when using your CLI, which is one of the main goals we want to achieve. We can summarize with a quick table what a good CLI design looks like versus a bad CLI design:
 
-The player terminal dashboard gives you an example of how to create a terminal dashboard for a command-line interface. Consider the kind of data your users will be sending or retrieving from your command-line interface and let that guide you in your design of a more visual approach.
+![Figure 8.5 – Good versus bad CLI design](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_8.5._B18883.jpg)
+
+Figure 8.5 – Good versus bad CLI design
+
+In the next chapter, [_Chapter 9_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_09.xhtml#_idTextAnchor190), _Empathic Side of Development_, we will continue discussing how to develop for humans by incorporating more empathy.
 
 Just Imagine
 
 # Questions
 
-1.  What method is used to create the terminal layer?
-2.  What method is used to place a widget inside a container?
-3.  What’s the difference between the binary layout and the grid layout?
-
-Just Imagine
-
-# Answers
-
-1.  `tcell.New()`
-2.  `container.PlaceWidget(widget)`
-3.  The grid layout allows you to split the container into horizontal rows and vertical columns. The binary layout allows you to split sub-containers horizontally or vertically.
+1.  What common flags in scripts can be used with a command-line application to keep the output stable?
+2.  What flag should you check to see if the end user does not want color set within the terminal? And what common flag can be used to disable color from the output?
+3.  Think about how there could be two commands with similar names and how this adds ambiguity. What ambiguous commands have you come across in your experience of CLIs?
 
 Just Imagine
 
 # Further reading
 
--   _The Big Course of Dashboards: Visualizing Your Data Using Real-World Business Scenarios_ by Wexler, Shaffer, and Cotgreave
+-   _The Anti-Mac_ _Interface_: [https://www.nngroup.com/articles/anti-mac-interface/](https://www.nngroup.com/articles/anti-mac-interface/)
+-   _The Humane Interface: New Directions for Designing Interactive Systems_ by Jef Raskin
+
+Just Imagine
+
+# Answers
+
+1.  `--json` and `--plain` flags keep data consistent and reduce the risk of breaking scripts.
+2.  Either the `TERM=dumb`, `NO_COLOR`, or `MYAPP_NO_COLOR` environment variables. The most common flag for disabling color is the `–``no-color` flag.
+3.  Update versus upgrade are commonly confused, as well as name and host.
+
+Just Imagine
+
+Previous Chapter

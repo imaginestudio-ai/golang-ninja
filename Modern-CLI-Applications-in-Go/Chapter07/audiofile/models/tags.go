@@ -1,13 +1,13 @@
 package models
 
 type Tags struct {
-	Title       string `json:"title"`
-	Album       string `json:"album"`
-	Artist      string `json:"artist"`
-	AlbumArtist string `json:"album_artist"`
-	Composer    string `json:"composer"`
-	Genre       string `json:"genre"`
-	Year        int    `json:"year"`
-	Lyrics      string `json:"lyrics"`
-	Comment     string `json:"comment"`
+	Title       string `json:"title",header:"Title"`
+	Album       string `json:"album",header:"Album"`
+	Artist      string `json:"artist",header:"Artist"`
+	AlbumArtist string `json:"album_artist",header:"Album Artist"`
+	Composer    string `json:"composer",header:"Composer"`
+	Genre       string `json:"genre",header:"Genre"`
+	Year        int    `json:"year",header:"Year"`
+	Lyrics      string `json:"lyrics",header:"Lyrics"`
+	Comment     string `json:"comment",header:"Comment"`
 }

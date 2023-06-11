@@ -1,875 +1,744 @@
-# Building for Humans versus Machines
+# The Empathic Side of Development
 
-Thinking about your end user while you develop your command-line application will make you a more empathic developer. Consider not just how you feel about the way certain **command-line interfaces** (**CLIs**) behave but also how you could improve the experience for yourself and others. Much goes into usability and it’s not possible to cram it all into a single chapter, so we suggest following up with the suggested article and book in the _Further_ _reading_ section.
+Empathy has been a hot topic lately, and its relation to software is no exception. This chapter will discuss how to use empathy to develop a better CLI. Empathy-driven CLI development is done with consideration of the output and errors that are written and the clarity and reassurance it may give the user. Written documentation that takes an empathetic approach also provides users with an effortless way to get started, while help and support are readily available for users when they need it.
 
-One of the first points to consider when building your command-line interface is that while it will be primarily used by humans, it can also be called within scripts, and the output from your program could be used as input into another application, such as **grep** or **awk**. Within this chapter, we’ll go over how to build for both and how to tell when you’re outputting to one versus the other.
+This chapter will give examples of how to rewrite errors in a way that users may easily understand, not just by being clearer that an error occurred but also how and where (with debug and traceback information), which can be provided with a `--verbose` flag and detailed logging. It is very important to provide logs for users, and this implementation will be described when discussing debug and traceback information. Users can also feel more reassured with the help of man pages, usage examples of each command, empathically written documentation, and a quick and easy way to submit bugs that are encountered within the application.
 
-The second point is the use of ASCII art to increase information density. Whether you’re outputting data as a table, or adding color or emojis, the idea is to make information jump out of the terminal in a way that the end user can quickly understand the data presented to them.
+Taking an empathetic approach into many different areas of your application, as well as in your life, is a form of not only self-care but care for others as well. Hopefully, these tips will help to create a CLI that meets the user at their perspective and provides them with a feeling of reassurance. Specifically, this chapter will cover the following topics:
 
-Finally, consistency also increases clarity for your users. When your CLI uses consistency within flag names and positional arguments across different commands and subcommands, your user can feel more confident in the steps they need to take when navigating your CLI. By the end of the chapter, you’ll hopefully have more to consider when building your CLI and be prompted to make usability improvements. Within this chapter, we’ll cover the following topics:
+-   Rewriting errors to be human-readable
+-   Providing debug and traceback information
+-   Effortless bug submission
+-   Help, documentation, and support
 
--   Building for humans versus machines
--   Increasing information density with ASCII art
--   Being consistent across CLIs
+# Rewriting errors to be human-readable
 
+Errors can be a big point of frustration for users as they can set users off their original plans. Users will be grateful, though, if you can make the process as painless as possible. In this section, we will discuss some ways to ease users when an error occurs and provide some guidelines for creating better error messages and avoiding some common mistakes. Creating clear and helpful error messages is often overlooked, yet they are very impactful toward an optimal UX.
 
-# Building for humans versus machines
+Think of some of your subjective experiences while working with CLIs and some of the errors you have encountered. This is an opportunity to think about how experiences can be improved for yourself when working with your own CLI, but also for others.
 
-CLIs have a long history where their interactions were tailored for other programs and machines. Their design was more similar to functions within a program than a graphical interface. Because of this, many Unix programs today still operate under the assumption that they will be interacting with another program.
+## Guidelines for writing error messages
 
-Today, however, CLIs are more often used by humans than other machines while still carrying an outdated interaction design. It’s time that we built CLIs for their primary user—the human.
+Here are some useful guidelines when writing error messages:
 
-In this section, we will compare the machine-first design to the human-first design and learn how to check whether you are outputting to the TTY. As we can recall from [_Chapter 1_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_01.xhtml#_idTextAnchor014), _Understanding CLI Standards_, **TTY** is short for **TeleTYpewriter**, which evolved into the input and output device to interact with large mainframes. In today’s world, desktop environments for operating systems, or **OSs** for short, provide a terminal window. This terminal window is a virtual teletypewriter. They are often called **pseudo-teletypes**, or **PSY** for short. It’s also an indication that a human is on the other end, versus a program.
+-   **Be specific**: Customize messages toward the actual task that has occurred. This error message is critical if the task required inputting credentials or a final command to complete a workflow. The best experience would include specifying the exact problem and then providing a way toward correcting the issue. Specific guidance helps the users stay engaged and willing to make corrections.
+-   **Remind the user that there’s a human on the other end**: A generic error message can sound very technical and intimidating to most users. By rewriting the error message, you can make them more useful and less intimidating. Empathize with your users and make sure that you don’t place blame on the user, which can be particularly discouraging. It’s important to encourage the user by being understanding, friendly, and speaking the same language, both literally and figuratively! How do the words you use sound in conversation?
+-   **Keep it light-hearted**: Keeping a light-hearted tone can help ease any tension when an error occurs, but be careful! In certain situations, it might make the situation a bit worse—especially if it’s a critical task. Users do not want to feel mocked. Regardless, with humor or not, the error message should still be informational, clear, and polite.
+-   **Make it easy**: This will require you to do a bit more of the heavy lifting, but it will certainly be worth it in the end. Provide clear next steps, or commands to run, to resolve the issue and to help the user get back on track to what they had originally intended on doing. With helpful suggestions, the user will at least see the path through the trees and know what to do next.
+-   **Consider the best placement**: When outputting error messages, it’s best to place them in an area where users will look first. In the case of the CLI, it’s most likely at the end of the output.
+-   **Consolidate errors**: If there are multiple error messages, especially similar ones, group them together. It will look much better than repeating the same error message over and again.
+-   **Optimize your error message with icons and text**: Usually, important information is placed at the end of the output, but if there’s any red text on the screen, that is often where the user’s eyes will be drawn to. Given the power of color, use it sparingly and with intention.
+-   **Consider capitalization and punctuation**: Don’t write in all caps or with multiple exclamation points. Consider consistency as well—do your errors start with capitalization? If they are output to a log, errors may start all in lowercase letters.
 
-## Is it a TTY?
+## Decorating errors
 
-First, let’s understand devices. **Devices** can be anything from hard drives, RAM disks, DVD players, keyboards, mouses, printers, tape drivers, to TTYs. A **device driver** provides the interface between the operating system and the device; it provides an API that the operating system understands and accepts.
+Wrapping errors with additional information and context is a very important step. What is the specific task that failed and why? This helps the user understand what happened. Providing actions to take toward resolution will also help the user feel more supported and willing to move forward.
 
-![Figure 8.1 – Figure showing communication from OS to the TTY device via a device driver](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_8.1._B18883.jpg)
-
-Figure 8.1 – Figure showing communication from OS to the TTY device via a device driver
-
-On Unix-based OSs, there are two major device drivers:
-
--   **Block** – interfaces for devices such as hard drives, RAM disks, and DVD players
--   **Character** – interfaces for the keyboard, mouse, printers, tape drivers, TTYs, and so on
-
-If you check that the standard input, **stdin**, or standard output, **stdout**, is a **character** device, then you can assume that you are receiving input from or sending output to a human.
-
-### Is it a TTY on a Unix or Linux operating system?
-
-In a terminal, if you type the `tty` command, it will output the file name connected to **stdin**. Effectively, it is the number of the terminal window.
-
-Let’s run the command in our Unix terminal window and see what the result is:
+First, there are a few ways to decorate your errors with additional information. You can use the `fmt.Errorf` function:
 
 ```markup
-mmontagnino@Marians-MacCourse-Pro marianina8 % tty
-/dev/ttys014
+func Errorf(format string, a ...interface{}) error
 ```
 
-There is a shorthand silent, `-s`, flag that can be used to suppress output. However, the application still returns an exit code:
-
--   Exit code 0 – standard input is coming from a TTY
--   Exit code 1 – standard input is not coming from a TTY
--   Exit code 2 – syntax error from invalid parameters
--   Exit code 3 – a write error
-
-In Unix, typing `&&` after a command means that the second command will only execute if the first command runs successfully, with exit code 0. So, let’s try this code to see if we’re running in a TTY:
+With this function, you can print out the error as a string with any additional context. Here’s an example within the `errors/errors.go` file in the `Chapter-9` repo:
 
 ```markup
-mmontagnino@Marians-MacCourse-Pro marianina8 % tty -s && echo "this is a tty"
-this is a tty
-```
-
-Since we ran those commands in a terminal, the result is `this is` `a tty`.
-
-### Programmatically check on a Unix or Linux operating system
-
-There are a few ways to do this programmatically. We can use the code located in the `Chapter-8/isatty.go` file:
-
-```markup
-func IsaTTY() {
-  fileInfo, _ := os.Stdout.Stat()
-  if (fileInfo.Mode() & os.ModeCharDevice) != 0 {
-    fmt.Println("Is a TTY")
-  } else {
-    fmt.Println("Is not a TTY")
-  }
+birthYear := -1981
+err := fmt.Errorf("%d is negative\nYear can't be negative", birthYear)
+if birthYear < 0 {
+    fmt.Println(err)
+} else {
+    fmt.Printf("Birth year: %d\n", birthYear)
 }
 ```
 
-The preceding code grabs the file info from the standard output, **stdout**, file with the following code:
+The next way to decorate your errors is by using the `errors.Wrap` method. This method is fully defined as follows:
 
 ```markup
-fileInfo, _ := os.Stdout.Stat()
+func Wrap(err error, message string) error
 ```
 
-Then, we check the result of a bitwise operation, `&`, between `fileInfo.Mode()` and `os.ModeCharDevice`. The bitwise operator, `&`, copies a bit to the result if it exists in both operands.
+It returns an error annotating `err` with a message and a stack trace at the point the method is called. If `err` is `nil`, then the `Wrap` function also returns `nil`.
 
-Let’s take a quite simple example: `7&6` within a truth table. `7` values are represented by binary `111` and `6` values are represented by `110`.
+In the `wrapping()` function, we demonstrate this:
 
-![Figure 8.2 – Truth table to show the & operation calculation](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_8.2._B18883.jpg)
+```markup
+func wrapping() error {
+    err := errors.New("error")
+    err1 := operation1()
+    if err1 != nil {
+        err1 = errors.Wrap(err, "operation1")
+    }
+    err2 := operation2()
+    if err != nil {
+        err2 = errors.Wrap(err1, "operation2")
+    }
+    err3 := operation3()
+    if err != nil {
+        err3 = errors.Wrap(err2, "operation3")
+    }
+    return err3
+}
+```
 
-Figure 8.2 – Truth table to show the & operation calculation
+Notice that the previous error gets wrapped into the next error and so on until the final error is returned. The output of the error returned from the `wrapping()` function is shown here. I’ve removed the longer path for clarity:
 
-The `&` operation checks each bit and whether they are the same, and if so, carry a bit over, or 1. If the bits differ, no bit is carried over, or 0. The resulting value is `110`.
+```markup
+error
+.../errors.wrapping
+        .../errors/errors.go:73
+.../errors.Examples
+        .../errors/errors.go:39
+main.main
+        .../main.go:6
+runtime.main
+        /usr/local/go/src/runtime/proc.go:250
+runtime.goexit
+        /usr/local/go/src/runtime/asm_amd64.s:1594
+operation1
+.../errors.wrapping
+        .../errors/errors.go:76
+.../errors.Examples
+        .../errors/errors.go:39
+main.main
+        .../main.go:6
+runtime.main
+        /usr/local/go/src/runtime/proc.go:250
+runtime.goexit
+        /usr/local/go/src/runtime/asm_amd64.s:1594
+operation2
+.../errors.wrapping
+        .../errors/errors.go:80
+.../errors.Examples
+        .../errors/errors.go:39
+main.main
+        .../main.go:6
+runtime.main
+        /usr/local/go/src/runtime/proc.go:250
+runtime.goexit
+        /usr/local/go/src/runtime/asm_amd64.s:1594
+operation3
+.../errors.wrapping
+        .../errors/errors.go:84
+.../errors.Examples
+        .../errors/errors.go:39
+main.main
+        .../main.go:6
+runtime.main
+        /usr/local/go/src/runtime/proc.go:250
+runtime.goexit
+        /usr/local/go/src/runtime/asm_amd64.s:1594
+```
 
-Now, in our more complicated example, the following code, `fileInfo.Mode() & os.ModeCharDevice`, performs a bitwise operation between `fileInfo.Mode()` and `os.ModeCharDevice`. Let’s look at what this operation looks like when the code standard output is connected to a terminal:
+Notice that the errors from `operation1`, `operation2`, and `operation3` are wrapped under the original `error` instance.
 
-<table id="table001-2" class="No-Table-Style"><colgroup><col> <col></colgroup><tbody><tr class="No-Table-Style"><td class="No-Table-Style" colspan="2"><p><strong class="bold">Is </strong><span class="No-Break"><strong class="bold">a TTY</strong></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break">Code</span></p></td><td class="No-Table-Style"><p><span class="No-Break">Value</span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">fileInfo.Mode()</code></span></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">Dcrw--w----</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">os.ModeCharDevice</code></span></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">c---------</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><code class="literal">fileInfo.Mode()</code> <code class="literal">&amp; </code><span class="No-Break"><code class="literal">os.ModeCharDevice</code></span></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">c---------</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p>(<code class="literal">fileInfo.Mode()</code> <code class="literal">&amp;</code> <code class="literal">os.ModeCharDevice)</code> <code class="literal">!= 0</code></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">TRUE</code></span></p></td></tr></tbody></table>
+Because wrapping annotates the error with the stack trace and message, the line that calls the `wrapping()` function prints the error message followed by the stack trace at the call of the `New()` or `Wrap()` method.
 
-Figure 8.3 – The code next to its value when standard output is connected to a TTY
+## Customizing errors
 
-In _Figure 8__.3_, the file mode of the standard output is defined by the `fileInfo.Mode()` method call; its value is **Dcrw--w----**. If you look at the documentation for the **os** package at [https://pkg.go.dev/os](https://pkg.go.dev/os), you will see that the `os.ModeDevice`, **D**, bit is set to indicate that the file is a device file, followed by the `os.ModeCharDevice`, **c**, bit set to indicate that it is a Unix character device. When we do a bitwise operation against the mode of `stdin` against `os.ModCharDevice`, we see that the same bits are carried over and the result does not equal zero, hence `(fileInfo.Mode() & os.ModeCharDevice) != 0` is **true**, and the device is a TTY.
+Creating custom errors allows you to store whatever information you think is valuable to your users with the error so that when it’s time to print out, all the information is available within a single struct. First, you need to think about the error structure:
 
-What would this code look like if the output were piped into another process? Let’s look:
+```markup
+type error interface {
+    Error() string
+}
+```
 
-<table id="table002" class="No-Table-Style"><colgroup><col> <col></colgroup><tbody><tr class="No-Table-Style"><td class="No-Table-Style" colspan="2"><p><strong class="bold">Is not </strong><span class="No-Break"><strong class="bold">a TTY</strong></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break">Code</span></p></td><td class="No-Table-Style"><p><span class="No-Break">Value</span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">fileInfo.Mode()</code></span></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">prw-rw----</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">os.ModeCharDevice</code></span></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">c---------</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><code class="literal">fileInfo.Mode()</code> <code class="literal">&amp;</code> <span class="No-Break"><code class="literal">os.ModeCharDevice</code></span></p></td><td class="No-Table-Style"><p><code class="literal">----------</code></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p>(<code class="literal">fileInfo.Mode()</code> <code class="literal">&amp;</code> <code class="literal">os.ModeCharDevice)</code> <code class="literal">!= 0</code></p></td><td class="No-Table-Style"><p><span class="No-Break"><code class="literal">FALSE</code></span></p></td></tr></tbody></table>
+Simply create any type that implements the `Error() string` method. Think about the data you’d want stored on the custom error structure that might be useful for your users, or even for yourself as the developer, for debugging purposes. This could include the method name where the error occurred, the severity of the error, or the kind of error. In the `Chapter-9` repo, in the `errors.go` file, I provide some examples. To keep things simple, only one additional field, `Task`, is added to the `customError` structure:
 
-Figure 8.4 – The code next to its value when standard output is not connected to a TTY
+```markup
+type customError struct {
+    Task string
+    Err error
+}
+```
 
-Now the standard output’s value is **prw-rw----**. The `os.ModeNamedPipe`, **p**, bit is set to indicate that it is connected to a **pipe**, a redirection to another process. When the bitwise operation is performed against `os.ModeCharDevice`, we see that no bits are copied over, hence `(fileInfo.Mode() & os.ModeCharDevice) != 0` is **false**, and the device is not a TTY.
+The `Error()` method that satisfies the previous interface is defined here. For fun, we use the `github.com/fatih/color` color page used in the previous chapter and an emoji (a red cross mark) alongside the error message:
 
-### Programmatically check on any operating system
+```markup
+func (e *customError) Error() string {
+    var errorColor = color.New(color.BgRed,
+        color.FgWhite).SprintFunc()
+    return fmt.Sprintf("%s: %s %s", errorColor(e.Task),
+        crossMark, e.Err)
+}
+```
 
-We suggest using a package that has already gone through the trouble of determining the code for a larger set of operating systems to check whether standard output is sent to a TTY. The most popular package we found was [github.com/mattn/go-isatty](https://github.com/mattn/go-isatty), which we used in the `Chapter-8/utils/isatty.go` file:
+Now, we can demonstrate how this custom error can be used within the `eligibleToVote` function:
+
+```markup
+func eligibleToVote(age int) error {
+    fmt.Printf("%s Attempting to vote at %d years
+        old...\n", votingBallot, age)
+    minimumAge := 18
+    err := &customError{
+        Task: " eligibleToVote",
+    }
+    if age < minimumAge && age > 0 {
+        years := minimumAge - age
+        err.Err = fmt.Errorf("too young to vote, at %d,
+            wait %d more years", age, years)
+        return err
+    }
+    if age < 0 {
+        err.Err = fmt.Errorf("age cannot be negative: %d",
+            age)
+        return err
+    }
+    fmt.Println("Voted.", checkMark)
+    return nil
+}
+```
+
+Notice there are multiple errors, and the error is initially defined at the top of the function, setting only the `Task` field. For each error that occurs, the `Err` field is then set and returned. Within the `Examples` method, we call the function with the following lines:
+
+```markup
+birthYear = 2010
+currentYear := 2022
+age := currentYear - birthYear
+err = eligibleToVote(age)
+if err != nil {
+    fmt.Println("error occurred: ", err)
+}
+```
+
+The following error is output when the preceding code runs:
+
+![Figure 9.1 – Screenshot of voting error](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_9.1._B18883.jpg)
+
+Figure 9.1 – Screenshot of voting error
+
+There are plenty of other ways to create custom errors, but here are a few things to consider adding to your custom errors:
+
+-   The severity of the error for logging purposes
+-   Any data that may be valuable for metrics
+-   The kind of error so that you may easily filter out any unexpected errors when they occur
+
+## Writing better error messages
+
+Now that we know how to add more detail to error messages, let’s revisit the `audiofile` CLI and rewrite our error messages to be more human-friendly using the guidelines mentioned earlier in this section. In the repo, for this particular branch, I’ve decorated the errors with extra information so that the user or developer can better understand where the error occurred and why.
+
+Since the `audiofile` CLI interacts with the `audiofile` API, there are HTTP responses that can be handled and rewritten. A `CheckResponse` function exists in the `utils/http.go` file and does this:
+
+```markup
+func CheckResponse(resp *http.Response) error {
+    if resp != nil {
+        if resp.StatusCode != http.StatusOK {
+            switch resp.StatusCode {
+            case http.StatusInternalServerError:
+                return fmt.Errorf(errorColor("retry the command 
+                  later"))
+            case http.StatusNotFound:
+                return fmt.Errorf(errorColor("the id cannot be 
+                  found"))
+            default:
+                return fmt.Errorf(errorColor(fmt.
+                  Sprintf("unexpected response: %v", resp.
+                  Status)))
+            }
+        }
+        return nil
+    } else {
+        return fmt.Errorf(errorColor("response body is nil"))
+    }
+}
+```
+
+Consider expanding on this within your own CLI, which might also interact with a REST API. You may check as many responses as you like and rewrite them as errors to be returned by the command.
+
+In previous versions of the `audiofile` CLI, if an `id` parameter was passed into the `get` or `delete` command, nothing would be returned if the ID was not found. However by passing back the `http.StatusNotFound` response and adding additional error decorations, the command that would previously error silently and return no data can now return some useful information:
+
+```markup
+mmontagnino@Marians-MacCourse-Pro audiofile % ./bin/audiofile get --id 1234
+Sending request: GET http://localhost:8000/request?id=1234 ...
+Error:
+  checking response: the id cannot be found
+Usage:
+  audiofile get [flags]
+Flags:
+  -h, --help        help for get
+      --id string   audiofile id
+      --json        return json format
+```
+
+We can even level up by additionally suggesting how to find an ID. Potentially, ask the user to run the `list` command to confirm the ID. Another thing that can be done, similarly to how we handled the status codes from an HTTP API request, is to check the errors coming back from a local command being called. Whether the command is not found or the command is missing executable permissions, you can similarly use a switch to handle potential errors that can occur when a command is started or run. These potential errors can be rewritten similarly using more user-friendly language.
+
+Just Imagine
+
+# Providing debug and traceback information
+
+Debug and traceback information is mostly useful for you or other developers, but it can also help your end users share valuable information with you to help debug a potential issue found in your code. There are several diverse ways to provide this information. Debug and traceback information is primarily output to a log file, and often, the addition of a `verbose` flag will print this output, which is usually hidden.
+
+## Logging data
+
+Since debug data is usually found in log files, let us discuss how to include logging in your command-line application and determine the levels associated with logging—`info`, `error`, and `debug` levels of severity. In this example, let us use a simple log package to demonstrate this example. There are several different popular structured log packages, including the following:
+
+-   Zap ([https://github.com/uber-go/zap](https://github.com/uber-go/zap))—Fast structured logger developed by Uber
+-   ZeroLog ([https://github.com/rs/zerolog](https://github.com/rs/zerolog))—Fast and simple logger dedicated to JSON format
+-   Logrus ([https://github.com/sirupsen/logrus](https://github.com/sirupsen/logrus))—Structured logger for Go with the option for JSON-formatted output (currently in maintenance mode)
+
+Although `logrus` is an extremely popular logger, it has not been updated in a while, so let us choose to use `zap` instead. In general, it’s a promising idea to choose an open source project that is actively maintained.
+
+## Initiating a logger
+
+Back to the `audiofile` project, let us add logging for debugging purposes. The very first thing we run under our `audiofile` repo is this:
+
+```markup
+go get -u go.uber.org/zap
+```
+
+It will get the updated Zap logger dependencies. After that, we can start referencing the import within the project’s Go files. Under the `utils` directory, we add a `utils/logger.go` file to define some code to initiate the Zap logger, which is called within the `main` function:
 
 ```markup
 package utils
 import (
-  "fmt"
-  "os"
-  isatty "github.com/mattn/go-isatty"
+    "go.uber.org/zap"
 )
-func IsaTTY() {
-  if isatty.IsTerminal(os.Stdout.Fd()) ||  isatty.
-     IsCygwinTerminal(os.Stdout.Fd()) {
-    fmt.Println("Is a TTY")
-  } else {
-    fmt.Println("Is not a TTY")
-  }
-}
-```
-
-Now that we know whether we are outputting to a TTY, which indicates that there is a human on the other end, versus not a TTY, we can tailor our output accordingly.
-
-## Designing for a machine
-
-As aforementioned, CLIs were originally designed for machines first. It is important to understand what it exactly means to design another program. Although we would want to tailor our applications toward a human-first design, there will be times when we would need to output in a way that can easily be passed as input to the `grep` or `awk` command, because other applications will expect streams of either plain or JSON text.
-
-Users will be using your CLI in many unexpected ways. Some of those ways are often within a bash script that pipes the output of your command as input into another application. If your application, as it should, outputs in the human-readable format first, it needs to also output in machine-readable format when the standard input is not connected to a TTY terminal. In the latter case, make sure any color and ASCII art, in the form of progress bars, for example, are disabled. The text should also be single-lined tabular data that can easily be integrated with the `grep` and `awk` tools.
-
-Also, it is important that you offer several persistent flags for your users to output in machine-readable output when necessary:
-
--   `--plain`, for outputting plain text with one record of data per line
--   `--json`, for outputting JSON text that can be piped to and from the curl command
--   `--quiet`, `-q`, or `--silent`, `-s`, for suppressing nonessential output
-
-Provide plain text when it does not impact usability. In other cases, offer the optional previous flags to give the user the ability to pipe its output easily into the input of another.
-
-## Designing for a human
-
-The modern command-line application is designed for its primary consumer—the human. This may seemingly complicate the interface because there’s a bit more to consider. The way data is output and how quickly the data is returned can affect how a user perceives the quality and robustness of your CLI. We’ll go over some key areas of design:
-
--   Conversation as the norm
--   Empathy
--   Personalization
--   Visual language
-
-Let’s go into each in more detail so we can fully understand how this impacts a human-centred design.
-
-### Conversation as the norm
-
-Since your CLI will be responding to a human and not another program, interaction should flow like a conversation. As an application leans toward a conversational language, the user will feel more at ease. Consider your application as the guide, as well, toward usage of the CLI.
-
-When a user runs a command and is missing important flags or arguments, then your application can prompt for these values. Prompts, or surveys, are a way to include a conversational back-and-forth flow of asking questions and receiving answers from the user. However, prompts should not be a requirement as flags and arguments should be available options for your commands. We will be going over prompts in more detail in [_Chapter 10_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_10.xhtml#_idTextAnchor225), _Interactivity with Prompts and_ _Terminal Dashboards_.
-
-If your application contains a state, then communicate the current state similar to how `git` provides a `status` command and notifies the user when any commands change the state. Similarly, if your application provides workflows, typically defined by a chain of commands, then you can suggest commands to run next.
-
-Being succinct is important when communicating with your user. Just like in conversation, if we muddle our words with too much extraneous information, people can become confused about the point we are trying to make. By communicating what’s important, but keeping it brief, our users will get the most important information quickly.
-
-Context is important. If you are communicating with an end user versus a developer, that makes a difference. In that case, unless you are in verbose mode, there’s no reason to output anything only a developer would understand.
-
-If the user is doing anything dangerous, ask for confirmation and match the level of confirmation with the level of danger that can be invoked by the command:
-
--   **Mild**:
-    -   Example: deleting a file
-    -   Confirmation:
-        -   If the command is a `delete` command, you don’t need to confirm
-        -   If not a `delete` command, prompt for confirmation
--   **Moderate**:
-    -   Example: deleting a directory, remote resource, or bulk modification that cannot easily be reverted
-    -   Confirmation:
-        -   Prompt for confirmation.
-        -   Provide a **dry run** operation. A **dry run** operation is used to see the results of the operation without actually making any modifications to the data.
--   **Severe**:
-    -   Example: deleting something complex, such as an entire remote application or server
-    -   Confirmation:
-        -   Prompt for confirmation along with asking them to either type something non-trivial, such as the name of the resource they are deleting, or use a flag such as `–confirm="name-of-resource"` so it is still scriptable
-
-In general, we want to make it increasingly more difficult for the user to do something more difficult. It is a way of guiding the user away from any accidents.
-
-Any user input should always be validated early on to prevent anything unnecessarily bad from happening. Make the error returned understandable to the user who passed in bad data.
-
-In a conversation, any confidential information must be secured. Make sure that any passwords are protected and provide secure methods for users to submit their credentials. For example, consider only accepting sensitive data via files only. You can offer a `–password-file` flag that allows the user to pass in a file or data via standard input. This method provides a discreet method for passing in secret data.
-
-Be transparent in conversation. Any actions that cross the boundaries of the program should be stated explicitly. This includes reading or writing files that the user did not pass in as arguments unless these files are storing an internal state within a cache. This may also include any actions when talking to a remote server.
-
-Finally, response time is more important than speed. Print something to the user in under 100 milliseconds. If you are making a network request, print out something before the request is made so it doesn’t look like the application is hanging or appearing broken. This will make your application appear more robust to its end user.
-
-Let’s revisit our audio metadata CLI project. Under [_Chapter 8_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_08.xhtml#_idTextAnchor166)’s `audiofile` repo, we’ll make some changes to create a conversational flow where it might be missing.
-
-#### Example 1: Prompt for information when a flag is missing
-
-Using the Cobra CLI, if a flag is required, it would automatically return an error if the flag were missing when the command is called. Based on some of the guidelines mentioned in this section, rather than just returning an error, let’s prompt for missing data instead. In the `audiofile` code for [_Chapter 8_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_08.xhtml#_idTextAnchor166), in the `utils/ask.go` file, we create two functions using the survey package [github.com/AlecAivazis/survey/v2](https://github.com/AlecAivazis/survey/v2) as follows:
-
-```markup
-func AskForID() (string, error) {
-  id := ""
-  prompt := &survey.Input{
-    Message: "What is the id of the audiofile?",
-  }
-  survey.AskOne(prompt, &id)
-  if id == "" {
-    return "", fmt.Errorf("missing required argument: id")
-  }
-  return id, nil
-}
-func AskForFilename() (string, error) {
-  file := ""
-  prompt := &survey.Input{
-    Message: "What is the filename of the audio to upload
-      for metadata extraction?",
-    Suggest: func(toComplete string) []string {
-      files, _ := filepath.Glob(toComplete + "*")
-      return files
-    },
-  }
-  survey.AskOne(prompt, &file)
-  if file == "" {
-    return "", fmt.Errorf("missing required argument:
-      file")
-  }
-  return file, nil
-}
-```
-
-These two functions can now be called when checking the flags that are passed and whether the values are still empty. For example, in the `cmd/get.go` file, we check for the `id` flag value and if it’s still empty, prompt the user for the `id`:
-
-```markup
-id, _ := cmd.Flags().GetString("id")
-if id == "" {
-  id, err = utils.AskForID()
-  if err != nil {
-    return nil, err
-  }
-}
-```
-
-Running this gives the user the following experience:
-
-```markup
-mmontagnino@Marians-MBP audiofile % ./bin/audiofile get
-? What is the id of the audiofile?
-```
-
-Similarly, in the `cmd/upload.go` file, we check for the filename flag value and if it’s still empty, prompt the user for the filename. Because the prompt allows the user to drill down suggested files, we now get the following experience:
-
-```markup
-mmontagnino@Marians-MBP audiofile % ./bin/audiofile upload
-? What is the filename of the audio to upload for metadata extraction? [tab for suggestions]
-```
-
-Then, press the Tab key for suggestions to reveal a drill-down menu:
-
-```markup
-mmontagnino@Marians-MBP audiofile % ./bin/audiofile upload
-? What is the filename of the audio to upload for metadata extraction? audio/beatdoctor.mp3 [Use arrows to move, enter to select, type to continue]
- audio/algorithms.mp3
-> audio/beatdoctor.mp3
- audio/nightowl.mp3
-```
-
-Providing a prompt helps to guide the user and for them to understand how to run the command works.
-
-#### Example 2: Confirm deletion
-
-Another way we can help to guide users toward safely using the CLI and protecting them from making any mistakes is to ask the user for confirmation when doing something dangerous. Although it is not necessary to do so during an explicit delete operation, we created a confirmation function that can be used with a configurable message in any type of dangerous situation. The function exists under the `utils/confirm.go` file:
-
-```markup
-func Confirm(confirmationText string) bool {
-  confirmed := false
-  prompt := &survey.Confirm{
-    Message: confirmationText,
-  }
-  survey.AskOne(prompt, &confirmed)
-  return confirmed
-}
-```
-
-#### Example 3: Notify users when making a network request
-
-Before any HTTP request is made, notifying the user helps them to understand what’s going on, especially if the request hangs or becomes unresponsive. We’ve added a message prior to each network request in each command. The `get` command now has the following line prior to the client running the `Do` method:
-
-```markup
-fmt.Printf("Sending request: %s %s %s...\n",
-           http.MethodGet, path, payload)
-resp, err := client.Do(req)
-if err != nil {
-  return nil, err
-}
-```
-
-### Empathy
-
-There are some simple modifications you can make to your command-line application to empathize with your users:
-
--   Be helpful:
-    -   Provide help text and documentation
-    -   Suggest commands
-    -   Rewrite errors in an understandable way
--   Invite user feedback and bug submission
-
-In [_Chapter 9_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_09.xhtml#_idTextAnchor190), _The Empathic Side of Development_, we will go through the ways in which you can help guide your users toward success using help text, documentation, widespread support, and providing an effortless way for users to provide feedback and submit bugs.
-
-#### Example 1: Offering command suggestions
-
-The Cobra CLI offers some empathy when a user mistypes a command. Let’s look at the following example where the user mistypes `upload` as `upolad`:
-
-```markup
-mmontagnino@Marians-MacCourse-Pro audiofile % ./bin/audiofile upolad
-Error: unknown command "upolad" for "audiofile"
-Did you mean this?
-        upload
-Run 'audiofile --help' for usage.
-```
-
-#### Example 2 – Offer an effortless way to submit bugs
-
-In [_Chapter 9_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_09.xhtml#_idTextAnchor190)_, The Empathic Side of Development,_ we define a bug command that will launch the default browser and navigate to the GitHub repository's new issue page to file a bug report:
-
-```markup
-mmontagnino@Marians-MacCourse-Pro audiofile % ./bin/audiofile bug --help
-Bug opens the default browser to start a bug report which will include useful system information.
-Usage:
-  audiofile bug [flags]
-Examples:
-audiofile bug
-```
-
-#### Example 3: Print usage command is used incorrectly
-
-Suppose a user does not input a value to search for when running the search command. The CLI application will prompt for a value to search for. If a value is not passed in by the user, the CLI will output the proper usage of the command:
-
-```markup
-mmontagnino@Marians-MacCourse-Pro audiofile % ./bin/audiofile search
-?  What value are you searching for?
-Error: missing required argument (value)
-Usage:
-  audiofile search [flags]
-Flags:
-  -h, --help           help for search
-      --json           return json format
-      --plain          return plain format
-      --value string   string to search for in metadata
-```
-
-### Personalization
-
-In general, make the default the right thing for most users, but also allow users to personalize their experience with your CLI. The configuration gives the users a chance to personalize their experience with your CLI and make it more their own.
-
-#### Example 1: Technical configuration with Viper
-
-Using `audiofile` as an example, let’s create a simple configuration setup with Viper to offer the user the ability to change any defaults to their liking. The configurations that we’ve created are for the API and CLI applications. For the API, we’ve defined the `configs/api.json` file, which contains the following:
-
-```markup
-{
-  "api": {
-    "port": 8000
-  }
-}
-```
-
-The API will always execute locally to where it’s being executed. Then, for the CLI, we’ve defined a similar simple file, `configs/cli.json`, containing the following:
-
-```markup
-{
-  "cli": {
-    "hostname": "localhost",
-    "port": 8000
-  }
-}
-```
-
-If the API is running on an external host with a different port, then these values can be modified within the configuration. For the CLI to point to the new hostname, we’ll need to update any references within the CLI commands to use the value in the configuration. For example, in the `cmd/get.go` file, the path is defined as:
-
-```markup
-path := fmt.Sprintf("http://%s:%d/request?%s",
-    viper.Get("cli.hostname"), viper.GetInt("cli.port"),
-    params)
-```
-
-To initialize these values and provide defaults if any required values are missing from the configuration, we run a `Configure` function defined in `cmd/root.go`:
-
-```markup
-func Configure() {
-  viper.AddConfigPath("./configs")
-  viper.SetConfigName("cli")
-  viper.SetConfigType("json")
-  viper.ReadInConfig()
-  viper.SetDefault("cli.hostname", "localhost")
-  viper.SetDefault("cli.port", 8000)
-}
-```
-
-A similar code exists within the `cmd/api.go` file to gather some of the same information. Now that this is set up, if there are any changes the user wants to make to the hostname, log level, or port, there is only one configuration file to modify.
-
-#### Example 2: Environment variable configuration
-
-Suppose there is an environment variable specific to the application that allows users to define the foreground and background color to use. This environment variable could be named `AUDIOFILE_COLOR_MODE`. Using the Viper configuration again, values for the foreground and background texts may be used to overwrite default settings. While this is not implemented within our CLI, the Viper configuration may look like the following:
-
-```markup
-{
-  "cli": {
-    "colormode": {
-      "foreground": "white",
-      "background": "black",
+var Logger *zap.Logger
+var Verbose *zap.Logger
+func InitCLILogger() {
+    var err error
+    var cfg zap.Config
+    config := viper.GetStringMap("cli.logging")
+    configBytes, _ := json.Marshal(config)
+    if err := json.Unmarshal(configBytes, &cfg); err != nil {
+        panic(err)
     }
-  }
-}
-```
-
-#### Example 3: Storage location
-
-Sometimes users want the location of certain output, logging, for example, to be stored in a particular area. Providing details within Viper can allow defaults to be overwritten. Again, this is not currently implemented within our CLI, but if we were to provide this option within our configuration, it may look like this:
-
-```markup
-{
-  "api": {
-    "local_storage": "/Users/mmontagnino/audiofile"
-  }
-}
-```
-
-Any other new configuration values can be added with a similar approach. Providing the ability to configure your application is the start for personalization. Think of the many ways you can configure your CLI: color settings, disabling prompts or ASCII art, default formatting, and more.
-
-### Pagination
-
-Use a pager when you are outputting a lot of text, but be careful because sometimes the implementation can be error-prone.
-
-#### Pagination for Unix or Linux
-
-On a Unix or Linux machine, you may use the `less` command for pagination. Calling the `less` command with a sensible set of options, such as `less -FIRX`, pagination does not occur if the contents fit on a single screen, case is ignored when searching, color and formatting are enabled, and the content is kept on the screen when `less` quits. We will use this as an example within the next section when outputting table data, and in preparation, within the `utils` package, we add the following files: `pager_darwin.go` and `pager_linux.go`, with a `Pager` function. In our case, though, we use the `–r` flag only because we want to continue displaying colors in the table:
-
-```markup
-func Pager(data string) error {
-  lessCmd := exec.Command("less", "-r")
-  lessCmd.Stdin = strings.NewReader(data)
-  lessCmd.Stdout = os.Stdout
-  lessCmd.Stderr = os.Stderr
-  err := lessCmd.Run()
-  if err != nil {
-    return err
-  }
-  return nil
-}
-```
-
-#### Pagination for Windows
-
-On a Windows machine, we use the `more` command instead. Within the `utils` package, we add the `pager_windows.go` file following with a `Pager` function:
-
-```markup
-func Pager(data string) error {
-    moreCmd := exec.Command("cmd", "/C", "more")
-    moreCmd.Stdin = strings.NewReader(data)
-    moreCmd.Stdout = os.Stdout
-    moreCmd.Stderr = os.Stderr
-    err := moreCmd.Run()
+    cfg.EncoderConfig = encoderConfig()
+    err = createFilesIfNotExists(cfg.OutputPaths)
     if err != nil {
-        return err
+        panic(err)
     }
-    return nil
+    cfg.Encoding = "json"
+    cfg.Level = zap.NewAtomicLevel()
+    Logger, err = cfg.Build()
+    if err != nil {
+        panic(err)
+    }
+    cfg.OutputPaths = append(cfg.OutputPaths, "stdout")
+    Verbose, err = cfg.Build()
+    if err != nil {
+        panic(err)
+    }
+    defer Logger.Sync()
 }
 ```
 
-Now you know how to handle the pagination of output on the three major operating systems. This will also help users when you are outputting a large amount of data to scroll through the output easily.
+It isn’t necessary, but we define two loggers here. One is a logger, `Logger`, which outputs to an output path defined within the config file, and the other is the verbose logger, `Verbose`, which outputs to standard output and the previously defined output path. Both use the `*zap.Logger` type, which is used when type safety and performance are critical. Zap also provides a sugared logger, which is used when performance is nice to have but not critical. `SugarLogger` also allows for structured logging, but in addition, supports `printf`\-style APIs.
 
-### Visual language
+Within the `Chapter-9` branch version of this repo, we replace some of the general `fmt.Println` or `fmt.Printf` output with the logs that can be shown in `verbose` mode. Also, we differentiate when printing out information with the `Info` level versus the `Error` level.
 
-Depending on the data, it might be easier for the users to see it in plain text, table format, or in JSON format. Remember to provide the user with options to return data in the format they prefer with the `–plain` or `–``json` flag.
-
-Note
-
-Sometimes, for all of the data to appear within a user’s window, some lines may be wrapped within a cell. This will break scripts.
-
-There are many visual cues that can be displayed to the user to increase information density. For example, if something is going to take a long time, use a progress bar and provide an estimate of the time remaining. If there is a success or failure, utilize color codes to provide an additional level of information for the user to consume.
-
-We now know how to determine whether we are outputting to a human via a terminal or to another application, so knowing the difference allows us to output data appropriately. Let’s continue to the next section to discuss fun examples to provide data with ASCII visualizations to improve information density.
-
-Just Imagine
-
-# Increasing information density with ASCII art
-
-As the title of this section states, you can increase information density using ASCII art. For example, running the `ls` command shows file permissions in a way a user can easily scan with their eyes and understand with pattern recognition. Also, using a highlighter pen when studying in a textbook to literally highlight a sentence or group of words makes certain phrases jump out as more important. In this section, we’ll talk about some common uses for ASCII art to increase the understanding of the importance of shared information.
-
-## Displaying information with tables
-
-Probably the clearest way that data can be displayed to users is in a table format. Just like the `ls` format, patterns can jump out more easily in a table format. Sometimes records can contain data that is longer than the width of the screen and lines become wrapped. This can break scripts that might be relying on one record per line.
-
-Let’s take our audiofile as an example and instead of returning the JSON output, use the package to return the data cleanly in a table. We can keep the ability to return JSON output for when the user decides to require it using the `–``json` flag.
-
-The simplest way of outputting data as a table with the `pterm` package is using the default table. Next to the models, there currently exists a `JSON()` method that will take the struct and then output it in JSON format. Similarly, we add a `Table()` method on the pointer to the struct. In the `models/audio.go` file, we add the following bit of code for the header table:
+The following code uses Viper to read from the configuration file, which has been modified to hold a few extra configurations for the logger:
 
 ```markup
-var header = []string{
-  "ID",
-  "Path",
-  "Status",
-  "Title",
-  "Album",
-  "Album Artist",
-  "Composer",
-  "Genre",
-  "Artist",
-  "Lyrics",
-  "Year",
-  "Comment",
-}
-```
-
-This defines the header for the audio table. We then add some code to transform an `audio` struct into a row:
-
-```markup
-func row(audio Audio) []string {
-  return []string{
-    audio.Id,
-    audio.Path,
-    audio.Status,
-    audio.Metadata.Tags.Title,
-    audio.Metadata.Tags.Album,
-    audio.Metadata.Tags.AlbumArtist,
-    audio.Metadata.Tags.Composer,
-    audio.Metadata.Tags.Genre,
-    audio.Metadata.Tags.Artist,
-    audio.Metadata.Tags.Lyrics,
-    strconv.Itoa(audio.Metadata.Tags.Year),
-    strings.Replace(audio.Metadata.Tags.Comment, "\r\n",
-        "", -1),
-  }
-}
-```
-
-Now we use the `pterm` package to create the table from the header row and function to convert an audio item into a row, each of type `[]string`. The `Table()` method for `Audio` and `AudioList` structs are defined below:
-
-```markup
-func (list *AudioList) Table() (string, error) {
-  data := pterm.TableData{header}
-  for _, audio := range *list {
-    data = append(
-      data,
-      row(audio),
-    )
-  }
-  return pterm.DefaultTable.WithHasHeader()
-     .WithData(data).Srender()
-}
-func (audio *Audio) Table() (string, error) {
-  data := pterm.TableData{header, row(*audio)}
-  return pterm.DefaultTable.WithHasHeader().WithData(data).
-    Srender()
-}
-```
-
-All the data in this example is output one record per line. If you decide on a different implementation and this is not the case for your code, make sure you add the `–plain` flag as an optional flag where once it is called, it will print one record per line. Doing this will ensure that scripts do not break on the output of the command. Regardless, depending on the size of the data and terminal, you may notice that the data wraps around and might be hard to read. If you are running Unix, run the `tput rmam` command to remove line wrapping from `terminal.app` and then `tput smam` to add line wrapping back in. On Windows, there will be a setting under your console properties. Either way, this should make viewing the table data a bit easier!
-
-If a lot of data is returned within the table, then it’s important to add paging for increased usability. As mentioned in the last section, we’ve added a `Pager` function to the `utils` package. Let’s modify the code so that it checks whether the data is being output to a terminal, and if so, page the data using the `Pager` function. In the `utils/print.go` file, within the `Print` function, we paginate the JSON formatted data, for example, as follows:
-
-```markup
-if jsonFormat {
-    if IsaTTY() {
-        err = Pager(string(b))
-        if err != nil {
-            return b, fmt.Errorf("\n paging: %v\n ", err)
+{
+    "cli": {
+        "hostname": "localhost",
+        "port": 8000,
+        "logging": {
+            "level": "debug",
+            "encoding": "json",
+            "outputPaths": [
+                "/tmp/log/audiofile.json"
+            ]
         }
-    } else {
-        return b, fmt.Errorf("not a tty")
     }
 }
 ```
 
-If the output is returned to a terminal, then we paginate, otherwise we return the bytes with an error that informs the calling function it is not a terminal. For example, the `cmd/list.go` file calls the preceding `Print` function:
+In the preceding configuration, we set the `level` and `encoding` fields. We choose the `debug` level so that debug and error statements are output to the log file. For the `encoding` value, we chose `json` because it provides a standard structure that can make it easier to understand the error message as each field is labeled. The encoder config is also defined within the same `utils/logger.go` file:
 
 ```markup
-formatedBytes, err := utils.Print(b, jsonFormat)
-if err != nil {
-    fmt.Fprintf(cmd.OutOrStdout(), string(formatedBytes))
+func encoderConfig() zapcore.EncoderConfig {
+    return zapcore.EncoderConfig{
+        MessageKey: "message",
+        LevelKey: "level",
+        TimeKey: "time",
+        NameKey: "name",
+        CallerKey: "file",
+        StacktraceKey: "stacktrace",
+        EncodeName: zapcore.FullNameEncoder,
+        EncodeTime: timeEncoder,
+        EncodeLevel: zapcore.LowercaseLevelEncoder,
+        EncodeDuration: zapcore.SecondsDurationEncoder,
+        EncodeCaller: zapcore.ShortCallerEncoder,
+    }
 }
 ```
 
-When it receives the error, then it just prints the string value to standard output.
+Since the `InitCLILogger()` function is called within the `main` function, the two `Logger` and `Verbose` loggers will be available within any of the commands for use.
 
-## Clarifying with emojis
+## Implementing a logger
 
-A picture is worth a thousand words. So much information can be shared just by adding an emoji. For example, think of the simple green checkbox, ![](https://static.packt-cdn.com/products/9781804611654/graphics/image/02.png), that is so often used on Slack or in GitHub to signal approval. Then, there is the opposite case with a red x, ![](https://static.packt-cdn.com/products/9781804611654/graphics/image/03.png), to symbolize that something went wrong.
-
-Emojis are letters that exist within the UTF-8 (Unicode) character set, which covers almost all the characters and symbols of the world. There are websites that will share this Unicode emoji mapping. Visit `https://unicode.org/emoji/charts/full-emoji-list.html` to view the full character list.
-
-### Example 1 – Green checkmark for successful operations
-
-In our audiofile, we add the emoji to the output to the `upload` command. At the top of the file, we add the emoji constant with a UTF-8 character code:
+Let us look at how we can start using this logger in an effective way. First, we know that we are going to log all the data and output to the user when in verbose mode. We define the `verbose` flag as a persistent flag in the `cmd/root.go` file. This means that the `verbose` flag will be available not only at the root level but also for every subcommand added to it. In that file’s `init()` function, we add this line:
 
 ```markup
-const (
-  checkMark = "\U00002705"
-)
+rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose")
 ```
 
-Then, we use it in the following output:
+Now, rather than checking for every error if the `verbose` flag is called and printing out the error before it is returned, we create a simple function that can be repeated for checking but also returning the error value. Within the `utils/errors.go` file, we define the following function for reuse:
 
 ```markup
-fmt.Println(checkMark, " Successfully uploaded!")
-fmt.Println(checkMark, " Audiofile ID: ", string(body))
-```
-
-Running the upload command after a new recompile and run shows the emoji next to the output, indicating a successful upload. The green checkmark assures the user that everything ran as expected and that there were no errors:
-
-```markup
- Successfully uploaded!
- Audiofile ID: b91a5155-76e9-4a70-90ea-d659c66d39e2
-```
-
-### Example 2 – Magnifying glass for search operations
-
-We’ve also added a magnifying glass, ![](https://static.packt-cdn.com/products/9781804611654/graphics/image/013.png), in a similar way when the user runs the search command without the `--value` flag. The new prompt looks like this:
-
-```markup
-?  What value are you searching for?
-```
-
-### Example 3 – Red for error messages
-
-If there is an invalid operation or an error message, you could also add a red x to symbolize when something goes wrong:
-
-```markup
- Error message!
-```
-
-Emojis not only add a fun element to your CLI but also a very valuable one. The little emoji is another way to increase information density and get important points across to the user.
-
-## Using color with intention
-
-Adding color highlights important information for the end user. Don’t overdo it, though; if you end up with multiple different colors frequently used throughout, it’s hard for anything to jump out as important. So use it sparingly, but also intentionally.
-
-An obvious color choice for errors is red, and success is green. Some packages make adding color to your CLI easy. One such package we will use in our examples is `https://github.com/fatih/color`.
-
-Within the audiofile, we look at a few examples where we could integrate colors. For example, the ID for the table that we just listed out. We import the library and then use it to change the color of the `ID` field:
-
-```markup
-var IdColor = color.New(color.FgGreen).SprintFunc()
-func row(audio Audio) []string {
-  return []string{
-    IdColor(audio.Id),
-    ...
-  }
-}
-```
-
-In the `utils/ask.go` file, we define an `error` function that can be used within the three ask prompts:
-
-```markup
-var (
-  missingRequiredArumentError =
-    func(missingArg string) error {
-    return fmt.Errorf(errorColor(fmt.Sprintf("missing
-      required argument (%s)", missingArg)))
-  }
-)
-```
-
-The `fmt.Errorf` function receives the `errorColor` function, which is defined within a new `utils/errors.go` file:
-
-```markup
-package utils
-import "github.com/fatih/color"
-var errorColor = color.New(color.BgRed,
-  color.FgWhite).SprintFunc()
-```
-
-Together, we recompile code and try to run it again, purposely omitting required flags from commands. We see that the command errors out and prints the error with a red background and white foreground, defined by the `color.BgRed` and `color.FgWhite` values. There are many ways to add color. In the `color` package we’re using, the prefix `Fg` stands for foreground and the prefix `Bg` stands for background.
-
-Use colors intentionally, and you will visually transfer the most important information easily to the end user.
-
-## Spinners and progress bars
-
-Spinners and progress bars signify that the command is still processing; the only difference is that progress bars visually display progress. Since it is common to build concurrency into applications, you can also show multiple progress bars running simultaneously. Think about how the Docker CLI often shows multiple files being downloaded simultaneously. This helps the user understand that there’s something happening, progress is made, and nothing is stalling.
-
-### Example 1 – Spinner while playing music
-
-There are different ways that you can add spinners to your Golang project. In the audiofile project, we’ll show a quick way to add a spinner using the `github.com/pterm/pterm` package. In the audiofile project, for each play command distinct for each operating system, we add some code to start and stop the spinner. Let’s look at `play_darwin.go`, for example:
-
-```markup
-func play(audiofilePath string) error {
-    cmd := exec.Command("afplay", audiofilePath)
-    if err := cmd.Start(); err != nil {
-        return err
-    }
-    spinnerInfo := &pterm.SpinnerPrinter{}
-    if utils.IsaTTY() {
-        spinnerInfo, _ = pterm.DefaultSpinner.Start("Enjoy the 
-          music...")
-    }
-    err := cmd.Wait()
+func Error(errString string, err error, verbose bool) error {
+    errString = cleanup(errString, err)
     if err != nil {
-        return err
-    }
-    if utils.IsaTTY() {
-        spinnerInfo.Stop()
+        if verbose {
+            // prints to stdout also
+            Verbose.Error(errString)
+        } else {
+            Logger.Error(errString)
+        }
+        return fmt.Errorf(errString)
     }
     return nil
 }
 ```
 
-Running the `play` command for any audio file shows the following output:
+Let’s take one command as an example, the `delete` command, which shows how this function is called:
 
 ```markup
-▀ Enjoy the music... (3m54s)
+var deleteCmd = &cobra.Command{
+    Use: "delete",
+    Short: "Delete audiofile by id",
+    Long: `Delete audiofile by id. This command removes the
+        entire folder containing all stored metadata`,
 ```
 
-It’s hard to capture the spinner in the previous line, but the black box spins around in a circle while the music plays.
-
-### Example 2 – Progress bar when uploading a file
-
-Next, within the `upload` command, we can show code to display the progress of uploading a file. Since the API only uses local flat file storage, the upload goes so quickly it’s hard to see the change in the progress bar, but you can add some `time.Sleep` calls in between each increment to see the progress appear more gradually. Within the `cmd/upload.go` file, we’ve added several statements to create the progress bar and then increment the progress along with title updates:
+The bulk of the code for the command is usually found within the `Run` or `RunE` method, which receives the `cmd` variable, a `*cobra.Command` instance, and the `args` variable, which holds arguments within a slice of `strings`. Very early on, in each method, we create the client and extract any flags we might need—in this case, the `verbose`, `silence`, and `id` flags:
 
 ```markup
-p, _ := pterm.DefaultProgressbar.WithTotal(4).WithTitle("Initiating upload...").Start()
+    RunE: func(cmd *cobra.Command, args []string) error {
+        client := &http.Client{
+            Timeout: 15 * time.Second,
+        }
+        var err error
+          silence, _ := cmd.Flags().GetBool("silence")
+        verbose, _ := cmd.Flags().GetBool("verbose")
+        id, _ := cmd.Flags().GetString("id")
+        if id == "" {
+            id, err = utils.AskForID()
+            if err != nil {
+                return utils.Error("\n %v\n try again and
+                    enter an id", err, verbose)
+            }
+        }
 ```
 
-This first line initiates the progress bar, and then to update the progress bar, the following lines are used:
+Next, we construct the request we are sending to the `HTTP` client, which uses the `id` value:
 
 ```markup
-pterm.Success.Println("Created multipart writer")
-p.Increment()
-p.UpdateTitle("Sending request...")
+        params := "id=" + url.QueryEscape(id)
+        path := fmt.Sprintf("http://%s:%d/delete?%s",
+            viper.Get("cli.hostname"),
+            viper.GetInt("cli.port"), params)
+        payload := &bytes.Buffer{}
+        req, err := http.NewRequest(http.MethodGet,
+            path, payload)
+        if err != nil {
+            return utils.Error("\n %v\n check configuration
+                to ensure properly configured hostname and
+                port", err, verbose)
+        }
 ```
 
-Notice that when we first define the progress bar, we call the `WithTotal` method, which takes the total number of steps. This means that for each step where `p.Increment()` is called, the progress bar progresses by 25 percent or 100 divided by the total number of steps. When running a spinner, it’s great to add the visualizer to let the user know that the application is currently running a command that might take a while:
+We check whether there’s any error when creating the request, which is most likely a result of a configuration error. Next, we log the request so that we are aware of any communication to external servers:
 
 ```markup
-Process response... [4/4] ███████████             65% | 5s
+        utils.LogRequest(verbose, http.MethodGet, path,
+            payload.String())
 ```
 
-The progress bar gives the user a quick visual of how quickly the command is progressing. It’s a great visual indicator for any command that will take a long time and can be clearly split into multiple steps for progression. Again, spinners and progress bars should not be displayed unless the output is being displayed to the terminal or TTY. Make sure you add a check for TTY before outputting the progress bar or spinner.
+We’ll execute the request through the client’s `Do` method and return an error if the request was unsuccessful:
 
-## Disabling colors
+```markup
+        resp, err := client.Do(req)
+        if err != nil {
+            return utils.Error("\n %v\n check configuration
+                to ensure properly configured hostname and
+                port\n or check that api is running", err,
+                verbose)
+        }
+        defer resp.Body.Close()
+```
 
-There are different reasons why color may be disabled for a CLI. A few of these things include:
+Following the request, we check the response and read the `resp.Body` , or the body of the response, if the response was successful. If not, an error message will be returned and logged:
 
--   The standard out or standard error pipe is not connected to a TTY or interactive terminal. There is one exception to this. If the CLI is running within a CI environment, such as Jenkins, then color is usually supported, and it is recommended to keep color on.
--   The `NO_COLOR` or `MYAPP_NO_COLOR` environment variable is set to true. This can be defined and set to disable color for all programs that check it or specifically for your program.
--   The `TERM` environment variable is set to dumb.
--   The user passes in the `–``no-color` flag.
+```markup
+        err = utils.CheckResponse(resp)
+        if err != nil {
+            return utils.Error("\n checking response: %v",
+            err, verbose)
+        }
+        b, err := ioutil.ReadAll(resp.Body)
+        if err != nil {
+            return utils.Error("\n reading response: %v
+                \n ", err, verbose)
+        }
+        utils.LogHTTPResponse(verbose, resp, b)
+```
 
-Some percentage of your users may be colorblind. Allowing your users to swap out one color for another is a nice way to consider this specific part of your user base. This could be done within the configuration file or application. Allowing them to specify a color and then overwrite it with a preferred color will again allow the user to customize the CLI. This customization will provide users with an improved experience.
+Finally, we check whether the response returns the `success` string, which shows a successful deletion. The result is then printed out to the user:
 
-Including ASCII art within your application increases information density—a visual indicator that easily helps users to understand some important information. It adds clarity and conciseness. Now let’s discuss a way to make your CLI more intuitive through consistency.
+```markup
+        if strings.Contains(string(b), "success") && !silence {
+            fmt.Printf("\U00002705 Successfully deleted
+                audiofile (%s)!\n", id)
+        } else {
+            fmt.Printf("\U0000274C Unsuccessful delete of
+                audiofile (%s): %s\n", id, string(b))
+        }
+        return nil
+    },
+}
+```
+
+You’ll see that the `utils.Error` function is called every time an error is encountered. You’ll also see a few other logging functions: `utils.LogRequest` and `utils.LogHTTPResponse`. The first, `utils.LogRequest`, is defined to log the request to either standard output, the log file, or both:
+
+```markup
+func LogRequest(verbose bool, method, path, payload string) {
+    if verbose {
+        Verbose.Info(fmt.Sprintf("sending request: %s %s
+            %s...\n", method, path, payload))
+    } else {
+        Logger.Info(fmt.Sprintf("sending request: %s %s
+            %s...\n", path, path, payload))
+    }
+}
+```
+
+The second, `utils.LogHTTPResponse`, similarly logs the response from the previous request to either standard output, the log file, or both:
+
+```markup
+func LogHTTPResponse(verbose bool, resp *http.Response, body []byte) {
+    if verbose && resp != nil {
+        Verbose.Info(fmt.Sprintf("response status: %s,
+            body: %s", resp.Status, string(body)))
+    } else if resp != nil {
+        Logger.Info(fmt.Sprintf("response status: %s, body:
+            %s", resp.Status, string(body)))
+    }
+}
+```
+
+Now that this logger has been implemented for all the `audiofile` commands, let’s give it a try and see what the output looks like now that the command has a `verbose` flag to output debug data when necessary.
+
+## Trying out verbose mode to view stack traces
+
+After recompiling the project, we run the `delete` command with an invalid ID and pass the `verbose` command:
+
+```markup
+./bin/audiofile delete --id invalidID --verbose
+{"level":"info","time":"2022-11-06 21:21:44","file":"utils/logger.go:112","message":"sending request: GET http://localhost:8000/delete?id=invalidID ...\n"}
+{"level":"error","time":"2022-11-06 21:21:44","file":"utils/errors.go:17","message":"checking response: \u001b[41;37mthe id cannot be found\u001b[0m","stacktrace":"github.com/marianina8/audiofile/utils.Error\n\t/Users/mmontagnino/Code/src/github.com/marianina8/audiofile/utils/errors.go:17\ngithub.com/marianina8/audiofile/cmd.glob..func2\n\t/Users/mmontagnino/Code/src/github.com/marianina8/audiofile/cmd/delete.go:54\ngithub.com/spf13/cobra.(*Command).execute\n\t/Users/mmontagnino/Code/src/github.com/marianina8/audiofile/vendor/github.com/spf13/cobra/command.go:872\ngithub.com/spf13/cobra.(*Command).ExecuteC\n\t/Users/mmontagnino/Code/src/github.com/marianina8/audiofile/vendor/github.com/spf13/cobra/command.go:990\ngithub.com/spf13/cobra.(*Command).Execute\n\t/Users/mmontagnino/Code/src/github.com/marianina8/audiofile/vendor/github.com/spf13/cobra/command.go:918\ngithub.com/marianina8/audiofile/cmd.Execute\n\t/Users/mmontagnino/Code/src/github.com/marianina8/audiofile/cmd/root.go:21\nmain.main\n\t/Users/mmontagnino/Code/src/github.com/marianina8/audiofile/main.go:11\nruntime.main\n\t/usr/local/go/src/runtime/proc.go:250"}
+Error: checking response: the id cannot be found
+Usage:
+  audiofile delete [flags]
+Flags:
+  -h, --help        help for delete
+      --id string   audiofile id
+Global Flags:
+  -v, --verbose   verbose
+```
+
+Using the `verbose` flag, the debug statements are printed out, and when an error occurs, the stack trace is also output. This is important data for the user to share with the developer to debug what went wrong. Now, let us learn how to give the option to the user to submit a bug.
 
 Just Imagine
 
-# Being consistent across CLIs
+# Effortless bug submission
 
-Learning about command-line syntax, flags, and environment variables requires an upfront cost that pays off in the long run with efficiency if programs are consistent across the board. For example, terminal conventions are ingrained into our fingertips. Reusing these conventions by following preexisting patterns helps to make a CLI more intuitive and guessable. This is what makes users efficient.
-
-There are times when preexisting patterns break usability. As mentioned earlier, a lot of Unix commands don’t return any output by default, which can cause confusion for people who are new to using the terminal or CLI. In this case, it’s fine to break the pattern for the benefit of increased usability.
-
-There are specific topics to consider when maintaining consistency with the larger community of CLIs, but also within the application itself:
-
--   Naming
--   Positional versus flag arguments
--   Flag naming
--   Usage
-
-## Naming
-
-Use consistent command, subcommand, and flag names to help users intuit your command-line application. Some modern command-line applications, such as the AWS command-line application, will use Unix commands to stay consistent. For example, look at this AWS command:
+Let us create a `bug` command using the Cobra generator for users to submit issues to the developers of the `audiofile` CLI:
 
 ```markup
-aws s3 ls s3://mybucket --summarize
+cobra-cli add bug
+bug created at /Users/mmontagnino/Code/src/github.com/marianina8/audiofile
 ```
 
-The previous command uses the `ls` command to list `S3` objects in the `S3` bucket. It’s important to use common, and non-ambiguous, command names outside of reusing shell commands in your CLI. Take the following as examples that can be logically grouped by type:
-
-![](https://static.packt-cdn.com/products/9781804611654/graphics/image/Table_8.1_B18883.jpg)
-
-Table 8.1 – Example grouping commands by type
-
-These are common names across CLIs. You can also consider integrating some common Unix commands:
-
--   `cp` (copy)
--   `ls` (list)
--   `mv` (move)
-
-These common command names remove confusion from a long list of ambiguous or unique names. One common confusion is the difference between the update and upgrade commands. It’s best to use one or the other as keeping both will only confuse your users. Also, for the command names that are used often, follow the standard shorthand for these popular commands as well. For example:
-
--   `-``v`, `--version`
--   `-``h`, `--help`
--   `-``a`, `--all`
--   `-``p`, `--port`
-
-Rather than listing all examples, just consider some of the most common command-line applications you use. Think about which command names make sense for consistency across the board. This will benefit not only your application but the community of command-line applications as a whole as further standards are solidified.
-
-## Positional versus flag arguments
-
-It’s important to stay consistent with arguments and their position. For example, in the AWS CLI, the `s3` argument is consistently next to its arguments:
+Now that we have the `bug` command created, the `Run` field is changed to extract details of the application and launch a web browser with the data already added and ready for the user to just finish off the submission with some extra details:
 
 ```markup
-aws s3 ls s3://<target-bucket>
-aws s3 cp <local-file> <s3-target-location>/<local-file>
+var bugCmd = &cobra.Command{
+    Use: "bug",
+    Short: "Submit a bug",
+    Long: "Bug opens the default browser to start a bug
+        report which will include useful system
+        information.",
+    RunE: func(cmd *cobra.Command, args []string) error {
+        if len(args) > 0 {
+            return fmt.Errorf("too many arguments")
+        }
+        var buf bytes.Buffer
+        buf.WriteString(fmt.Sprintf("**Audiofile
+            version**\n%s\n\n", utils.Version()))
+        buf.WriteString(description)
+        buf.WriteString(toReproduce)
+        buf.WriteString(expectedBehavior)
+        buf.WriteString(additionalDetails)
+        body := buf.String()
+        url := "https://github.com/marianina8/audiofile/issues/new?title=Bug Report&body=" + url.QueryEscape(body)
+        // we print if the browser fails to open
+        if !openBrowser(url) {
+            fmt.Print("Please file a new issue at https://github.com/marianina8/audiofile/issues/new using this template:\n\n")
+        fmt.Print(body)
+        }
+        return nil
+    },
+}
 ```
 
-The consistent position of specific arguments will build a clear pattern that users will follow intuitively.
-
-If flags, that we had mentioned before, are available with one command, they can be available for another command where they make sense. Rather than changing the flag name for each command, stay consistent between commands. Do the same with subcommands. Let’s look at some examples from the GitHub CLI:
+The strings passed into the `buf.WriteString` method are defined outside the command within the same file, `cmd/bug.go`, but once the command is run, the complete template body is defined as follows:
 
 ```markup
-gh codespace list --json
-gh issue list –json
+**Audiofile version**
+1.0.0
+**Description**
+A clear description of the bug encountered.
+**To reproduce**
+Steps to reproduce the bug.
+**Expected behavior**
+Expected behavior.
+**Additional details**
+Any other useful data to share.
 ```
 
-The GitHub CLI keeps the list subcommand consistent across different commands and reuses the `–json` flag, which has the same behavior across the application.
+Calling the `./bin/audiofile bug` command launches the browser to open a new issue on the GitHub repo:
 
-Note
+![Figure 9.2 – Screenshot of browser open to a new issue](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_9.2._B18883.jpg)
 
-Required arguments are usually better as positional rather than flags.
+Figure 9.2 – Screenshot of browser open to a new issue
 
-## Flag naming
+From the browser window, open the new issue page; the version of the CLI is populated, and then the user can replace the default text for the description, reproduction steps, expected behavior, and other steps with their own.
 
-Not only is it important to stay consistent on the position of arguments and the flag names across different commands, but it’s also important to be consistent within the naming. For example, there are flags that can be defined in camel case, `–camelCase`, snake case, `--SnakeCase`, or with dashes, `--flag-with-dashes`. Staying consistent with the way you are naming your flags in your application is also important!
+Just Imagine
 
-## Usage
+# Help, documentation, and support
 
-In previous chapters, we discussed the grammar of a command and how applications can be defined with a consistent structure: **noun-verb** or **verb-noun**. Staying consistent with the structure also lends to a more intuitive design.
+Part of creating a CLI that empathizes with its users is to supply sufficient help and documentation, as well as support users of all kinds. Luckily, the Cobra CLI framework supports the generation of help from the short and long fields of the Cobra command and the generation of man pages as well. However, bringing empathy into the extended documentation of your CLI may require several techniques.
 
-When building your command-line application, if you think about how to stay consistent across other programs and internal to your application, you will create a more intuitive and easier to learn command-line application where your users feel naturally supported.
+## Generating help text
+
+By now, there have been many examples of creating commands, but just to reiterate, the command structure and the fields that show up in help are fields within the Cobra commands. Let’s go over a good example:
+
+```markup
+var playCmd = &cobra.Command{
+    Use: "play",
+    Short: "Play audio file by id",
+    Long: `Play audio file by id using the default audio
+        player for your current system`,
+    Example: `./bin/audiofile play –id
+        45705eba-9342-4952-8cd4-baa2acc25188`,
+    RunE: func(cmd *cobra.Command, args []string) error {
+        // code
+    },
+}
+```
+
+Making sure you simply supply a short and long description of the command and one or several examples, you are supplying some help text that can at least get users started using the command. Running this will show the following output:
+
+```markup
+audiofile % ./bin/audiofile play --help
+Play audio file by id using the default audio player for your current system
+Usage:
+  audiofile play [flags]
+Examples:
+  ./bin/audiofile play –id 45705eba-9342-4952-8cd4-baa2acc25188
+Flags:
+  -h, --help        help for play
+      --id string   audiofile id
+Global Flags:
+  -v, --verbose   verbose
+```
+
+A simple command doesn’t need a ton of explanation, so this is enough to help guide the user with usage.
+
+## Generating man pages
+
+In the `audiofile` repo, we’ve added some additional code to generate the man pages for the existing commands and commands in the `Makefile` to run to quickly run the code to do so. There exists a new program within the repo defined under `documentation/main.go`:
+
+```markup
+import (
+    "log"
+    "github.com/marianina8/audiofile/cmd"
+    "github.com/spf13/cobra/doc"
+)
+func main() {
+    header := &doc.GenManHeader{
+        Title: "Audiofile",
+        Source: "Auto generated by marianina8",
+    }
+    err := doc.GenManTree(cmd.RootCMD(), header, "./pages")
+    if err != nil {
+        log.Fatal(err)
+    }
+}
+```
+
+We pass in the `root` command and generate the pages in the `./pages` directory. The addition of the `make pages` command within the `Makefile` creates the man pages when called:
+
+```markup
+manpages:
+    mkdir -p pages
+    go run documentation/main.go
+```
+
+Within the terminal, if you run `make manpages` and then check to see whether the new pages exist by running `man pages/audiofile.1`, you will see the generated man page for the `audiofile` CLI:
+
+![Figure 9.3 – Screenshot of audiofile man pages in the terminal](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_9.3_B18883.jpg)
+
+Figure 9.3 – Screenshot of audiofile man pages in the terminal
+
+You can also see that within the `pages` directory, there’s an individual man page created for all the commands that have been added to the `root` command.
+
+## Embedding empathy into your documentation
+
+By the time a user reaches your documentation, it is likely that they may already have encountered an issue and are frustrated or confused. It’s important that your documentation takes in that perspective and portrays an understanding of the user’s situation.
+
+Although it may feel like documentation takes a lot of time and energy from other areas of development, it is essential for the future of your command-line application.
+
+Within the last few years, there’s been a recent term, _empathy advocacy_, that has come up in regard to technical documentation. It was coined by Ryan Macklin, a technical and UX writer, as well as an empathy advocate. The term is used to describe a subfield of technical communication centered on empathy and realistic respect for human emotion. It can be considered a framework for the way you communicate with your users. Because many people come to your documentation, we know that there’s a varied assortment of brain chemistry, life experience, and recent events playing in mind. Empathy advocacy is one solution to this beautiful challenge.
+
+Macklin has proposed seven philosophical documentation techniques rooted in empathy advocacy. These principles have been informed by disciplines such as UX, trauma psychotherapy, neurobiology, gameplay design, and cultural and language differences. Let’s discuss each of these tenets and why they work:
+
+-   **Employ visual storytelling**—The human brain easily grabs onto stories, and sighted users can benefit from visuals. However, this forces developers to think about different types of accessibility: visual, cognitive, motor, and so on. Telling a story forces the writer to think about structure. On the other hand, dense and long-winded text is **accessibility-hostile**. As a note, this idea doesn’t work for everyone.
+-   **Use synopses**—Using a **tl;dr** (short for **too long, don’t read**), a summary line, or a banner provides a shortened explanation for tired and stressed-out readers who benefit from a lower cognitive cost option. Cognitive glue is required for running a collection of cognitive tasks to complete a high level of intelligence. Cognitive glue requires energy, so providing a synopsis will provide a low-cost option for users who are already running on low.
+-   **Give time frames**—In general, uncertainty creates **vicious voids**, and dwelling within the unknown time frame can create heightened emotional responses. Providing time frames can help stabilize the void. Time frames can be given if there’s an outage on the server side, an upload to the server, or just a general time to complete a certain task.
+-   **Include short videos**—This is a great alternative for some users who struggle with reading comprehension. Typically, younger audiences are used to video, and when you split videos up into a single topic at max, the shorter playtime can be reassuring. Reassurance is a powerful way to regulate emotion. However, there are some pitfalls to video—mainly, that video costs more time and energy to create.
+-   **Reduce screenshots**—Providing screenshots can be helpful, but only when the UI can be confusing. Also, providing just enough for the user to figure some things out themselves helps to foster cognitive glue. Otherwise, being bombarded by visuals hurts everyone.
+-   **Rethink FAQs**—Instead of a traditional question and answer, break up documentation into single-scoped documents. Provide specific titles and avoid over-promising.
+-   **Pick your battles**—It’s difficult to fight every fight; do the best you can, and choose your battles. Not everything you do will work for everyone—learn along the way. After all, advocating for empathy is another means of self-care.
+
+Hopefully, these tenets that describe the philosophy of empathy advocacy help you to think twice about the words you use in your documentation. A few things to consider when you are writing your documentation include how your words may come across to someone who is in a panicked or frustrated state. Also, consider how you can help those about to give up or lacking the energy to complete their task to be successful.
 
 Just Imagine
 
 # Summary
 
-In this chapter, you learned some specific points to consider when building for a machine versus a human. Machines like simple text and have certain expectations of the data that is returned from other applications. Machine output can sometimes break usability. Designing for humans first, we talked about how we can easily switch to machine-friendly output when needed with the use of some popular flags: `--json`, `--plain`, and `--silence`.
+In this chapter, you have learned specific steps to make your command-line application more empathetic. From error handling, debug and traceback information, effortless bug submission, and empathic advocacy in technical communication, you have learned the technical and empathic skills to apply within your application.
 
-Much goes into a usable design, and we went over some of the ways you can increase the usability of your CLI—from using color with intention, outputting data in tables, paging through long text, and being consistent. All of the aforementioned elements will help the user feel more comfortable and guided when using your CLI, which is one of the main goals we want to achieve. We can summarize with a quick table what a good CLI design looks like versus a bad CLI design:
+Errors can now be rewritten in color to jump out of the screen and decorated with additional information that provides the user information on exactly where an error has occurred and potentially what they may need to do to reach a resolution. When an error seems unresolvable, the user can then run the same command using the `--verbose` flag and view the detail logs, which might contain server requests and responses necessary to trace more specifically where an error may be happening, down to the line of code.
 
-![Figure 8.5 – Good versus bad CLI design](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_8.5._B18883.jpg)
+If a bug is encountered, the addition of a new `bug` command allows the user to spawn a new browser straight from their terminal, opening straight to a new template in GitHub’s new issue submission form.
 
-Figure 8.5 – Good versus bad CLI design
-
-In the next chapter, [_Chapter 9_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_09.xhtml#_idTextAnchor190), _Empathic Side of Development_, we will continue discussing how to develop for humans by incorporating more empathy.
+Finally, bridging the gap between technical documentation and the user’s perspective is done by taking an empathetic approach. Several philosophical tenets when using an empathic framework when writing your documentation were discussed.
 
 Just Imagine
 
 # Questions
 
-1.  What common flags in scripts can be used with a command-line application to keep the output stable?
-2.  What flag should you check to see if the end user does not want color set within the terminal? And what common flag can be used to disable color from the output?
-3.  Think about how there could be two commands with similar names and how this adds ambiguity. What ambiguous commands have you come across in your experience of CLIs?
+1.  Which two common methods can you use for decorating your errors?
+2.  Between Zap and Logrus loggers, why would you choose Zap?
+3.  What is empathy advocacy?
 
 Just Imagine
 
 # Further reading
 
--   _The Anti-Mac_ _Interface_: [https://www.nngroup.com/articles/anti-mac-interface/](https://www.nngroup.com/articles/anti-mac-interface/)
--   _The Humane Interface: New Directions for Designing Interactive Systems_ by Jef Raskin
+-   _Empathy_ _Advocacy_: [https://empathyadvocacy.org](https://empathyadvocacy.org)
+-   _Write the_ _Docs_: [https://www.writethedocs.org](https://www.writethedocs.org)
 
 Just Imagine
 
 # Answers
 
-1.  `--json` and `--plain` flags keep data consistent and reduce the risk of breaking scripts.
-2.  Either the `TERM=dumb`, `NO_COLOR`, or `MYAPP_NO_COLOR` environment variables. The most common flag for disabling color is the `–``no-color` flag.
-3.  Update versus upgrade are commonly confused, as well as name and host.
-
-Just Imagine
-
-Previous Chapter
+1.  `fmt.Errorf(format string, a ...any) error or errors.Wrap(err error, message` `string) error`.
+2.  Zap is faster and is actively maintained.
+3.  Empathy advocacy is a sub-field of technical communication centered on empathy and realistic respect for human emotion. It can be considered a framework for the way you write your technical documentation and a solution for writing for many types of people with varied backgrounds and accessibilities.

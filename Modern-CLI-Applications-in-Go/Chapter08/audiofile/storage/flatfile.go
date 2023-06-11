@@ -85,6 +85,7 @@ func (f FlatFile) Upload(bytes []byte, filename string) (string, string, error) 
 func (f FlatFile) List() ([]*models.Audio, error) {
 	dirname, err := os.UserHomeDir()
 	if err != nil {
+		fmt.Println("getting user home dir:", err.Error())
 		return nil, err
 	}
 	metadataFilePath := filepath.Join(dirname, "audiofile")
@@ -100,6 +101,7 @@ func (f FlatFile) List() ([]*models.Audio, error) {
 		if file.IsDir() {
 			name, err := f.GetByID(file.Name())
 			if err != nil {
+				fmt.Println("getting ", file.Name(), " by id ", err.Error())
 				return nil, err
 			}
 			audioFiles = append(audioFiles, name)

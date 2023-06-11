@@ -9,7 +9,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-	"time"
 
 	"github.com/marianina8/audiofile/utils"
 	"github.com/pterm/pterm"
@@ -31,9 +30,6 @@ filepath of the audiofile.`,
 	SuggestFor: []string{"add"},
 	RunE: func(cmd *cobra.Command, args []string) error {
 		verbose, _ := cmd.Flags().GetBool("verbose")
-		client := &http.Client{
-			Timeout: 15 * time.Second,
-		}
 		var err error
 		var p = &pterm.ProgressbarPrinter{}
 		if utils.IsaTTY() {
@@ -91,7 +87,7 @@ filepath of the audiofile.`,
 		} else {
 			fmt.Printf("Sending request: %s %s...\n", http.MethodPost, path)
 		}
-		resp, err := client.Do(req)
+		resp, err := getClient.Do(req)
 		if err != nil {
 			return utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port\n  or check that api is running", err, verbose)
 		}

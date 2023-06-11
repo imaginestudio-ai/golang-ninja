@@ -1,5 +1,5 @@
 # audiofile
-In Chapter 7, we discuss about how to build for multiple platforms.  You'll see the addition of files that are built specific to certain plaforms.  However, cross compilation will be handled in later chapters.  This build only has a make build command for darwin only.
+In Chapter 8, outputting data to human vs machine, adding ASCII tables, emojis and colors to increase information density and the importance of consistency in naming and position of flags and arguments..  Follow along with the book to see the improvements we've made to the CLI in these particular areas.
 
 ## To generate the audiofile command line interface on MacOS:
 make build-darwin

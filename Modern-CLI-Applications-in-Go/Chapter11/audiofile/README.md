@@ -1,5 +1,5 @@
 # audiofile
-In Chapter 11 we discuss how to use build tags and testing.  Build tags are setup to separate out the code to be included during the compilation process.  Test files for many of the commands have been added as well.
+In Chapter 12, Cross Compilation Across Different Platforms , we discuss how to cross compile for the three major platforms: darwin, linux, and windows.  We also write a couple scripts to expedite compilation for all possible platforms and architectures.  Visit the Makefile to see all the new commands!
 
 ## To run tests:
 make test

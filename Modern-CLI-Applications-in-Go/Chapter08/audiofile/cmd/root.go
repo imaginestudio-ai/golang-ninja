@@ -7,6 +7,10 @@ import (
 	"github.com/spf13/viper"
 )
 
+func RootCMD() *cobra.Command {
+	return rootCmd
+}
+
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "audiofile",
@@ -26,6 +30,7 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().BoolP("verbose", "v", false, "verbose")
 }
 
 func Configure() {

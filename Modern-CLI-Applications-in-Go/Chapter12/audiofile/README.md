@@ -1,5 +1,29 @@
 # audiofile
-In Chapter 12, Cross Compilation Across Different Platforms , we discuss how to cross compile for the three major platforms: darwin, linux, and windows.  We also write a couple scripts to expedite compilation for all possible platforms and architectures.  Visit the Makefile to see all the new commands!
+In Chapter 13, Using Containers for Distribution, we start using Docker containers to handle integration tests, and to distribute our application via Docker Hub. 
+
+## To run the integration tests with Docker Compose:
+`docker-compose up`
+
+## To run the api as a container:
+`docker build -f api.Dockerfile -t audiofile:api .`
+`docker run -rm -p 8000:8000 audiofile:api`
+
+## To run the cli as a container:
+`docker build -f cli.Dockerfile -t audiofile:cli .`
+`docker run -rm --network host audiofile:cli `
+
+## To run the cli as an executable:
+`docker build -f dist.Dockerfile -t audiofile:dist .`
+`docker run --rm --network host -ti audiofile:dist help`
+
+
+## To run the multi-stage Docker build as an executable:
+`docker build -f dist-multistage.Dockerfile -t audiofile:dist-multistage .`
+`docker run --rm --network host -ti audiofile:dist-multistage help`
+
+
+## To run the cli as an executable from DockerHub:
+`docker run --rm --network host -ti marianmontagnino/audiofile:latest help`
 
 ## To run tests:
 make test

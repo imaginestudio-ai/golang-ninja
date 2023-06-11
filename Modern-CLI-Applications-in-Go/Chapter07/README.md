@@ -1,910 +1,986 @@
-# Developing for Different Platforms
+# Interactivity with Prompts and Terminal Dashboards
 
-One of the main reasons Go is such a powerful language for building a command-line application is how easy it is to develop an application that can be run on multiple machines. Go provides several packages that allow developers to write code that interacts with the computer independent of the specific operating system. These packages include `os`, `time`, `path`, and `runtime`. In the first section, we will discuss some commonly used functions in each of these packages and then provide some simple examples to pair with the explanations.
+One powerful way to increase usability for users is to integrate interactivity with either prompts or terminal dashboards. Prompts are useful because they create a conversational approach while requesting input. Dashboards are useful because they allow developers to create a graphical interface from ASCII characters. That graphical interface, via a dashboard, can create powerful visual cues to allow users to navigate through different commands.
 
-To further drill down the importance of these files, we will revisit the `audiofile` code and implement a couple of new features that utilize some of the methods that exist in these packages. After all, the best way to learn is by implementing new features with the new functions and methods you’ve learned about.
+This chapter will give you examples of how to build user surveys from a series of prompts, and a terminal dashboard – whether learning about the Termdash library, designing the mockup, or implementing it for the audio file CLI.
 
-We will then learn how to use the `runtime` library to check the operating system the application is running on and then use that to switch between codes. By learning about build tags, what they are, and how to use them, we will learn about a cleaner way to switch between code blocks to implement a new feature that can be run on three different operating systems: Darwin, Windows, and Linux. By the end of the chapter, you’ll feel more confident when building your application, knowing that the code you are writing will work seamlessly, independent of the platform.
+Interactivity is fun. It’s the more human and empathetic approach to a command-line interface. However, remember to disable interactivity if you are not outputting to a terminal. This chapter will cover the basics of surveys and dive deep into the terminal dashboard. By the end of this chapter, you’ll have everything you need to create your own survey or dashboard. We will cover the following:
 
-In this chapter, we will cover the following key topics:
+-   Guiding users with prompts
+-   Designing a useful terminal dashboard
+-   Implementing a terminal dashboard
 
--   Packages for platform-independent functionality
--   Implementing independent or platform-specific code
--   Build tags for targeted platforms
+# Guiding users with prompts
 
+There are many ways to simply prompt the user, but if you want to create a whole survey that can retrieve information using a variety of different prompts – text input, multi-select, single-select, multi-line text, password, and more – it might be useful to use a preexisting library to handle this for you. Let’s create a generic customer survey using the `survey` package.
 
-# Packages for platform-independent functionality
+To show you how to use this package, I’ll create a survey that can prompt the user for different types of input:
 
-When you are building a **command-line interface** (**CLI**) that will be shared with the public, it’s important that the code is platform-independent to support users who are running the CLI on different operating systems. Golang has supportive packages that provide platform-independent interfaces to operating system functionality. A few of these packages include `os`, `time`, and `path`. Another useful package is the `runtime` package, which helps when detecting the operating system the application is running on, among other things. We will review each of these packages with some simple examples to show how to apply some of the available methods.
+-   **Text input** – for example, an email address
+-   **Select** – for example, a user’s experience with the CLI
+-   **Multiselect** – for example, any issues encountered
+-   **Multiline** – for example, open-ended feedback
 
-## The os package
-
-The **operating system** (**os**) package has a Unix-like design but applies uniformly across all operating systems. Think of all the operating system commands you can run in a shell, including external commands. The `os` package is your go-to package. We discussed calling external commands in the previous chapter; now we will discuss this at a higher level and focus on the commands in certain groups: environmental, file, and process operations.
-
-### Environmental operations
-
-As the name suggests, the `os` package contains functions that give us information about the environment in which the application is running, as well as change the environment for future method calls. These common operations are for the following working directories:
-
--   `func Chdir(dir string) error`: This changes the current working directory
--   `func Getwd() (dir string, err error)`: This gets the current working directory
-
-There are also operations for the environment, as follows:
-
--   `func Environ() []string`: This lists environment keys and values
--   `func Getenv(key string) string`: This gets environment variables by key
--   `func Setenv(key, value string) error`: This sets environment variables by key and value
--   `func Unsetenv(key string) error`: This unsets an environment variable by key
--   `func Clearenv()`: This clears environment variables
--   `func ExpandEnv(s string) string`: This expands values of environment variable keys in strings to their values
-
-The [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) code exists on GitHub in the `environment.go` file, where we have provided some sample code demonstrating using these operations:
+In the `Chapter-10` repository, a survey has been written to handle these four prompts. The questions, stored in the `qs` variable, are defined as a slice of `*survey.Question`:
 
 ```markup
-func environment() {
-    dir, err := os.Getwd()
-    if err != nil {
-        fmt.Println("error getting working directory:", err)
-    }
-    fmt.Println("retrieved working directory: ", dir)
-    fmt.Println("setting WORKING_DIR to", dir)
-    err = os.Setenv("WORKING_DIR", dir)
-    if err != nil {
-        fmt.Println("error setting working directory:", err)
-    }
-    fmt.Println(os.ExpandEnv("WORKING_DIR=${WORKING_DIR}"))
-    fmt.Println("unsetting WORKING_DIR")
-    err = os.Unsetenv("WORKING_DIR")
-    if err != nil {
-        fmt.Println("error unsetting working directory:", err)
-    }
-    fmt.Println(os.ExpandEnv("WORKING_DIR=${WORKING_DIR}"))
-    fmt.Printf("There are %d environment variables:\n", len(os.
-        Environ()))
-    for _, envar := range os.Environ() {
-        fmt.Println("\t", envar)
-    }
-}
-```
-
-To briefly describe the preceding code, we first get the working directory, then set it to the `WORKING_DIR` environment variable. To show the change, we utilize `os.ExpandEnv` to print the key-value pair. We then unset the `WORKING_DIR` environment variable. Again, we show it is unset by using `os.ExpandEnv` to print out the key-value pair. The `os.ExpandEnv` variable will print an empty string if the environment variable is unset. Finally, we print out the count of the environment variables and then range through all to print them. Running the preceding code will produce the following output:
-
-```markup
-retrieved working directory:  /Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7
-setting WORKING_DIR to /Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7
-WORKING_DIR=/Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7
-There are 44 environment variables.
-key=WORKING_DIR, value=/Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7
-unsetting WORKING_DIR
-WORKING_DIR=
-```
-
-If you run this code on your machine rather than Linux, Unix, or Windows, the resulting output will be similar. Try for yourself.
-
-Notes on running the following examples
-
-To run the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) examples, you’ll first need to run the install command to install the sleep command to your GOPATH. On Unix-like systems, run the `make install` command followed by the `make run` command. On Linux systems, run the `./build-linux.sh` script followed by the `./run-linux.sh` script. On Windows, run `.\build-windows.ps1` followed by the `.\run-windows.ps1` Powershell script.
-
-### File operations
-
-The `os` package also offers a wide variety of file operations that can be applied universally across different operating systems. Many functions and methods can be applied to files, so rather than going over each by name, I will group the functionality and name a few of each:
-
--   The following can be used to change file, directory, and link permissions and owners:
-    -   `func Chmod(name string, mode` `FileMode) error`
-    -   `func Chown(name string uid, gid` `int) error`
-    -   `func Lchown(name string uid, gid` `int) error`
--   The following can be used to create pipes, files, directories, and links:
-    -   `func Pipe() (r *File, w *File,` `err error)`
-    -   `func Create(name string) (*``File, error)`
-    -   `func Mkdir(name string, perm` `FileMode) error`
-    -   `func Link(oldname, newname` `string) error`
--   The following are used to read from files, directories, and links:
-    -   `func ReadFile(name string) ([]``byte, error)`
-    -   `func ReadDir(name string) ([]``DirEntry, error)`
-    -   `func Readlink(name string) (``string, error)`
--   The following retrieve user-specific data:
-    -   `func UserCacheDir() (``string, error)`
-    -   `func UserConfigDir() (``string, error)`
-    -   func UserHomeDir() (string, error)
--   The following are used to write to files:
-    -   func (f \*File) Write(b \[\]byte) (n int, err error)
-    -   func (f \*File) WriteString(s string) (n int, err error)
-    -   `func WriteFile(name string, data []byte, perm` `FileMode) error`
--   The following are used for file comparison:
-    -   `func SameFile(fi1, fi2` `FileInfo) bool`
-
-There is a `file.go` file within the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) code on GitHub in which we have some sample code using these operations. Within the file are multiple functions, the first, `func createFiles() error`, handles the creation of three files to play around with:
-
-```markup
-func createFiles() error {
-    filename1 := "file1"
-    filename2 := "file2"
-    filename3 := "file3"
-    f1, err := os.Create(filename1)
-    if err != nil {
-        return fmt.Errorf("error creating %s: %v\n", filename1, 
-          err)
-    }
-    defer f1.Close()
-    f1.WriteString("abc")
-    f2, err := os.Create(filename2)
-    if err != nil {
-        return fmt.Errorf("error creating %s: %v\n", filename2, 
-          err)
-    }
-    defer f2.Close()
-    f2.WriteString("123")
-    f3, err := os.Create(filename3)
-    if err != nil {
-        return fmt.Errorf("error creating %s: %v", filename3, 
-          err)
-    }
-    defer f3.Close()
-    f3.WriteString("xyz")
-    return nil
-}
-```
-
-The `os.Create` method allows file creation to work seamlessly on different operating systems. The next function, `file()`, utilizes these files to show how to use methods that exist within the `os` package. The `file()` function primarily gets or changes the current working directory and runs different functions, including the following:
-
--   `func createExamplesDir() (string, error)`: This creates an `examples` directory in the user’s home directory
--   `func printFiles(dir string) error`: This prints the files/directories under the directory represented by `dir string`
--   `func sameFileCheck(f1, f2 string) error`: This checks whether two files, represented by the `f1` and `f2` strings are the same file
-
-Let’s first show the `file()` function to get the overall gist of what is going on:
-
-```markup
-originalWorkingDir, err := os.Getwd()
-if err != nil {
-    fmt.Println("getting working directory: ", err)
-}
-fmt.Println("working directory: ", originalWorkingDir)
-examplesDir, err := createExamplesDir()
-if err != nil {
-    fmt.Println("creating examples directory: ", err)
-}
-err = os.Chdir(examplesDir)
-if err != nil {
-    fmt.Println("changing directory error:", err)
-}
-fmt.Println("changed working directory: ", examplesDir)
-workingDir, err := os.Getwd()
-if err != nil {
-    fmt.Println("getting working directory: ", err)
-}
-fmt.Println("working directory: ", workingDir)
-createFiles()
-err = printFiles(workingDir)
-if err != nil {
-    fmt.Printf("Error printing files in %s\n", workingDir)
-}
-err = os.Chdir(originalWorkingDir)
-if err != nil {
-    fmt.Println("changing directory error: ", err)
-}
-fmt.Println("working directory: ", workingDir)
-symlink := filepath.Join(originalWorkingDir, "examplesLink")
-err = os.Symlink(examplesDir, symlink)
-if err != nil {
-    fmt.Println("error creating symlink: ", err)
-}
-fmt.Printf("created symlink, %s, to %s\n", symlink, examplesDir)
-err = printFiles(symlink)
-if err != nil {
-    fmt.Printf("Error printing files in %s\n", workingDir)
-}
-file := filepath.Join(examplesDir, "file1")
-linkedFile := filepath.Join(symlink, "file1")
-err = sameFileCheck(file, linkedFile)
-if err != nil {
-    fmt.Println("unable to do same file check: ", err)
-}
-// cleanup
-err = os.Remove(symlink)
-if err != nil {
-    fmt.Println("removing symlink error: ", err)
-}
-err = os.RemoveAll(examplesDir)
-if err != nil {
-    fmt.Println("removing directory error: ", err)
-}
-```
-
-Let’s walk through the preceding code. First, we get the current working directory and print it out. Then, we call the `createExamplesDir()` function and change direction into it.
-
-We then get the current working directory after we change it to ensure it’s now the `examplesDir` value. Next, we call the `createFiles()` function to create those three files inside the `examplesDir` folder and call the `printFiles()` function to list the files in the `examplesDir` working directory.
-
-We change the working directory back to the original working directory and create a `symlink` to the `examplesDir` folder under the home directory. We print the files existing under the `symlink` to see that they are equal.
-
-Next, we take `file0` from `examplesDir` and `file0` from `symlink` and compare them within the `sameFileCheck` function to ensure they are equal.
-
-Finally, we run some cleanup functions to remove the `symlink` and `examplesDir` folders.
-
-The `file` function utilizes many methods available in the `os` package, from getting the working directory to changing it, creating a `symlink`, and removing files and directories. Showing the separate function call code will give more uses of the `os` package. First, let’s show the code for `createExamplesDir`:
-
-```markup
-func createExamplesDir() (string, error) {
-    homeDir, err := os.UserHomeDir()
-    if err != nil {
-        return "", fmt.Errorf("getting user's home directory: 
-          %v\n", err)
-    }
-    fmt.Println("home directory: ", homeDir)
-    examplesDir := filepath.Join(homeDir, "examples")
-    err = os.Mkdir(examplesDir, os.FileMode(int(0777)))
-    if err != nil {
-        return "", fmt.Errorf("making directory error: %v\n", 
-          err)
-    }
-    fmt.Println("created: ", examplesDir)
-    return examplesDir, nil
-}
-```
-
-The preceding code uses the `os` package when getting the user’s home directory with the `os.UserHomeDir` method and then creates a new folder with the `os.Mkdir` method. The next function, `printFiles`, gets the files to print from the `os.ReadDir` method:
-
-```markup
-func printFiles(dir string) error {
-    files, err := os.ReadDir(dir)
-    if err != nil {
-        return fmt.Errorf("read directory error: %s\n", err)
-    }
-    fmt.Printf("files in %s:\n", dir)
-    for i, file := range files {
-        fmt.Printf(" %v %v\n", i, file.Name())
-    }
-    return nil
-}
-```
-
-Lastly, `sameFileCheck` takes two files represented by strings, `f1` and `f2`. To get the file info for each file, the `os.Lstat` method is called on the file string. `os.SameFile` takes this file info and returns a `boolean` value to symbolize the result – `true` if the files are the same and `false` if not:
-
-```markup
-func sameFileCheck(f1, f2 string) error {
-    fileInfo0, err := os.Lstat(f1)
-    if err != nil {
-        return fmt.Errorf("getting fileinfo: %v", err)
-    }
-    fileInfo0Linked, err := os.Lstat(f2)
-    if err != nil {
-        return fmt.Errorf("getting fileinfo: %v", err)
-    }
-    isSameFile := os.SameFile(fileInfo0, fileInfo0Linked)
-    if isSameFile {
-        fmt.Printf("%s and %s are the same file.\n", fileInfo0.
-            Name(), fileInfo0Linked.Name())
-    } else {
-    fmt.Printf("%s and %s are NOT the same file.\n", fileInfo0.
-        Name(), fileInfo0Linked.Name())
-    }
-    return nil
-}
-```
-
-This concludes the code samples utilizing methods from the `os` package related to file operations. Next, we will discuss some operations related to processes running on the machine.
-
-### Process operations
-
-When calling external commands, we can get a **process ID** (**pid**), associated with the process. Within the `os` package, we can perform actions on the process, send the process signals, or wait for the process to complete and then receive a process state with information regarding the process that was completed. In the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) code, we have a `process()` function, which utilizes some of the following methods for processes and process states:
-
--   `func Getegid() int`: This returns the effective group ID of the caller. Note, this is not supported in Windows, the concept of group IDs is specific to Unix-like or Linux systems. For example, this will return `–1` on Windows.
--   `func Geteuid() int`: This returns the effective user ID of the caller. Note, this is not supported in Windows, the concept of user IDs is specific to Unix-like or Linux systems. For example, this will return `-1` on Windows.
--   `func Getpid() int`: This gets the process ID of the caller.
--   `func FindProcess(pid int) (*Process, error)`: This returns the process associated with the `pid`.
--   `func (p *Process) Wait() (*ProcessState, error)`: This returns the process state when the process completes.
--   `func (p *ProcessState) Exited() bool`: This returns `true` if the process exited.
--   `func (p *ProcessState) Success() bool`: This returns `true` if the process exited successfully.
--   `func (p *ProcessState) ExitCode() int`: This returns the exit code of the process.
--   `func (p *ProcessState) String() string`: This returns the process state in string format.
-
-The code is as follows and starts with several print line statements that return the caller’s effective group, user, and process ID. Next, a `cmd` sleep command is defined. The command is started and from the `cmd` value, and we get the pid:
-
-```markup
-func process() {
-    fmt.Println("Caller group id:", os.Getegid())
-    fmt.Println("Caller user id:", os.Geteuid())
-    fmt.Println("Process id of caller", os.Getpid())
-    cmd := exec.Command(filepath.Join(os.Getenv("GOPATH"), 
-           "bin", "sleep"))
-    fmt.Println("running sleep for 1 second...")
-    if err := cmd.Start(); err != nil {
-        panic(err)
-    }
-    fmt.Println("Process id of sleep", cmd.Process.Pid)
-    this, err := os.FindProcess(cmd.Process.Pid)
-    if err != nil {
-        fmt.Println("unable to find process with id: ", cmd.
-            Process.Pid)
-    }
-    processState, err := this.Wait()
-    if err != nil {
-        panic(err)
-    }
-    if processState.Exited() && processState.Success() {
-        fmt.Println("Sleep process ran successfully with exit 
-            code: ", processState.ExitCode())
-    } else {
-        fmt.Println("Sleep process failed with exit code: ", 
-            processState.ExitCode())
-    }
-    fmt.Println(processState.String())
-}
-```
-
-From the process' pid, we then can find the process using the `os.FindProcess` method. We call the `Wait()` method in the process to get `os.ProcessState`. This `Wait()` method, like the `cmd.Wait()` method, waits for the process to complete. Once completed, the process state is returned. We can check whether the process state is exited with the `Exited()` method and whether it was successful with the `Success()` method. If so, we print that the process ran successfully along with the exit code, which we get from the `ExitCode()` method. Finally, the process state can be printed cleanly with the `String()` method.
-
-## The time package
-
-Operating systems provide access to time via two different types of internal clocks:
-
--   **A wall clock**: This is used for telling the time and is subject to variations due to clock synchronization with the **Network Time** **Protocol** (**NTP**)
--   **A monotonic clock**: This is used for measuring time and is not subject to variations due to clock synchronization
-
-To be more specific on the variations, if the wall clock notices that it is moving faster or slower than the NTP, it will adjust its clock rate. The monotonic clock will not adjust. When measuring durations, it’s important to use the monotonic clock. Luckily with Go, the `Time` struct contains both the wall and monotonic clocks, and we don’t need to specify which is used. Within the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) code, there is a `timer.go` file, which shows how to get the current time and duration, regardless of the operating system:
-
-```markup
-func timer() {
-    start := time.Now()
-    fmt.Println("start time: ", start)
-    time.Sleep(1 * time.Second)
-    elapsed := time.Until(start)
-    fmt.Println("elapsed time: ", elapsed)
-}
-```
-
-When running the following code, you’ll see a similar output:
-
-```markup
-start time:  2022-09-24 23:47:38.964133 -0700 PDT m=+0.000657043
-elapsed time:  -1.002107875s
-```
-
-Also, many of you have also seen that there is a `time.Now().Unix()` method. It returns to the epoch time, or time that has elapsed since the Unix epoch, January 1, 1970, UTC. These methods will work similarly regardless of the operating system and architecture they are run on.
-
-## The path package
-
-When developing a command-line application for different operating systems, you’ll most likely have to deal with handling file or directory path names. In order to handle these appropriately across different operating systems, you’ll need to use the `path` package. Because this package does not handle Windows paths with drive letters or backslashes, as we used in the previous examples, we’ll use the `path/filepath` package.
-
-The `path/filepath` package uses either forward or back slashes depending on the operating system. Just for fun, within the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) `walking.go` file, I’ve used the `filepath` package to walk through a directory. Let’s look at the code:
-
-```markup
-func walking() {
-    workingDir, err := os.Getwd()
-    if err != nil {
-        panic(err)
-    }
-    dir1 := filepath.Join(workingDir, "dir1")
-    filepath.WalkDir(dir1, func(path string, d fs.DirEntry, err 
-      error) error {
-        if !d.IsDir() {
-            contents, err := os.ReadFile(path)
-            if err != nil {
-                return err
-            }
-            fmt.Printf("%s -> %s\n", d.Name(), 
-                string(contents))
-        }
-        return nil
-    })
-}
-```
-
-We get the current working directory with `os.Getwd()`. Then create a path for the `dir1` directory that can be used for any operating system using the `filepath.Join` method. Finally, we walk the directory using `filepath.WalkDir` and print out the filename and its contents.
-
-## The runtime package
-
-The final package to discuss within this section is the `runtime` package. It’s mentioned because it’s used to easily determine the operating system the code is running on and therefore execute blocks of code, but there’s so much information you can get from the `runtime` system:
-
--   `GOOS`: This returns the running application's operating system target
--   `GOARCH:` This returns the running application’s architecture target
--   `func GOROOT() string`: This returns the root of the Go tree
--   `Compiler`: This returns the name of the compiler toolchain that built the binary
--   `func NumCPU() int`: This returns the number of logical CPUs usable by the current process
--   `func NumGoroutine() int`: This returns the number of goroutines that currently exist
--   `func Version() string`: This returns the Go tree’s version string
-
-This package will provide you with enough information to understand the `runtime` environment. Within the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) code in the `checkRuntime.go` file is the `checkRuntime` function, which puts each of these into practice:
-
-```markup
-func checkRuntime() {
-    fmt.Println("Operating System:", runtime.GOOS)
-    fmt.Println("Architecture:", runtime.GOARCH)
-    fmt.Println("Go Root:", runtime.GOROOT())
-    fmt.Println("Compiler:", runtime.Compiler)
-    fmt.Println("No. of CPU:", runtime.NumCPU())
-    fmt.Println("No. of Goroutines:", runtime.NumGoroutine())
-    fmt.Println("Version:", runtime.Version())
-    debug.PrintStack()
-}
-```
-
-Running the code will provide a similar output to the following:
-
-```markup
-Operating System: darwin
-Architecture: amd64
-Go Root: /usr/local/go
-Compiler: gc
-No. of CPU: 10
-No. of Goroutines: 1
-Version: go1.19
-goroutine 1 [running]:
-runtime/debug.Stack()
-        /usr/local/go/src/runtime/debug/stack.go:24 +0x65
-runtime/debug.PrintStack()
-        /usr/local/go/src/runtime/debug/stack.go:16 +0x19
-main.checkRuntime()
-        /Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7/checkRuntime.go:17 +0x372
-main.main()
-        /Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7/main.go:9 +0x34
-```
-
-Now that we have learned about some of the packages required for building a command-line application that runs across multiple operating systems and architectures, in the next section, we’ll return to the `audiofile` CLI from previous chapters and implement a few new functions and show how the methods and functions we’ve learned in this section can come into play.
-
-Just Imagine
-
-# Implementing independent or platform-specific code
-
-The best way to learn is to put what has been learned into practice. In this section, we’ll revisit the `audiofile` CLI to implement a few new commands. In the code for the new features we’ll implement, the focus will be on the use of the `os` and `path`/`filepath` packages.
-
-## Platform-independent code
-
-Let’s now implement a few new features for the `audiofile` CLI that will run independently of the operating system:
-
--   `Delete`: This deletes stored metadata by ID
--   `Search`: This searches stored metadata for a specific search string
-
-The creation of each of these new feature commands was initiated with the cobra-CLI; however, the platform-specific code is isolated in the `storage/flatfile.go` file, which is the flat file storage for the storage interface.
-
-First, let’s show the `Delete` method:
-
-```markup
-func (f FlatFile) Delete(id string) error {
-    dirname, err := os.UserHomeDir()
-    if err != nil {
-        return err
-    }
-    audioIDFilePath := filepath.Join(dirname, "audiofile", id)
-    err = os.RemoveAll(audioIDFilePath)
-    if err != nil {
-        return err
-    }
-    return nil
-}
-```
-
-The flat file storage is stored under the user’s home directory under the `audiofile` directory. Then, as each new audio file and matching metadata is added, it is stored within its unique identifier ID. From the `os` package, we use `os.UserHomeDir()` to get the user’s home directory and then use the `filepath.Join` method to create the required path to delete all the metadata and files associated with the ID independent of the operating system. Make sure you have some audiofiles stored locally in the flat file storage. If not, add a few files. For example, use the `audio/beatdoctor.mp3` file and upload using the following command:
-
-```markup
-./bin/audiofile upload --filename audio/beatdoctor.mp3
-```
-
-The ID is returned after a successful upload:
-
-```markup
-Uploading audio/beatdoctor.mp3 ...
-Audiofile ID:  a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba
-```
-
-You can ensure that the data has been added by running the `list` command:
-
-```markup
-./bin/audiofile list
-```
-
-The `audiofile` metadata is returned, so we have double-checked its existence in storage:
-
-```markup
+questions := []*survey.Question{
     {
-        "Id": "a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba",
-        "Path": "/Users/mmontagnino/audiofile/a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba/beatdoctor.mp3",
-        "Metadata": {
-            "tags": {
-                "title": "Shot In The Dark",
-                "album": "Best Bytes Volume 4",
-                "artist": "Beat Doctor",
-                "album_artist": "Toucan Music (Various Artists)",
-                "composer": "",
-                "genre": "Electro House",
-                "year": 0,
-                "lyrics": "",
-                "comment": "URL: http://freemusicarchive.org/music/Beat_Doctor/Best_Bytes_Volume_4/09_beat_doctor_shot_in_the_dark\r\nComments: http://freemusicarchive.org/\r\nCurator: Toucan Music\r\nCopyright: Attribution-NonCommercial 3.0 International: http://creativecommons.org/licenses/by-nc/3.0/"
-            },
-            "transcript": ""
-        },
-        "Status": "Complete",
-        "Error": null
+        Name: "email",
+        Prompt: &survey.Input{
+          Message: "What is your email address?"
+   },
+        Validate: survey.Required,
+        Transform: survey.Title,
     },
+    {
+        Name: "rating",
+        Prompt: &survey.Select{
+            Message: "How would you rate your experience with 
+                     the CLI?",
+            Options: []string{"Hated it", "Disliked", "Decent", 
+                             "Great", "Loved it"},
+       },
+    },
+    {
+        Name: "issues",
+            Prompt: &survey.MultiSelect{
+            Message: "Have you encountered any of these 
+                     issues?",
+            Options: []string{"audio player issues", "upload 
+                             issues", "search issues", "other 
+                             technical issues"},
+        },
+    },
+    {
+        Name: "suggestions",
+        Prompt: &survey.Multiline{
+            Message: "Please provide any other feedback or 
+                     suggestions you may have.",
+        },
+    },
+}
 ```
 
-Now, we can delete it:
+We’ll need an `answers` struct to store all the results from the prompts:
 
 ```markup
-./bin/audiofile delete --id a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba
-success
+results := struct {
+    Email string
+    Rating string
+    Issues []string
+    Suggestions string
+}{}
 ```
 
-Then confirm that it’s been deleted by trying to get the audio by ID:
+And finally, the method that asks the questions and stores the results:
 
 ```markup
-./bin/audiofile get --id a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba
-Error: unexpected response: 500 Internal Server Error
-Usage:
-  audiofile get [flags]
-Flags:
-  -h, --help        help for get
-      --id string   audiofile id
-unexpected response: 500 Internal Server Error%
-```
-
-Looks like an unexpected error has occurred, and we haven’t properly implemented how to handle this when searching for metadata for a file that has been deleted. We’ll need to modify the `services/metadata/handler_getbyid.go` file. At line 20, where we call the `GetById` method and handle the error, let’s return `200` instead of `500` after confirming the error is related to a folder not being found. It’s not necessarily an error that the user is searching for an ID that does not exist:
-
-```markup
-audio, err := m.Storage.GetByID(id)
+err := survey.Ask(questions, &results)
 if err != nil {
-    if strings.Contains(err.Error(), "not found") ||     strings.Contains(err.Error(), "no such file or directory") {
-        io.WriteString(res, "id not found")
-        res.WriteHeader(200)
-        return
-    }
-    res.WriteHeader(500)
+    fmt.Println(err.Error())
     return
 }
 ```
 
-Let’s try it again:
+Now that we’ve created the survey, we can try it out:
 
 ```markup
-./bin/audiofile get --id a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba
-id not found
+mmontagnino@Marians-MacCourse-Pro Chapter-10 % go run main.go
+? What is your email? mmontagnino@gmail.com
+? How would you rate your experience with the CLI? Great
+? Have you encountered any of these issues? audio player issues, search issues
+? Please provide any other feedback or suggestions you may have. [Enter 2 empty lines to finish]I want this customer survey embedded into the CLI and email myself the results!
 ```
 
-That’s much better! Now let’s implement the search functionality. The implementation again is isolated to the `storage/flatfile.go` file where you will find the `Search` method:
-
-```markup
-func (f FlatFile) Search(searchFor string) ([]*models.Audio, error) {
-    dirname, err := os.UserHomeDir()
-    if err != nil {
-        return nil, err
-    }
-    audioFilePath := filepath.Join(dirname, "audiofile")
-    matchingAudio := []*models.Audio{}
-    err = filepath.WalkDir(audioFilePath, func(path string, 
-          d fs.DirEntry, err error) error {
-        if d.Name() == "metadata.json" {
-            contents, err := os.ReadFile(path)
-            if err != nil {
-                return err
-            }
-            if strings.Contains(strings.
-               ToLower(string(contents)), strings.
-               ToLower(searchFor)) {
-                data := models.Audio{}
-                err = json.Unmarshal(contents, &data)
-                if err != nil {
-                    return err
-                }
-                matchingAudio = append(matchingAudio, &data)
-            }
-        }
-        return nil
-    })
-    return matchingAudio, err
-}
-```
-
-Like most of the methods existing in the storage, we start by getting the user’s home directory with the `os.UserHomeDir()` method and then, again, use `filepath.Join` to get the root `audiofile` path directory, which we will be walking. The `filepath.WalkDir` method is called starting at `audioFilePath`. We check each of the `metadata.json` files to see whether the `searchFor` string exists within the contents. The method returns a slice of `*models.Audio` and if the `searchFor` string is found within the contents, the audio is appended onto the slice that will be returned later.
-
-Let’s give this a try with the following command and see that the expected metadata is returned:
-
-```markup
-./bin/audiofile search --value "Beat Doctor"
-```
-
-Now that we’ve created a few new commands to show how the `os` package and `path/filepath` packages can be used in a real-life example, let’s try to write some code that can run specifically on one operating system or another.
-
-## Platform-specific code
-
-Suppose your command-line application requires an external application that exists on the operating system, but the application required differs between operating systems. For the `audiofile` command-line application, suppose we want to create a command to play the audio file via the command line. Each operating system will need to use a different command to play the audio, as follows:
-
--   macOS: `afplay <filepath>`
--   Windows: `start <filepath>`
--   Linux: `aplay <filepath>`
-
-Again, we use the Cobra-CLI to create the new `play` command. Let’s look at each different function that would need to be called for each operating system to play the audio file. First is the code for macOS:
-
-```markup
-func darwinPlay(audiofilePath string) {
-    cmd := exec.Command("afplay", audiofilePath)
-    if err := cmd.Start(); err != nil {
-       panic(err)
-    }
-    fmt.Println("enjoy the music!")
-    err := cmd.Wait()
-    if err != nil {
-       panic(err)
-    }
-}
-```
-
-We create a command to use the `afplay` executable and pass in the `audiofilePath`. Next is the code for Windows:
-
-```markup
-func windowsPlay(audiofilePath string) {
-    cmd := exec.Command("cmd", "/C", "start", audiofilePath)
-    if err := cmd.Start(); err != nil {
-        return err
-    }
-    fmt.Println("enjoy the music!")
-    err := cmd.Wait()
-    if err != nil {
-        return err
-    }
-}
-```
-
-This is a very similar function, except it uses the `start` executable in Windows to play the audio. Last is the code for Linux:
-
-```markup
-func linuxPlay(audiofilePath string) {
-    cmd := exec.Command("aplay", audiofilePath)
-    if err := cmd.Start(); err != nil {
-        panic(err)
-    }
-    fmt.Println("enjoy the music!")
-    err := cmd.Wait()
-    if err != nil {
-        panic(err)
-    }
-}
-```
-
-Again, the code is practically identical except for the application which is called to play the audio. In another case, this code could be more specific for the operating system, require different arguments, and even require a full path specific to the operating system. Regardless, we are ready to use these functions within the `play` command’s `RunE` field. The full `play` command is as follows:
-
-```markup
-var playCmd = &cobra.Command{
-    Use: "play",
-    Short: "Play audio file by id",
-    RunE: func(cmd *cobra.Command, args []string) error {
-        b, err := getAudioByID(cmd)
-        if err != nil {
-            return err
-        }
-        audio := models.Audio{}
-        err = json.Unmarshal(b, &audio)
-        if err != nil {
-            return err
-        }
-        switch runtime.GOOS {
-        case "darwin":
-            darwinPlay(audio.Path)
-            return nil
-        case "windows":
-            windowsPlay(audio.Path)
-            return nil
-        case "linux":
-            linuxPlay(audio.Path)
-            return nil
-        default:
-            fmt.Println(`Your operating system isn't supported 
-                for playing music yet.
-                Feel free to implement your additional use 
-                case!`)
-        }
-        return nil
-    },
-}
-```
-
-The important part of this code is that we have created a switch case for the `runtime.GOOS` value, which tells us what operating system the application is running on. Depending on the operating system, a different method is called to start a process to play the audio file. Let’s recompile and try the play method with one of the stored audio file IDs:
-
-```markup
-./bin/audiofile play --id bf22c5c4-9761-4b47-aab0-47e93d1114c8
-enjoy the music!
-```
-
-The final section of this chapter will show us how to implement this differently, if we’d like to, using build tags.
+Prompting the user is an easy way to integrate interactivity into your command-line application. However, there are even more colorful and fun ways to interact with your users. In the next section, we’ll discuss the terminal dashboard, the `termdash` package in detail, and how to mock up and implement a terminal dashboard.
 
 Just Imagine
 
-# Build tags for targeted platforms
+# Designing a useful terminal dashboard
 
-Built tags, or build constraints, can be used for many purposes, but in this section, we will be discussing how to use build tags to identify which files should be included in a package when building for specific operating systems. Build tags are given in a comment at the top of a file:
+Command-line interfaces don’t have to be limited to text. With **termdash**, a popular Golang library, you can build a terminal dashboard providing users with a user interface to visually see progress, alerts, text, and more. Colorful widgets placed within a clean dashboard that’s been neatly laid out can increase information density and present a lot of information to the user in a very user-friendly manner. In this section, we’ll learn about the library and the different layout choices and widget options. At the end of the chapter, we’ll design a terminal dashboard that we can implement in our **audio file** command-line interface.
+
+## Learning about Termdash
+
+Termdash is a Golang library that provides a customizable and cross-platform, terminal-based dashboard. On the project’s GitHub page, a fun and colorful demo provides an example of all possible widgets demonstrated within a dynamic layout. From the demo, you can see that you can go all out on a fancy dashboard. To do so, you’ll need to understand how to lay out a dashboard, interact with keyboard and mouse events, add widgets, and fine-tune the appearance with alignment and color. Within this section, we will break down the layers of a Termdash interface and the widgets that can be organized within it.
+
+A Termdash dashboard consists of four main layers:
+
+-   The terminal layer
+-   The infrastructure layer
+-   The container layer
+-   The widgets layer
+
+Let’s take a deep dive into each of them.
+
+### The terminal layer
+
+Think of the terminal layer of a dashboard as a 2D grid of cells that exist within a buffer. Each cell contains either an ASCII or Unicode character with the option to customize the foreground color, the color of text, the background color, or the color of the non-character space within the cell. Interactions with the mouse and keyboard happen on this layer as well.
+
+Two terminal libraries can be used to interact at the cell level of a terminal:
+
+-   **tcell**: Inspired by **termbox** and has many new improvements
+-   **termbox**: No longer supported, although it is still an option
+
+The following examples will utilize the `tcell` package to interact with the terminal. To start, create a new `tcell` instance to interact via the terminal API:
 
 ```markup
-//go:build
+terminalLayer, err := tcell.New()
+if err != nil {
+   return err
+}
+defer terminalLayer.Close()
 ```
 
-Build tags are passed in as flags when running `go build`. There could be more than one tag on a file, and they follow on from the comment with the following syntax:
+Notice that in this example, `tcell` has two methods: `New` and `Close`. `New` creates a new `tcell` instance in order to interact with the terminal and `Close` closes the terminal. It’s a good practice to defer closing access to `tcell` right after creation. Although there are no options passed into the `New` method, there are a few optional methods that can be called:
+
+-   `ColorMode` sets the color mode when initializing a terminal
+-   `ClearStyle` sets the foreground and background color when a terminal is cleared
+
+An example of initializing a cell in `ColorMode` to access all 256 available terminal colors would look like this:
 
 ```markup
-//go:build [tags]
+terminalLayer, err := tcell.New(tcell.ColorMode(terminalapi.ColorMode256))
+if err != nil {
+   return err
+}
+defer terminalLayer.Close()
 ```
 
-Each tag is separated by a space. Suppose we want to indicate that this file will only be included in a build for the Darwin operating system, then we would add this to the top of the file:
+`ClearStyle`, by default, will use `ColorDefault` if no specific `ClearStyle` is set. This `ColorDefault` is usually the default foreground and background colors of the terminal emulator, which are typically black and white. To set a terminal to use a yellow foreground and navy background style when the terminal is cleared, the `New` method, which accepts a slice of options, would be modified in the following way:
 
 ```markup
-//go:build darwin
+terminalLayer, err := tcell.New(tcell.ColorMode(terminalapi.ColorMode256), tcell.ClearStyle(cell.ColorYellow, cell.ColorNavy))
+if err != nil {
+   return err
+}
+defer terminalLayer.Close()
 ```
 
-Then when building the application, we would use something like this:
+Now that we’ve created a new `tcell` that gives us access to the Terminal API, let’s discuss the next layer – infrastructure.
+
+### The infrastructure layer
+
+The infrastructure of a terminal dashboard provides the organization of the structure. The three main elements of the infrastructure layer include alignment, line style, and Termdash.
+
+#### Alignment
+
+Alignment is provided by the `align` package, which provides two alignment options – `align.Horizonal`, which includes predefined values of `left`, `center`, and `right` and `align.Vertical` with predefined values of `top`, `middle`, and `bottom`.
+
+#### Line style
+
+The line style defines the style of the line drawn on the terminal either when drawing boxes or borders.
+
+The package exposes the options available via `LineStyle`. The `LineStyle` type represents a style that follows the Unicode options.
+
+#### Termdash
+
+Termdash provides the developer with the main entry point. Its most important purpose is to start and stop the dashboard application, control screen refreshing, process any runtime errors, and subscribe and listen for keyboard and mouse events. The `termdash.Run` method is the simplest way to start a Termdash application. The terminal may run until the context expires, a keyboard shortcut is called, or it times out. The simplest way to get started with the dashboard is with the following minimal code example, which creates a new `tcell` for the terminal layer, and a new **container** for the container layer. A container is another module within the `termdash` package, which we will dive into in the next section. We create context with a 2-minute timeout and then call the `Run` method of the `termdash` package:
 
 ```markup
-go build –tags darwin
+if terminalLayer, err := tcell.New()
+if err != nil {
+   return err
+}
+defer terminalLayer.Close()
+containerLayer, err := container.New(terminalLayer)
+if err != nil {
+   return err
+}
+ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+defer cancel()
+if err := termdash.Run(ctx, terminalLayer, containerLayer); err != nil {
+   return err
+}
 ```
 
-This is just a super quick overview of how build tags can be used to constrain files specific to operating systems. Before we go into an implementation of this, let’s discuss the `build` package in a bit more detail.
+In the preceding code example, the dashboard will run until the context expires, in 60 seconds.
 
-## The build package
-
-The `build` package gathers information about Go packages. In the _Chapter07_ code repository, there is a `buildChecks.go` file, which uses the `build` package to get information about the current package. Let’s see what information this code can give us:
+Screen redrawing, or refreshing, for your Terminal dashboard can be done in a few ways: periodic, time-based redraws or manually triggered redraws. Only one method may be used, as using one means the other method is ignored. Besides that, the screen will refresh each time an input event occurs. The `termdash.RedrawInterval` method is an option that can be passed into the `Run` method to tell the dashboard application to redraw, or refresh, the screen at a particular interval. The `Run` method can be modified with the option to refresh every 5 seconds:
 
 ```markup
-func buildChecks() {
-    ctx := build.Context{}
-    p1, err := ctx.Import(".", ".", build.AllowBinary)
-    if err != nil {
-        fmt.Println("err: ", err)
+termdash.Run(ctx, terminalLayer, containerLayer, termdash.RedrawInterval(5*time.Second))
+```
+
+The dashboard may also be redrawn using a controller, which can be triggered manually. This option means that the dashboard is drawn only once and unlike the `Run` method, the user maintains control of the main goroutine. An example of this code, using the previously defined `tcell` and `container` variables defined earlier, can be passed into a new controller to be drawn manually:
+
+```markup
+termController, err := termdash.NewController(terminalLayer, containerLayer)
+if err != nil {
+    return err
+}
+defer termController.Close()
+if err := termController.Redraw(); err != nil {
+    return fmt.Errorf("error redrawing dashboard: %v", err)
+}
+```
+
+The Termdash API provides a `termdash.ErrorHandler` option, which tells the dashboard how to handle errors gracefully. Without providing an implementation for this error handler, the dashboard will panic on all runtime errors. Errors can occur when processing or retrieving events, subscribing to an event, or when a container fails to draw itself.
+
+An error handler is a callback method that receives an error and handles the error appropriately. It can be defined as a variable and, in the simplest case, just prints the runtime error:
+
+```markup
+errHandler := func(err error) {
+   fmt.Printf("runtime error: %v", err)
+}
+```
+
+When starting a Termdash application using the `Run` or `NewController` method, the error handler may be passed in as an option using the `termdash.ErrorHandler` method. For example, the `Run` method can be modified with a new option:
+
+```markup
+termdash.Run(ctx, terminalLayer, containerLayer, termdash.ErrorHandler(errHandler))
+```
+
+While the `NewController` method can be modified similarly:
+
+```markup
+termdash.NewController(terminalLayer, containerLayer, termdash.ErrorHandler(errHandler))
+```
+
+Through the `termdash` package, you can also subscribe to keyboard and mouse events. Typically, the container and certain widgets subscribe to keyboard and mouse events. Developers can also subscribe to certain mouse and keyboard events to take global action. For example, a developer may want the terminal to run a specific function when a specific key is set. `termdash.KeyboardSubscriber` is used to implement this functionality. With the following code, the user subscribes to the letters `q` and `Q` and responds to the keyboard events by running code to quit the dashboard:
+
+```markup
+keyboardSubscriber := func(k *terminalapi.Keyboard) {
+    switch k.Key {
+      case 'q':
+      case 'Q':
+          cancel()
     }
-    fmt.Println("Dir:", p1.Dir)
-    fmt.Println("Package name: ", p1.Name)
-    fmt.Println("AllTags: ", p1.AllTags)
-    fmt.Println("GoFiles: ", p1.GoFiles)
-    fmt.Println("Imports: ", p1.Imports)
-    fmt.Println("isCommand: ", p1.IsCommand())
-    fmt.Println("IsLocalImport: ", build.IsLocalImport("."))
-    fmt.Println(ctx)
+}
+if err := termdash.Run(ctx, terminalLayer, containerLayer, termdash.KeyboardSubscriber(keyboardSubscriber)); err != nil {
+return fmt.Errorf("error running termdash with keyboard subscriber: %v", err)
 }
 ```
 
-We first create the `context` variable and then call the `Import` method. The `Import` method is defined in the documentation as follows:
+Another option is to call the `Run` method with the option to listen to mouse events using `termdash.MouseSubscriber`. Similarly, the following code can be called to do something random when the mouse button is clicked within the dashboard:
 
 ```markup
-func (ctxt *Context) Import(path string, srcDir string, mode ImportMode) (*Package, error)
-```
-
-It returns the details about the Go package named by the `path` and `srcDir` source directory parameters. In this case, the `main` package is returned from the package, then we can check all the variables and methods that exist to get more information on the package. Running this method locally will return something like this:
-
-```markup
-Dir: .
-Package name:  main
-AllTags:  [buildChecks]
-GoFiles:  [checkRuntime.go environment.go file.go main.go process.go timer.go walking.go]
-Imports:  [fmt io/fs os os/exec path/filepath runtime runtime/debug strings time]
-isCommand/main package:  true
-IsLocalImport:  true
-```
-
-Most of the values we are checking are self-explanatory. `AllTags` returns all tags that exist within the `main` package. `GoFiles` returns all the files included in the `main` package. `Imports` are all the unique imports that exist within the package. `IsCommand()` returns `true` if the package is considered a command to be installed, or if it is the main package. Finally, the `IsLocalImport` method checks whether an import file is local. This is a fun extra detail to interest you more about what the `build` package could potentially offer you.
-
-## Build tags
-
-Now that we have learned a little bit more about the `build` package, let’s use it for the main purpose of this chapter, building packages for specific operating systems. Build tags should be named intentionally, and since we are using them for a specific purpose, we can name each build tag by an operating system:
-
-```markup
-//go:build darwin
-//go:build linux
-//go:build windows
-```
-
-Let’s revisit the audio file code. Remember how in the `play` command, we check the `runtime` operating system and then call a specific method. Let’s rewrite this code using build tags.
-
-### Example in the audio file
-
-Let’s first simplify the command’s code to the following:
-
-```markup
-var playCmd = &cobra.Command{
-    Use: "play",
-    Short: "Play audio file by id",
-    Long: `Play audio file by id`,
-    RunE: func(cmd *cobra.Command, args []string) error {
-        b, err := getAudioByID(cmd)
-        if err != nil {
-            return err
-        }
-        audio := models.Audio{}
-        err = json.Unmarshal(b, &audio)
-        if err != nil {
-            return err
-        }
-        return play(audio.Path)
-    },
+mouseClick := func(m *terminalapi.Mouse) {
+    switch m.Button {
+        case mouse.ButtonRight:
+        // when the left mouse button is clicked - cancel
+        cancel()
+        case mouse.ButtonLeft:
+        // when the left mouse button is clicked
+        case mouse.ButtonMiddle:
+        // when the middle mouse button is clicked
+    }
+}
+if err := termdash.Run(ctx, terminalLayer, containerLayer, termdash.MouseSubscriber(mouseClick)); err != nil {
+    return fmt.Errorf("error running termdash with mouse subscriber: %v", err)
 }
 ```
 
-Basically, we’ve simplified the code greatly by removing the operating system switch statement and the three functions that implement the play feature for each operating system. Instead, we’ve taken the code and created three new files: `play_darwin.go`, `play_windows.go`, and `play_linux.go`. Within each of these files is a build tag for each operating system. Let’s take the Darwin file, `play_darwin.go`, for example:
+### The container layer
+
+The container layer provides options for dashboard layouts, container styles, keyboard focus, and margin and padding. It also provides a method for placing a widget within a container.
+
+From the previous examples, we see that a new container is called using the `container.New` function. We’ll provide some new examples of how to organize your container and set it up with different layouts.
+
+There are two main layout options:
+
+-   Binary tree
+-   Grid layouts
+
+The **binary tree layout** organizes containers in a binary tree structure where each container is a node in a tree, which, unless empty, may contain either two sub-containers or a widget. Sub-containers can be split further with the same rules. There are two kinds of splits:
+
+-   **Horizontal splits**, created with the `container.SplitHorizontal` method, will create top and bottom sub-containers specified by `container.Top` and `container.Bottom`
+-   **Vertical splits**, created with the `container.SplitVertical` method, will create left and right sub-containers, specified by `container.Left` and `container.Right`
+
+The `container.SplitPercent` option specifies the percentage of container split to use when spitting either vertically or horizontally. When the split percentage is not specified, a default of 50% is used. The following is a simple example of a binary tree layout using all the methods described:
 
 ```markup
-//go:build darwin
-package cmd
-import (
-    "fmt"
-    "os/exec"
+    terminalLayer, err := tcell.New(tcell.ColorMode(terminalapi.ColorMode256),
+        tcell.ClearStyle(cell.ColorYellow, cell.ColorNavy))
+    if err != nil {
+        return fmt.Errorf("tcell.New => %v", err)
+    }
+    defer terminalLayer.Close()
+leftContainer := container.Left(
+container.Border(linestyle.Light),
 )
-func play(audiofilePath string) error {
-    cmd := exec.Command("afplay", audiofilePath)
-    if err := cmd.Start(); err != nil {
-        return err
+rightContainer :=
+container.Right(
+container.SplitHorizontal(
+container.Top(
+container.Border(linestyle.Light),
+),
+container.Bottom(
+container.SplitVertical(
+     container.Left(
+     container.Border(linestyle.Light),
+     ),
+     container.Right(
+     container.Border(linestyle.Light),
+     ),
+     ),
+      ),
+    )
+)
+containerLayer, err := container.New(
+terminalLayer,
+container.SplitVertical(
+leftContainer,
+rightContainer,
+container.SplitPercent(60),
+),
+)
+```
+
+Notice how we drill down when splitting up the terminal into containers. First, we split vertically to divide the terminal into left and right portions. Then, we split the right portion horizontally. The bottom-right horizontally split portion is split vertically. Running this code will present the following dashboard:
+
+![Figure 10.1 – Dashboard showing a container split using the binary layout](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.1_B18883.jpg)
+
+Figure 10.1 – Dashboard showing a container split using the binary layout
+
+Notice that the container to the left takes up about 60% percent of the full width. The other splits do not define a percentage and take up 50% of the container.
+
+The other option for a dashboard is to use a **grid layout**, which organizes the layout into rows and columns. Unlike the binary tree layout, the grid layout requires a grid builder object. Rows, columns, or widgets are then added to the grid builder object.
+
+Columns are defined using either the `grid.ColWidhPerc` function, which defines a column with a specified width percentage of the parent’s width, or `grid.ColWidthPercWithOpts`, which is an alternative that allows developers to additionally specify options when representing the column.
+
+Rows are defined using either the `grid.RowHeightPerc` function, which defines a row with a specified height percentage of the parent’s height, or `grid.RowHeightPercWithOpts`, which is an alternative that allows developers to additionally specify options when representing the row.
+
+To add a widget within the grid layout, utilize the `grid.Widget` method. The following is a simple example of a layout implemented by the `grid` package. The code uses all the related methods and adds an ellipses text widget within each cell:
+
+```markup
+    t, err := tcell.New()
+    if err != nil {
+        return fmt.Errorf("error creating tcell: %v", err)
     }
-    fmt.Println("enjoy the music!")
-    err := cmd.Wait()
+    rollingText, err := text.New(text.RollContent())
+    if err != nil {
+        return fmt.Errorf("error creating rolling text: %v", 
+          err)
+    }
+    err = rollingText.Write("...")
+    if err != nil {
+        return fmt.Errorf("error writing text: %v", err)
+    }
+    builder := grid.New()
+    builder.Add(
+        grid.ColWidthPerc(60,
+            grid.Widget(rollingText,
+                container.Border(linestyle.Light),
+            ),
+        ),
+    )
+    builder.Add(
+        grid.RowHeightPerc(50,
+            grid.Widget(rollingText,
+                container.Border(linestyle.Light),
+            ),
+        ),
+    )
+    builder.Add(
+        grid.ColWidthPerc(20,
+            grid.Widget(rollingText,
+                container.Border(linestyle.Light),
+            ),
+        ),
+    )
+    builder.Add(
+        grid.ColWidthPerc(20,
+            grid.Widget(rollingText,
+                container.Border(linestyle.Light),
+            ),
+        ),
+    )
+    gridOpts, err := builder.Build()
+    if err != nil {
+        return fmt.Errorf("error creating builder: %v", err)
+    }
+    c, err := container.New(t, gridOpts...)
+```
+
+Running the code generates the following dashboard:
+
+![Figure 10.2 – Dashboard showing the container created using the grid layout](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.2_B18883.jpg)
+
+Figure 10.2 – Dashboard showing the container created using the grid layout
+
+Notice that the column width percentage equals 100%; anything more would cause a compilation error.
+
+There is also the option of a dynamic layout that allows you to switch between different layouts on the dashboard. Using the `container.ID` option, you can identify a container with some text, which can be referenced later so there’s a way to identify which container will be dynamically updated using the `container.Update` method:
+
+```markup
+    t, err := tcell.New()
+    if err != nil {
+        return fmt.Errorf("error creating tcell: %v", err)
+    }
+    defer t.Close()
+    b1, err := button.New("button1", func() error {
+        return nil
+    })
+    if err != nil {
+        return fmt.Errorf("error creating button: %v", err)
+    }
+    b2, err := button.New("button2", func() error {
+        return nil
+    })
+    if err != nil {
+        return fmt.Errorf("error creating button: %v", err)
+    }
+    c, err := container.New(
+        t,
+        container.PlaceWidget(b1),
+        container.ID("123"),
+    )
+    if err != nil {
+        return fmt.Errorf("error creating container: %v", err)
+    }
+    update := func(k *terminalapi.Keyboard) {
+        if k.Key == 'u' || k.Key == 'U' {
+            c.Update(
+                "123",
+                container.SplitVertical(
+                    container.Left(
+                        container.PlaceWidget(b1),
+                    ),
+                    container.Right(
+                        container.PlaceWidget(b2),
+                    ),
+                ),
+            )
+        }
+    }
+    ctx, cancel := context.WithTimeout(context.Background(), 
+      5*time.Second)
+    defer cancel()
+    if err := termdash.Run(ctx, t, c, termdash.
+       KeyboardSubscriber(update)); err != nil {
+        return fmt.Errorf("error running termdash: %v", err)
+    }
+```
+
+In this code, the container ID is set to `123`. Originally, the widget contained just one button. The `update` method replaces the single button with a container split vertically, with one button on the left and another on the right. When running this code, pressing the _u_ key runs the update on the layout.
+
+The original layout shows a single button:
+
+![Figure 10.3 – Layout showing a single button](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.3_B18883.jpg)
+
+Figure 10.3 – Layout showing a single button
+
+After pressing the _u_ or _U_ key, the layout updates:
+
+![Figure 10.4 – Layout showing two buttons after pressing the u key again](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.4_B18883.jpg)
+
+Figure 10.4 – Layout showing two buttons after pressing the u key again
+
+The container layer can be further configured using margin and padding settings. The margin is the space outside of the container’s border while the padding is the space between the inside of the container’s border and its content. The following image provides the best visual representation of margins and padding:
+
+![Figure 10.5 – Margin and padding](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.5_B18883.jpg)
+
+Figure 10.5 – Margin and padding
+
+The margin and padding can be set with either absolute or relative values. An absolute margin can be set with the following options:
+
+-   `container.MarginTop`
+-   `container.MarginRight`
+-   `container.MarginBottom`
+-   `container.MarginLeft`
+
+Absolute padding can be set with the following options:
+
+-   `container.PaddingTop`
+-   `container.PaddingRight`
+-   `container.PaddingBottom`
+-   `container.PaddingLeft`
+
+Relative values for the margin and padding are set with percentages. The margin and padding’s top and bottom percentage values are relative to the container’s height:
+
+-   `container.MarginTopPercent`
+-   `container.MarginBottomPercent`
+-   `container.PaddingTopPercent`
+-   `container.PaddingBottomPercent`
+
+The margin and padding’s right and left percentage values are relative to the container’s width:
+
+-   `container.MarginRightPercent`
+-   `container.MarginLeftPercent`
+-   `container.PaddingRightPercent`
+-   `container.PaddingLeftPercent`
+
+Another form of placement within containers is alignment. The following methods are available from the align API to align content within the container:
+
+-   `container.AlignHorizontal`
+-   `container.AlignVertical`
+
+Let’s put it all together in a simple example that extends upon the binary tree code example:
+
+```markup
+b, err := button.New("click me", func() error {
+    return nil
+})
+if err != nil {
+    return err
+}
+leftContainer :=
+container.Left(
+     container.Border(linestyle.Light),
+           container.PlaceWidget(b),
+           container.AlignHorizontal(align.HorizontalLeft),
+     )
+rightContainer :=
+         container.Right(
+             container.SplitHorizontal(
+                 container.Top(
+                    container.Border(linestyle.Light),
+                    container.PlaceWidget(b),
+                    container.AlignVertical(align.VerticalTop),
+                 ),
+                 container.Bottom(
+                   container.SplitVertical(
+                        container.Left(
+                          container.Border(linestyle.Light),
+                               container.PlaceWidget(b),
+                               container.PaddingTop(3),
+                               container.PaddingBottom(3),
+                               container.PaddingRight(3),
+                               container.PaddingLeft(3),
+                         ),
+                         container.Right(
+                           container.Border(linestyle.Light),
+                             container.PlaceWidget(b),
+                             container.MarginTop(3),
+                             container.MarginBottom(3),
+                             container.MarginRight(3),
+                             container.MarginLeft(3),
+                        ),
+                    ),
+                ),
+           ),
+                )
+containerLayer, err := container.New(
+        terminalLayer,
+        container.SplitVertical(
+            leftContainer,
+            rightContainer,
+            container.SplitPercent(60),
+        ),
+    )
+```
+
+The resulting layout appears as follows:
+
+![Figure 10.6 – Container showing different alignments for a button, with different margins and padding](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.6_B18883.jpg)
+
+Figure 10.6 – Container showing different alignments for a button, with different margins and padding
+
+You can also define a key to change the focus to the next or previous container using the `container.KeyFocusNext` and `container.KeyFocusPrevious` options.
+
+### The widget layer
+
+In several of the previous examples, we showed code that placed a widget in either a grid or binary tree container layout and also customized the alignment, margin, and padding. However, besides a simple button or text, there are different widget options, and the demo on the GitHub page shows an example of each:
+
+![Figure 10.7 – Termdash sample screenshot showing all the widgets in a dashboard](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.7_B18883.jpg)
+
+Figure 10.7 – Termdash sample screenshot showing all the widgets in a dashboard
+
+Let’s do a quick example of each with a snippet of code to understand how each widget is created. To add each widget to a container, just use the `container.PlaceWidget` method that was used earlier for the simple text and button examples. Let’s go over a few other examples: a bar chart, donut, and gauge. For a detailed code of the other widgets, visit the very well-documented termdash wiki and check out the demo pages.
+
+#### A bar chart
+
+Here is some example code for creating a bar chart widget with individual values displayed relative to a `max` value:
+
+```markup
+    barChart, err := barchart.New()
     if err != nil {
         return err
     }
-    return nil
+    values := []int{20, 40, 60, 80, 100}
+    max := 100
+    if err := barChart.Values(values, max); err != nil {
+        return err
+    }
+```
+
+The preceding code creates a new `barchart` instance and adds the values, a slice of `int`, plus the maximum `int` value. The resulting terminal dashboard looks like this:
+
+![Figure 10.8 – Bar chart example](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.8_B18883.jpg)
+
+Figure 10.8 – Bar chart example
+
+Change the values of the `values` and `max` variables to see the chart change. The color of the bars can also be modified based on preference.
+
+#### A donut
+
+A donut, or progress circle chart, represents the completion of progress. Here is some example code for creating a donut chart to show percentages:
+
+```markup
+    greenDonut, err := donut.New(
+        donut.CellOpts(cell.FgColor(cell.ColorGreen)),
+        donut.Label("Green", cell.FgColor(cell.ColorGreen)),
+    )
+    if err != nil {
+        return err
+    }
+    greenDonut.Percent(75)
+```
+
+The preceding code creates a new `donut` instance with options for the label and foreground color set to green. The resulting terminal dashboard looks like this:
+
+![Figure 10.9 – Green donut at 75%](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.9_B18883.jpg)
+
+Figure 10.9 – Green donut at 75%
+
+Again, the color can be modified based on preference, and remember, since Termdash provides dynamic refreshing, the data can be automatically updated and redrawn, making it quite nice for showing progress.
+
+#### A gauge
+
+A gauge, or progress bar, is another way to measure the amount completed. The following is some sample code for showing how to create a progress gauge:
+
+```markup
+    progressGauge, err := gauge.New(
+        gauge.Height(1),
+        gauge.Border(linestyle.Light),
+        gauge.BorderTitle("Percentage progress"),
+    )
+    if err != nil {
+        return err
+    }
+    progressGauge.Percent(75)
+```
+
+This code creates a new instance of a gauge with options for a light border, a title, **Percentage progress**, and a slim height of `1`. The percentage, as with the donut, is 75%. The resulting terminal dashboard looks like this:
+
+![Figure 10.10 – Gauge at 75% percent progress](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.10_B18883.jpg)
+
+Figure 10.10 – Gauge at 75% percent progress
+
+As mentioned before, because of dynamic redrawing, this is another great option for showing progress updates.
+
+Now that we’ve shown examples of different widgets to include within a terminal dashboard, let’s sketch out a design using these widgets that we can later implement in our audio file command-line interface. Suppose we wanted to build a music player in a terminal dashboard. Here is a sample layout:
+
+![Figure 10.11 – Terminal dashboard layout](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.11_B18883.jpg)
+
+Figure 10.11 – Terminal dashboard layout
+
+This layout can be created easily with the binary layout. The music library list section can be generated from a list of songs with number identifiers, which can be used in the text input section, where a song can be selected by ID. Any error messages associated with the input ID will be displayed right below. If the input is good, the selected song section will show rolling ASCII text with the song title, and the metadata section will display the text metadata of the selected song. Hitting the play button will start playing the selected song, and the stop button will stop it. Proceed to the next section where we’ll make this terminal dashboard a reality.
+
+Just Imagine
+
+# Implementing a terminal dashboard
+
+When creating a terminal dashboard, you can create it as a separate standalone application or as a command that is called from the command-line application. In our specific example for the player terminal dashboard, we are going to call the dashboard when the `./bin/audiofile player` command is called.
+
+First, from the audio file’s root repository, we’ll need to use `cobra-cli` to create the command:
+
+```markup
+cobra-cli add player
+Player created at /Users/mmontagnino/Code/src/github.com/marianina8/audiofile
+```
+
+Now, we can create the code to generate the terminal dashboard, called within the `Run` field of the `player` command. Remember that the terminal dashboard consists of four main layers: the terminal, infrastructure, container, and widgets. Like a painting, we’ll start with the base layer: the terminal.
+
+## Creating the terminal layer
+
+The first thing you need to do is to create a terminal that provides access to any input and output. Termdash has a `tcell` package for creating a new `tcell`\-based terminal. Many terminals by default only support 16 colors, but other more modern terminals can support up to 256 colors. The following code specifically creates a new terminal with a 265-color mode.
+
+```markup
+t, err := tcell.New(tcell.ColorMode(terminalapi.ColorMode256))
+```
+
+After creating a terminal layer, we then create the infrastructure layer.
+
+## Creating the infrastructure layer
+
+The infrastructure layer handles the terminal setup, mouse and keyboard events, and containers. In our terminal dashboard player, we want to handle a few tasks:
+
+-   Keyboard event to signal quitting
+-   Running the terminal dashboard, which subscribes to this keyboard event
+
+Let’s write the code to handle these two features required of the terminal dashboard.
+
+### Subscribing to keyboard events
+
+If we want to listen for key events, we create a keyboard subscriber to specify the keys to listen to:
+
+```markup
+quitter := func(k *terminalapi.Keyboard) {
+    if k.Key == 'q' || k.Key == 'Q' {
+        ...
+    }
 }
 ```
 
-Notice that the `play` function has been renamed to match the function called in the `play` command in `play.go`. Since only one of the files gets included in the build, there’s no confusion as to which `play` function is called. We ensure that only one gets called within the `make` file, which is how we are currently running the application. In `Makefile`, I’ve designated a command to build specifically for Darwin:
+Now that we have defined a keyboard subscriber, we can use this as an input parameter to termdash’s `Run` method.
+
+### Running the terminal
+
+When running the terminal, you’ll need the terminal variable, container, and keyboard and mouse subscribers, as well as the timed redrawing interval and other options. The following code runs the `tcell`\-based terminal we created and the `quitter` keyboard subscriber, which listens for _q_ or _Q_ key events to quit the application:
 
 ```markup
-build-darwin:
-    go build -tags darwin -o bin/audiofile main.go
-    chmod +x bin/audiofile
+if err := termdash.Run(ctx, t, c, termdash.KeyboardSubscriber(quitter), termdash.RedrawInterval(100*time.Millisecond)); err != nil {
+    panic(err)
+}
 ```
 
-A Go file containing the `play` function is created for Windows and Linux. The specific tags for each operating system will similarly need to be passed into the `-tags` flag when building your application. In later chapters, we will discuss cross-compiling, which is the next step. But before we do, let’s leave this chapter by reviewing a list of OS-level differences to keep in mind while developing for multiple platforms.
+The `c` variable that’s passed into the `termdash.Run` method as the third parameter is the container. Let’s define the container now.
 
-## OS-level differences
+## Creating the container layer
 
-Since you’ll be building your application for the main operating systems, it’s important to know the differences between them and know what to look out for. Let’s dive in with the following list:
+When creating the container, it helps to look at the bigger picture of the layout and then narrow it down as you go. For example, when you first look at the planned layout, you’ll see the largest sections are made from left and right vertical splits.
 
--   **Filesystem**:
-    -   Windows uses a different filesystem than Linux and Unix, so be mindful of the file paths when accessing files in your Go code.
-    -   File paths in Windows use backslashes, (`\`), as directory separators, while Linux and Unix use forward slashes (`/`).
--   **Permissions**:
-    -   Unix-like systems use file modes to manage permissions, where permissions are assigned to files and directories.
-    -   Windows uses an **access control list** (**ACL**) to manage permissions, where permissions are assigned to specific users or groups for a file or directory in a more flexible and granular manner.
-    -   In general, it’s a good practice to carefully consider user and group permissions when developing any command-line application, regardless of the operating system it will be running on.
--   **Executing commands**:
-    -   The `exec` package in Go provides a convenient way to run commands in the same manner as in the terminal. However, it’s important to note that the command and its arguments must be passed in the correct format for each operating system.
-    -   On Windows, you need to specify the file extension (for example, `.exe`, `.bat`, etc.) to run an executable file.
--   **Environmental variables**:
-    -   Environmental variables can be used to configure your application, but their names and values may be different between Windows and Linux/Unix.
-    -   On Windows, environmental variable names are case-insensitive, while on Linux/Unix, they are case-sensitive.
--   **Line endings**:
-    -   Windows uses a different line ending character than Linux/Unix, so be careful when reading or writing files in your Go code. Windows uses a carriage return (`\r`) followed by a line feed (`\n`), while Linux/Unix uses only a line feed (`\n`).
--   **Signal handling**:
-    -   In Unix systems, the `os/signal` package provides a way to handle signals sent to your application. However, this package is not supported on Windows.
-    -   To handle signals in a cross-platform way, you can use the `os/exec` package instead.
--   **User input**:
-    -   The way user input is read may also be different between Windows and Linux/Unix. On Windows, you may need to use the `os.Stdin` property, while on Linux/Unix you can use `os.Stdin` or the `bufio` package to read user input.
--   **Console colors**:
-    -   On Windows, the console does not support ANSI escape codes for changing text color, so you will need to use a different approach for coloring text in the console.
-    -   There are libraries available in Go, such as `go-colorable`, that provide a platform-independent way to handle console colors.
--   **Standard streams**:
-    -   Standard streams, such as `os.Stdin`, `os.Stdout`, and `os.Stderr` may behave differently between Windows and Linux/Unix. It’s important to test your code on both platforms to make sure it works as expected.
+![Figure 10.12 – Initial vertical split](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.12_B18883.jpg)
 
-These are some of the differences to be aware of when developing a command-line application in Go for different operating systems. It’s important to thoroughly test your application on each platform to ensure it behaves as expected.
+Figure 10.12 – Initial vertical split
+
+As we begin to define the container, we’ll slowly drill down with more specifics, but we begin with the following:
+
+-   **Vertical Split (Left)** – The music library
+-   **Vertical Split (Right)** – All other widget
+
+The final code reflects this drill-down process. Since we keep the left vertical split as the music library, we drill down with containers on the left, always starting with the larger containers and adding smaller ones within.
+
+![Figure 10.13 – Horizontal split of right vertical space](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.13_B18883.jpg)
+
+Figure 10.13 – Horizontal split of right vertical space
+
+The next is a horizontal split that separates the left vertical split into the following:
+
+-   **Horizontal Split (Top) 30%** – Text input, error messages, and the rolling song title text
+-   **Horizontal Split (Bottom) 70%** – Metadata and play/stop buttons
+
+Let’s take the top horizontal split and split it, again, horizontally:
+
+-   **Horizontal Split (Top) 30%** – Text input and error message
+-   **Horizontal Split (Bottom) 70%** – The rolling song title text
+
+![Figure 10.14 – Horizontal split of top horizontal space](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.14_B18883.jpg)
+
+Figure 10.14 – Horizontal split of top horizontal space
+
+We split the earlier top part horizontally into the separated text input and error messages:
+
+-   **Horizontal Split (Top) 60%** – Text input
+-   **Horizontal Split (Bottom) 40%** – Error messages
+
+![Figure 10.15 – Horizontal split of top horizontal space](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.15_B18883.jpg)
+
+Figure 10.15 – Horizontal split of top horizontal space
+
+Now, let’s drill down into the bottom 70% of the initial horizontal split of the right vertical container. Let’s split it up into two horizontal sections:
+
+-   **Horizontal Split (Top) 80%** – The metadata section
+-   **Horizontal Split (Bottom) 20%** – The button section (play/stop)
+
+![Figure 10.16 – Horizontal split of bottom horizontal space](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.16_B18883.jpg)
+
+Figure 10.16 – Horizontal split of bottom horizontal space
+
+Finally, the last part to drill down to is the bottom horizontal split, which we will split vertically:
+
+-   **Vertical Split (Left) 50%** – The play button
+-   **Vertical Split (Right) 50%** – The stop button
+
+![Figure 10.17 – Vertical split of bottom horizontal space](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.17_B18883.jpg)
+
+Figure 10.17 – Vertical split of bottom horizontal space
+
+The entire layout broken down with the container code shows this drill-down process – I’ve added comments for where the widgets will be placed for reference:
+
+```markup
+c, err := container.New(
+    t,
+    container.SplitVertical(
+        container.Left(), // music library
+        container.Right(
+            container.SplitHorizontal(
+                container.Top(
+                    container.SplitHorizontal(
+                        container.Top(
+                            container.SplitHorizontal(
+                                container.Top(), // text input
+                                container.Bottom(), // error 
+                                                    msgs
+                                container.SplitPercent(60),
+                            ),
+                        ),
+                        container.Bottom(), // rolling song 
+                                            title
+                        container.SplitPercent(30),
+                    ),
+                ),
+                container.Bottom(
+                    container.SplitHorizontal(
+                        container.Top(), // metadata
+                        container.Bottom(
+                            container.SplitVertical(
+                                container.Left(), // play 
+                                                  button
+                                container.Right(), // stop 
+                                                   button
+                            )
+                        ),
+                        container.SplitPercent(80),
+                    ),
+                ),
+                container.SplitPercent(30),
+            ),
+        ),
+    ),
+)
+```
+
+Next, let’s create the widgets and place them within the appropriate containers to finalize the terminal dashboard.
+
+## Creating the widgets layer
+
+Going back to the original layout, all the different widgets we’ll need to implement are clear to see:
+
+-   The music library list
+-   Input text
+-   Error messages
+-   Rolling text – selected song (title by artist)
+-   Metadata
+-   The play button
+-   The stop button
+
+At this point, I am aware of which widget to use for each item on the list. However, if you have not yet decided, now is the time to determine the best Termdash widget to use for each item:
+
+-   Text:
+    -   Music library list
+    -   Error messages
+    -   Rolling text – selected song (title by artist), metadata
+-   Text input:
+    -   Input field
+-   Button:
+    -   The play button
+    -   The stop button
+
+Let’s create at least one of each type as an example. The full code is available in the `Chapter10` GitHub repository.
+
+### Creating a text widget for the music library list
+
+The music library list will take in the audio list and print the text in a section that will list the index of the song next to the title and artist. We define this widget with the following function:
+
+```markup
+func newLibraryContent(audioList *models.AudioList) (*text.Text, error) {
+    libraryContent, err := text.New(text.RollContent(), text.
+      WrapAtWords())
+    if err != nil {
+        panic(err)
+    }
+    for i, audiofile := range *audioList {
+        libraryContent.Write(fmt.Sprintf("[id=%d] %s by %s\n", 
+          i, audiofile.Metadata.Tags.Title, audiofile.Metadata.
+          Tags.Artist))
+    }
+    return libraryContent, nil
+}
+```
+
+The function is called in the `Run` function field like so:
+
+```markup
+libraryContent, err := newLibraryContent(audioList)
+```
+
+The error message and metadata items are also text widgets, so we’ll omit those code examples. Next, we’ll create the input text.
+
+### Creating an input text widget for setting the current ID of a song
+
+The input text section is where a user inputs the ID of the song displayed in the music library section. The input text is defined within the following function:
+
+```markup
+func newTextInput(audioList *models.AudioList, updatedID chan<- int, updateText, errorText chan<- string) *textinput.TextInput {
+    input, _ := textinput.New(
+        textinput.Label("Enter id of song: ", cell.
+          FgColor(cell.ColorNumber(33))),
+        textinput.MaxWidthCells(20),
+        textinput.OnSubmit(func(text string) error {
+            // set the id
+            // set any error text
+        return nil
+    }),
+    textinput.ClearOnSubmit(),
+    )
+    return input
+}
+```
+
+### Creating a button to start playing the song associated with the input ID
+
+The last type of widget is a button. There are two different buttons we need, but the following code is for the play button:
+
+```markup
+func newPlayButton(audioList *models.AudioList, playID <-chan int) (*button.Button, error) {
+    playButton, err := button.New("Play", func() error {
+        stopTheMusic()
+        }
+        go func() {
+        if audiofileID <= len(*audioList)-1 && audiofileID >= 0 {
+        pID, _ = play((*audioList)[audiofileID].Path, false, 
+                     true)
+        }}()
+        return nil
+    },
+    button.FillColor(cell.ColorNumber(220)),
+    button.GlobalKey('p'),
+    )
+    if err != nil {
+        return playButton, fmt.Errorf("%v", err)
+    }
+    return playButton, nil
+}
+```
+
+-   The function is called in the `Run` function field:
+
+```markup
+playButton, err := newPlayButton(audioList, playID)
+```
+
+-   Once all the widgets have been created, they are placed within the container in the appropriate places with the following line of code:
+
+```markup
+container.PlaceWidget(widget)
+```
+
+-   Once the widgets have been placed within the container, we can run the terminal dashboard with the following command:
+
+```markup
+./bin/audiofile player
+```
+
+-   Magically, the player terminal dashboards appear and we can select an ID to enter and play a song:
+
+![Figure 10.18 – Audio file player terminal dashboard](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_10.18_B18883.jpg)
+
+Figure 10.18 – Audio file player terminal dashboard
+
+-   Voila! We’ve created a terminal dashboard to play the music in our audio file library. While you can view the metadata through the command-line application’s `get` and `list` commands and play music with the `play` command, the new player terminal dashboard allows you to view what exists in the audio file library in a more user-friendly fashion.
 
 Just Imagine
 
 # Summary
 
-The more operating systems your application supports, the more complicated it will get. Hopefully armed with the knowledge of some supportive packages for developing independently of the platform, you’ll feel confident that your application will run similarly across different operating systems. Also, by checking the `runtime` operating system and even separating code into separate operating system-specific files with build tags, you have at least a couple of options for defining how to organize your code. This chapter goes more in-depth than may be necessary, but hopefully, it inspires you.
+In this chapter, you learned how to create a survey with different interactive prompts and a terminal dashboard containing a variety of widgets. These are just examples that can hopefully inspire you in terms of interactivity within your own command-line application.
 
-Building for multiple operating systems will expand the usage of your command-line application. Not only can you reach Linux or Unix users but also Darwin and Windows users as well. If you want to grow your user base, then building an application to support more operating systems is an easy way to do so.
+The survey example showed you how to use a variety of different types of prompts; you can prompt the user for their user experience, but as you’ve seen within the audio file CLI, you can also just prompt for missing information. These prompts can be input throughout your code in places where prompts may come in handy, or they can be strung along a list of other questions and you can create a more thorough survey for your users.
 
-In the next chapter, [_Chapter 8_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_08.xhtml#_idTextAnchor166), _Building for Humans Versus Machines_, we’ll learn how to build a CLI that outputs according to who is receiving it: a machine or human. We’ll also learn how to structure the language for clarity and name commands for consistency with the rest of the CLIs in the community.
+The player terminal dashboard gives you an example of how to create a terminal dashboard for a command-line interface. Consider the kind of data your users will be sending or retrieving from your command-line interface and let that guide you in your design of a more visual approach.
 
 Just Imagine
 
 # Questions
 
-1.  What are the two different clocks that exist within an operating system? And does the `time.Time` struct in Go store one or the other clock, or both? Which should be used for calculating duration?
-2.  Which package constant can be used to determine the `runtime` operating system?
-3.  Where is the build tag comment set within a Go file – at the top, bottom, or above the defined function?
+1.  What method is used to create the terminal layer?
+2.  What method is used to place a widget inside a container?
+3.  What’s the difference between the binary layout and the grid layout?
 
 Just Imagine
 
 # Answers
 
-1.  The wall clock and monotonic clock. The `time.Time` struct stores both time values. The monotonic clock value should be used when calculating duration.
-2.  `runtime.GOOS`
-3.  At the top first line of the Go file.
+1.  `tcell.New()`
+2.  `container.PlaceWidget(widget)`
+3.  The grid layout allows you to split the container into horizontal rows and vertical columns. The binary layout allows you to split sub-containers horizontally or vertically.
 
 Just Imagine
 
 # Further reading
 
--   Visit the online documentation for the packages discussed at [https://pkg.go.dev/](https://pkg.go.dev/).
+-   _The Big Course of Dashboards: Visualizing Your Data Using Real-World Business Scenarios_ by Wexler, Shaffer, and Cotgreave

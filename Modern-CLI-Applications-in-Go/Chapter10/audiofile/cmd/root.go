@@ -12,12 +12,14 @@ func RootCMD() *cobra.Command {
 }
 
 // rootCmd represents the base command when called without any subcommands
-var rootCmd = &cobra.Command{
-	Use:   "audiofile",
-	Short: "A command line interface to interact with the Audiofile service",
-	Long: `A command line interface allows you to interact with the Audiofile service.
+var (
+	rootCmd = &cobra.Command{
+		Use:   "audiofile",
+		Short: "A command line interface to interact with the Audiofile service",
+		Long: `A command line interface allows you to interact with the Audiofile service.
 Basic commands include: get, list, and upload.`,
-}
+	}
+)
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.

@@ -64,6 +64,9 @@ func (list *AudioList) Table() (string, error) {
 
 func (audio *Audio) Table() (string, error) {
 	data := pterm.TableData{header, row(*audio)}
+	if runtime.GOOS == "windows" {
+		pterm.DisableColor()
+	}
 	return pterm.DefaultTable.WithHasHeader().WithData(data).Srender()
 }
 

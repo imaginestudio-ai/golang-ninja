@@ -1,5 +1,11 @@
 # audiofile
-In Chapter 10 we discuss how to create a terminal dashboard.  Here we add a new command, player, which launches a audiofile player dashboard in the users terminal.
+In Chapter 11 we discuss how to use build tags and testing.  Build tags are setup to separate out the code to be included during the compilation process.  Test files for many of the commands have been added as well.
+
+## To run tests:
+make test
+
+## To run tests in verbose mode:
+make test-verbose
 
 ## To generate the audiofile CLI documentation on MacOS:
 make manpages

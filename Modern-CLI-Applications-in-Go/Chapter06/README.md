@@ -1,845 +1,910 @@
-# Calling External Processes and Handling Errors and Timeouts
+# Developing for Different Platforms
 
-Many command-line applications interact with other external commands or API services. This chapter will guide you through how to call these external processes and how to handle timeouts and other errors when they occur. The chapter will start with a deep dive into the `os/exec` package, which contains everything you need to create commands that call external processes that give you multiple options for creating and running commands. You’ll learn how to retrieve data from the standard output and standard error pipes, as well as creating additional file descriptors for similar usage.
+One of the main reasons Go is such a powerful language for building a command-line application is how easy it is to develop an application that can be run on multiple machines. Go provides several packages that allow developers to write code that interacts with the computer independent of the specific operating system. These packages include `os`, `time`, `path`, and `runtime`. In the first section, we will discuss some commonly used functions in each of these packages and then provide some simple examples to pair with the explanations.
 
-Another external process involves calling external API service endpoints. The `net/http` package is discussed and is where we start defining the client, then create the requests that it executes. We will discuss the different ways requests can be both created and executed.
+To further drill down the importance of these files, we will revisit the `audiofile` code and implement a couple of new features that utilize some of the methods that exist in these packages. After all, the best way to learn is by implementing new features with the new functions and methods you’ve learned about.
 
-Timeouts and other errors can occur when calling either type of process. We will end the chapter by looking at how to capture when timeouts and errors occur in our code. It’s important to be mindful that these things can happen and so it’s important to write code that can handle them. The specific action taken upon error is dependent on the use case, so we’ll discuss the code to capture these cases only. To summarize, we’ll be covering the following topics:
+We will then learn how to use the `runtime` library to check the operating system the application is running on and then use that to switch between codes. By learning about build tags, what they are, and how to use them, we will learn about a cleaner way to switch between code blocks to implement a new feature that can be run on three different operating systems: Darwin, Windows, and Linux. By the end of the chapter, you’ll feel more confident when building your application, knowing that the code you are writing will work seamlessly, independent of the platform.
 
--   Calling external processes
--   Interacting with REST APIs
--   Handling the expected – timeouts and errors
+In this chapter, we will cover the following key topics:
 
-# Calling external processes
+-   Packages for platform-independent functionality
+-   Implementing independent or platform-specific code
+-   Build tags for targeted platforms
 
-Within your command-line application, you may need to call some external processes. Sometimes, there are Golang libraries offered for third-party tools that function as a wrapper. For example, Go CV, [https://gocv.io/](https://gocv.io/), is a Golang wrapper offered for OpenCV, an open source computer vision library. Then, there’s GoFFmpeg, [https://github.com/xfrr/goffmpeg](https://github.com/xfrr/goffmpeg), which is a wrapper offered for FFmpeg, a library for recording, converting, and streaming audio and video files. Often, you need to install an underlying tool, such as OpenCV or FFmpeg, and then the library interacts with it. Calling these external processes then means importing the wrapper package and calling its methods within your code. Often, when you dive into the code, you’ll find that these libraries provide a wrapper for the C code.
 
-Besides importing a wrapper for an external tool, you may call external applications using the `os/exec` Golang library. This is the main purpose of the library and in this section, we will be digging into how to use it to call external applications.
+# Packages for platform-independent functionality
 
-First, let’s review each of the variables, types, and functions that exist within the `os/exec` package with an example of each.
+When you are building a **command-line interface** (**CLI**) that will be shared with the public, it’s important that the code is platform-independent to support users who are running the CLI on different operating systems. Golang has supportive packages that provide platform-independent interfaces to operating system functionality. A few of these packages include `os`, `time`, and `path`. Another useful package is the `runtime` package, which helps when detecting the operating system the application is running on, among other things. We will review each of these packages with some simple examples to show how to apply some of the available methods.
 
-## The os/exec package
+## The os package
 
-By digging deeper into the `exec` package, you will find that it is a wrapper for the `os.StartProcess` method, making it easier to handle the remapping of standard in and standard out, connecting the input and output with pipes, and handling other modifications.
+The **operating system** (**os**) package has a Unix-like design but applies uniformly across all operating systems. Think of all the operating system commands you can run in a shell, including external commands. The `os` package is your go-to package. We discussed calling external commands in the previous chapter; now we will discuss this at a higher level and focus on the commands in certain groups: environmental, file, and process operations.
 
-For clarity, it’s important to note that this package does not invoke the operating system’s shell and so doesn’t handle tasks handled typically by the shell: expanding glob patterns, pipelines, or redirections. If it is necessary to expand glob patterns, then you can call the shell directly and make sure to escape values to make it safe, or you can also use the path or file path’s `Glob` function. To expand any environment variables that exist in a string, use the `os` package’s `ExpandEnv` function.
+### Environmental operations
 
-In the following subsections, we’ll start to discuss the different variables, types, functions, and methods that exist within the `os/exec` package.
+As the name suggests, the `os` package contains functions that give us information about the environment in which the application is running, as well as change the environment for future method calls. These common operations are for the following working directories:
 
-### Variables
+-   `func Chdir(dir string) error`: This changes the current working directory
+-   `func Getwd() (dir string, err error)`: This gets the current working directory
 
-`ErrNotFound` is the error variable returned when an executable file is not found in the application’s `$``PATH` variables.
+There are also operations for the environment, as follows:
 
-### Types
+-   `func Environ() []string`: This lists environment keys and values
+-   `func Getenv(key string) string`: This gets environment variables by key
+-   `func Setenv(key, value string) error`: This sets environment variables by key and value
+-   `func Unsetenv(key string) error`: This unsets an environment variable by key
+-   `func Clearenv()`: This clears environment variables
+-   `func ExpandEnv(s string) string`: This expands values of environment variable keys in strings to their values
 
-`Cmd` is a struct that represents an external command. Defining a variable of this type is just in preparation for the command to be run. Once this variable, of the `Cmd` type, is run via either the `Run`, `Output`, or `CombinedOutput` method, it cannot be reused. There are several fields on this `Cmd` struct that we can also elaborate upon:
-
--   `Path string` This is the only required field. It is the path of the command to run; if the path is relative, then it will be relative to the value stored in the `Dir` field.
--   `Args []string` This field holds the arguments for the command. `Args[0]` represents the command. `Path` and `Args` are set when the command is run, but if `Args` is `nil` or empty, then just `{Path}` is used during execution.
--   `Env []string` The `Env` field represents the environment for the command to run. Each value in the slice must be in the following format: `"key=value"`. If the value is empty or `nil`, then the command uses the current environment. If the slice has duplicate key values, then the last value for the duplicate key is used.
--   `Dir string` The `Dir` field represents the working directory of the command. If it’s not set, then the current directory is used.
--   `Stdin io.Reader` The `Stdin` field specifies the command process’ standard input. If the data is `nil`, then the process reads from `os.DevNull`, the null device. However, if the standard input is `*os.File`, then the contents are piped. During execution, a goroutine reads from standard input and then sends that data to the command. The `Wait` method will not complete until the goroutine starts copying. If it does not complete, then it could be because of an **end-of-file** (**EOF**), read, or write-to-pipe error.
--   `Stdout io.Writer` The `Stdout` field specifies the command process’ standard output. If the standard output is `nil`, then the process connects to the `os.DevNull` null device. If the standard output is `*os.File`, then output is sent to it instead. During execution, a goroutine reads from the command process and sends data to the writer.
--   `Stderr io.Writer` The `Stderr` field specifies the command process’ standard error output. If the standard error is `nil`, then the process connects to the `os.DevNull` null device. If the standard error is `*os.File`, then error output is sent to it instead. During execution, a goroutine reads from the command process and sends data to the writer.
--   `ExtraFiles []*os.File` The `ExtraFiles` field specifies additional files inherited by the command process. It doesn’t include standard input, standard output, or standard error, so if not empty, entry _x_ becomes the _3+x_ file descriptor. This field is not supported on Windows.
--   `SysProcAttr *syscall.SysProcAttr` `SysProcAttr` holds system-specific attributes that are passed down to `os.StartProcess` as an `os.ProcAttr`’s `Sys` field.
--   `Process *os.Process` The `Process` field holds the underlying process once the command is run.
--   `ProcessState *os.ProcessState` The `ProcessState` field contains information about the process. It becomes available after the wait or run method is called.
-
-### Methods
-
-The following are the methods that exist on the `exec.Cmd` object:
-
--   `func (c *Cmd) CombinedOutput() ([]byte, error)` The `CombinedOutput` method returns both the standard output and standard error into 1-byte string output.
--   `func (c *Cmd) Output ([]byte, error)` The `Output` method returns just the standard output. If an error occurs, it will usually be of the `*ExitError` type, and if the command’s standard error, `c.Stderr`, is `nil`, `Output` populates `ExitError.Stderr`.
--   `func (c *Cmd) Run() error` The `Run` method starts executing the command and then waits for it to complete. If there was no problem copying standard input, standard output, or standard error and the command exits with a zero status, then the error returned will be `nil`. If the command exits with an error, it will usually be of the `*ExitError` type, but could be other error types as well.
--   `func (c *Cmd)` `Start() error`
--   The `Start` method will start executing the command and not wait for it to complete. If the `Start` method runs successfully, then the `c.Process` field will be set. The `c.Wait` field will then return the exit code and release resources once complete.
--   f`unc (c* Cmd) StderrPipe() (io.ReadCloser, error)` `StderrPipe` returns a pipe that is connected to the command’s standard error. There won’t be a need to ever close the pipe because the `Wait` method will close the pipe once the command exits. Do not call the `Wait` method until all reads from the standard error pipe have completed. Do not use this command with the `Run` method for the same reason.
--   `func (c* Cmd) StdinPipe() (io.WriteCloser, error`) `StdinPipe` returns a pipe that is connected to the command’s standard input. The pipe will be closed after `Wait`, and the command exits. However, sometimes the command will not run until the standard input pipe is closed, and thus you can call the `Close` method to close the pipe sooner.
--   `func (c *Cmd) StdoutPipe() (io.ReadCloser, error`) The `StdoutPipe` method returns a pipe that is connected to the command’s standard output. There’s no need to close the pipe because `Wait` will close the pipe once the command exits. Again, do not call `Wait` until all reads from the standard output pipe have completed. Do not use this command with the `Run` method for the same reason.
--   `func (c *Cmd) String() string` The `String` method returns a human-readable description of the command, `c`, for debugging purposes. The specific output may differ between Go version releases. Also, do not use this as input to a shell, as it’s not suitable for that purpose.
--   `func (c *Cmd) Wait() error` The `Wait` method waits for any copying to standard input, for standard output or standard error to complete, and for the command to exit. To utilize the `Wait` method, the command must have been started by the `Start` method and not the `Run` method. If there are no errors with copying from pipes and the process exits with a `0` exit status code, then the error returned will be `nil`. If the command’s `Stdin`, `Stdout`, or `Stderr` field is not set to `*os.File`, then `Wait` also ensures that the respective input-output loop process completes as well.
-
-`Error` is a struct that represents an error returned from the `LookPath` function when it fails to recognize the file as an executable. There are a couple of fields and methods of this specific error type that we will define in detail.
-
-The following are the methods that exist on the `Error` type:
-
--   `func (e *Error) Unwrap() error` If the error returned is a chain of errors, then you can utilize the `Unwrap` method to _unwrap_ it and determine what kind of error it is.
-
-`ExitError` is a struct that represents an error when a command exits unsuccessfully. `*os.ProcessState` is embedded into this struct, so all values and fields will also be available to the `ExitError` type. Finally, there are a few fields of this type that we can define in more detail:
-
--   `Stderr []byte` This field holds a set of the standard error output responses if not collected from the `Cmd.Output` method. `Stderr` may only contain the prefix and suffix of the error output if it’s sufficiently long. The middle will contain text about the number of omitted bytes. For debugging purposes, and if you want to include the entirety of the error messages, then redirect to `Cmd.Stderr`.
-
-The following is the method that exists on the `ExitError` type:
-
--   `func (e *ExitError) Error() string` The `Error` method returns the exit error represented as a string.
-
-### Functions
-
-The following are functions that exist within the `os/exec` package:
-
--   `func LookPath(file string) (string, error)` The `LookPath` function checks to see whether the file is an executable and can be found. If the file is a relative path, then it is relative to the current directory.
--   `func Command(name string, arg ...string) *Cmd` The `Command` function returns the `Cmd` struct with just the path and args set. If name has path separators, then the `LookPath` function is used to confirm the file is found and executable. Otherwise, `name` is used directly as the path. This function behaves slightly differently on Windows. For example, it will execute the whole command line as a single string, including quoted args, then handle its own parsing.
--   `func CommandContext(ctx context.Context, name string, arg ...string) *Cmd` Similar to the `Command` function, but receives context. If the context is executed before the command completes, then it will kill the process by calling `os.Process.Kill`.
-
-Now that we’ve really dived deep into the `os/exec` package and the structs, functions, and methods needed to execute functions, let’s actually use them in code to execute a function externally. Let’s create commands using the `Cmd` struct, but also with the `Command` and `CommandContext` functions. We can then take one example command and run it using either the `Run`, `Output`, or `CombinedOutput` method. Finally, we will handle some errors typically returned from these methods.
-
-Note
-
-If you want to follow along with the examples coming up, within the `Chapter-6` repository, install the necessary applications. In Windows, use the `.\build-windows.p1` PowerShell script. In Darwin, use the `make install` command. Once the applications are installed, run `go` `run main.go`.
-
-## Creating commands using the Cmd struct
-
-There are several different ways of creating commands. The first way is with the `Cmd` struct within the `exec` package.
-
-### Using the Cmd struct
-
-We first define the `cmd` variable with an unset `Cmd` structure. The following code resides in `/examples/command.go` within the `CreateCommandUsingStruct` function:
+The [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) code exists on GitHub in the `environment.go` file, where we have provided some sample code demonstrating using these operations:
 
 ```markup
-cmd := exec.Cmd{}
-```
-
-Each field is set separately. The path is set using `filepath.Join`, which is safe for use across different operating systems:
-
-```markup
-cmd.Path = filepath.Join(os.Getenv("GOPATH"), "bin", "uppercase")
-```
-
-Each field is set separately. The `Args` field contains the command name in the `Args[0]` position, followed by the rest of the arguments to be passed in:
-
-```markup
-cmd.Args = []string{"uppercase", "hack the planet"}
-```
-
-The following three file descriptors are set – `Stdin`, `Stdout`, and `Stderr`:
-
-```markup
-cmd.Stdin = os.Stdin // io.Reader
-cmd.Stdout = os.Stdout // io.Writer
-cmd.Stderr = os.Stderr // io.Writer
-```
-
-However, there’s a `writer`, file descriptor that’s passed into the `ExtraFiles` field. This specific field is inherited by the command process. It’s important to note that a pipe won’t work if you don’t pass the writer in `ExtraFiles`, because the child must get the writer to be able to write to it:
-
-```markup
-reader, writer, err := os.Pipe()
-if err != nil {
-    panic(err)
-}
-cmd.ExtraFiles = []*os.File{writer}
-if err := cmd.Start(); err != nil {
-    panic(err)
-}
-```
-
-Within the actual uppercase command that’s called, there’s code in `cmd/uppercase/uppercase.go` that takes the first argument after the command name and changes the case to uppercase. The new uppercased text is then encoded into the pipe or extra file descriptor:
-
-```markup
-input := os.Args[1:]
-output := strings.ToUpper(strings.Join(input, ""))
-pipe := os.NewFile(uintptr(3), "pipe")
-err := json.NewEncoder(pipe).Encode(output)
-if err != nil {
-    panic(err)
-}
-```
-
-Back to the `CreateCommandUsingStruct` function, the value that’s encoded into the pipe can now be read via the `read` file descriptor of the pipe and then output with the following code:
-
-```markup
-var data string
-decoder := json.NewDecoder(reader)
-if err := decoder.Decode(&data); err != nil {
-    panic(err)
-}
-fmt.Println(data)
-```
-
-We now know one way of creating a command using the `Cmd` struct. Everything could have been defined at once at the same time as the command was initialized and depends on your preference.
-
-### Using the Command function
-
-Another way to create a command is with the `exec.Command` function. The following code resides in `/examples/command.go` within `CreateCommandUsingCommandFunction`:
-
-```markup
-cmd := exec.Command(filepath.Join(os.Getenv("GOPATH"), "bin", "uppercase"), "hello world")
-reader, writer, err := os.Pipe()
-if err != nil {
-    panic(err)
-}
-```
-
-The `exec.Command` function takes the file path to the command as the first argument. A slice of strings representing the arguments is optionally passed for the remaining parameters. The rest of the function is the same. Because `exec.Command` does not take any additional parameters, we similarly define the `ExtraFiles` field outside the original variable initialization.
-
-## Running the command
-
-Now that we know how to create commands, there are multiple different ways to run or start running a command. While each of these methods has already been described in detail earlier in this section, we’ll now share an example of using each.
-
-### Using the Run method
-
-The `Run` method, as mentioned earlier, starts the command process, and then waits for its completion. The code for this is called from the `main.go` file but can be found under `/examples/running.go`. In this example, we call a different command called `lettercount`, which counts the letters in a string and then prints out the result:
-
-```markup
-cmd := exec.Command(filepath.Join(os.Getenv("GOPATH"), "bin", "lettercount"), "four")
-cmd.Stdin = os.Stdin
-cmd.Stdout = os.Stdout
-cmd.Stderr = os.Stderr
-var count int
-```
-
-Again, we use the `ExtraFiles` field to pass in an additional file descriptor to write the result to:
-
-```markup
-reader, writer, err := os.Pipe()
-if err != nil {
-    panic(err)
-}
-cmd.ExtraFiles = []*os.File{writer}
-if err := cmd.Run(); err != nil {
-    panic(err)
-}
-if err := json.NewDecoder(reader).Decode(&count); err != nil {
-    panic(err)
-}
-```
-
-The result is finally printed with the following code:
-
-```markup
-fmt.Println("letter count: ", count)
-```
-
-### Using the Start command
-
-The `Start` method is like the `Run` method; however, it doesn’t wait for the process to complete. You can find the code that uses the `Start` command in `examples/running.go`. For the most part, it’s identical, but you’ll be replacing the code block containing `cmd.Run` with the following:
-
-```markup
-if err := cmd.Start(); err != nil {
-    panic(err)
-}
-err = cmd.Wait()
-if err != nil {
-    panic(err)
-}
-```
-
-It’s very important to call the `cmd.Wait` method because it releases resources taken by the command process.
-
-### Using the Output command
-
-As the method name suggests, the `Output` method returns anything that’s been piped into the standard out pipe. The most common way to push from a command to the standard output pipe is through any of the print methods in the `fmt` package. An additional line is added to the end of the `main` function for the `lettercount` command:
-
-```markup
-fmt.Printf("successfully counted the letters of \"%v\" as %d\n", input, len(runes))
-```
-
-The only difference within the code that utilizes this `Output` method, which can be found in the `examples/running.go` file under the `OutputMethod` function, is this line of code:
-
-```markup
-out, err := cmd.Output()
-```
-
-The `out` variable is a byte slice that can later be cast to a string to be printed out. This variable captures the standard out and when the function is run, the output displayed is as follows:
-
-```markup
-output: successfully counted the letters of "four" as 4
-```
-
-### Using the CombinedOutput command
-
-As the method name suggests, the `CombinedOutput` method returns a combined output of the standard output and standard error piped data. Add a line toward the end of the `lettercount` command’s `main` function:
-
-```markup
-fmt.Fprintln(os.Stderr, "this is where the errors go")
-```
-
-The only big difference between the calls from the previous function and the current function, `CombinedOutputMethod`, is this line:
-
-```markup
-CombinedOutput, err := cmd.CombinedOutput()
-```
-
-Similarly, it returns a byte slice, but now contains the combined output of standard error and standard output.
-
-### Executing commands on Windows
-
-Alongside the examples are similar files that end with `_windows.go`. The major thing to note, in the previous examples, is that `ExtraFiles` is not supported on Windows. These Windows-specific and simple examples execute an external `ping` command to `google.com`. Let’s take a look at one:
-
-```markup
-func CreateCommandUsingCommandFunction() {
-    cmd := exec.Command("cmd", "/C", "ping", "google.com")
-    output, err := cmd.CombinedOutput()
+func environment() {
+    dir, err := os.Getwd()
     if err != nil {
-        panic(err)
+        fmt.Println("error getting working directory:", err)
     }
-    fmt.Println(string(output))
-}
-```
-
-Like the commands we’ve written for Darwin, we can create commands using the `exec.Command` function or the struct and call `Run`, `Start`, `Wait`, `Output`, and `CombinedOutput` just the same.
-
-Also, for pagination, `less` is used on Linux and UNIX machines, but `more` is used on Windows. Let’s quickly show this code:
-
-```markup
-func Pagination() {
-    moreCmd := exec.Command("cmd", "/C", "more")
-    moreCmd.Stdin = strings.NewReader(blob)
-    moreCmd.Stdout = os.Stdout
-    moreCmd.Stderr = os.Stderr
-    err := moreCmd.Run()
+    fmt.Println("retrieved working directory: ", dir)
+    fmt.Println("setting WORKING_DIR to", dir)
+    err = os.Setenv("WORKING_DIR", dir)
     if err != nil {
-        panic(err)
+        fmt.Println("error setting working directory:", err)
     }
-}
-var (
-    blob = `
-    …
-    `
-)
-```
-
-Similarly, we can pass in the name and all arguments using the `exec.Command` method. We also pass the long text into the `moreCmd.Stdin` field.
-
-So, the `os/exec` package offers different ways to create and run external commands. Whether you create a quick command using the `exec.Command` method or directly create one with the `exec.Cmd` struct and then run the `Start` command, you have options. Finally, you can either retrieve the standard output and error output separately or together. Knowing all about the `os/exec` package will make it easy to successfully run external commands from your Go command-line application.
-
-Just Imagine
-
-# Interacting with REST APIs
-
-Often, if a company or user has already created an API, the command-line application will send requests to either the REST API or the gRPC endpoints. Let’s first talk about using REST API endpoints. It is important to understand the `net/http` package. It’s quite a large package with many types, methods, and functions, many of which are used for development on the server side. In this context, the command-line application will be the client of the API, so we won’t discuss each in detail. We’ll go into a few basic use cases from the client side though.
-
-## Get request
-
-Let’s revisit the code from [_Chapter 3_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_03.xhtml#_idTextAnchor061), _Building an Audio Metadata CLI_. Within the `Run` command of the CLI command code, found in the `/cmd/cli/command/get.go` file, is a snippet of code that calls the corresponding API request endpoint using the `GET` method:
-
-```markup
-params := "id=" + url.QueryEscape(cmd.id)
-path := fmt.Sprintf("http://localhost/request?%s", params)
-payload := &bytes.Buffer{}
-method := "GET"
-client := cmd.client
-```
-
-Notice that in the preceding code, we take the field value, `id`, which has been set on the `cmd` variable, and pass it into the HTTP request as a parameter. Consider the flags and arguments to be passed which are to be used as parameters for your HTTP request. The following code executes the request:
-
-```markup
-req, err := http.NewRequest(method, path, payload)
-if err != nil {
-    return err
-}
-resp, err := client.Do(req)
-if err != nil {
-    return err
-}
-defer resp.Body.Close()
-```
-
-Finally, the response is read into a byte string and printed. Prior to accessing the body of the response, check whether the response or body is `nil`. This can save you from some future headaches:
-
-```markup
-b, err := io.ReadAll(resp.Body)
-if err != nil {
-    return err
-}
-fmt.Println(string(b))
-return nil
-```
-
-However, in reality, there will be much more done with the response:
-
-1.  **Check the response status code**: If the response is `200` `OK`, then we can return the output as it was a successful response. Otherwise, in the next section, _Handling the expected – timeouts and errors_, we’ll discuss how to handle other responses.
-2.  **Log the response**: We may, ideally, log the response if it doesn’t contain any sensitive data. This detailed information can be written to a log file or output when in verbose mode.
-3.  **Store the response**: Sometimes, the response may be stored in a local database or cache.
-4.  **Transform the data**: This returned data may also be unmarshaled into a local data struct. The struct types of data returned must be defined and, preferably, would utilize the same struct models defined within the API. In that case, if `Content-Type` in the header is set to `application/json`, we would unmarshal the JSON response into the struct.
-
-Currently, in the audiofile application, we transform the data into an `Audio` struct like this:
-
-```markup
-var audio Audio
-If err := json.Unmarshal(b, &audio); err != nil {
-    fmt.Println("error unmarshalling JSON response"
-}
-```
-
-But what if the response body isn’t in JSON format and the content type is something else? In a perfect world, we’d have API documentation that informs us of what to expect so we can handle it accordingly. Alternatively, you can check to confirm the type first using the following:
-
-```markup
-contentType := http.DetectContentType(b) // b are the bytes from reading the resp.Body
-```
-
-A quick search on the internet for HTTP content types will return a large list. In the preceding example, the audio company might have decided to return a `Content-Type` value of `audio/wave`. In that case, we could either download or stream the result. There are also different HTTP method types defined as constants within the `net/http` package:
-
--   `MethodGet`: Used when requesting data
--   `MethodPost`: Used for inserting data
--   `MethodPut`: Request is idempotent, used for inserting or updating an entire resource
--   `MethodPatch`: Similar to `MethodPut`, but sends only partial data to update without modifying the entire resource
--   `MethodDelete`: Used for deleting or removing data
--   `MethodConnect`: Used when talking to a proxy, when the URI begins with `https://`
--   `MethodOptions`: Used to describe the communication options, or allowed methods, with the target
--   `MethodTrace`: Used for debugging by providing a message loop-back along the path of the target
-
-There are many possibilities for the method types and content types of data returned. In the preceding `Get` example, we use a client’s `Do` method to call the method. Another option is to use the `http.Get` method. If we use that method, then we would use this code instead to execute the request:
-
-```markup
-resp, err := http.Get(path)
-if err != nil {
-    return err
-}
-defer resp.Body.Close()
-```
-
-Similarly, rather than using the `client.Do` method for a post or to post a form, there are specific `http.Post` and `http.PostForm` methods that can be used instead. There are times when one method works better for what you are doing. At this point, it’s just important to understand your options.
-
-## Pagination
-
-Suppose there is a large amount of data being returned by the request. Rather than overloading the client by receiving the data all at once, often pagination is an option. There are two fields that can be passed in as parameters to the call:
-
--   `Limit`: The number of objects to be returned
--   `Page`: The cursor for multiple pages of results returned
-
-We can define these internally and then formulate the path as follows:
-
-```markup
-path := fmt.Sprintf("http://localhost/request?limit=%d&page=%d", limit, page)
-```
-
-Make sure, if you’re using an external API, to construct their documentation with the proper parameters for pagination and usage. This is just a general example. In fact, there are several other ways of doing pagination. You can send additional requests in a loop, incrementing the page until all data is retrieved.
-
-From the command side, however, you could return all the data after pagination, but you can also handle pagination on the CLI side. A way to handle it on the client side after a large amount of data is collected from an HTTP `Get` request is to pipe the data. This data can be piped into the operating system’s pager command. For UNIX, `less` is the pager command. We create the command and then pipe the string output to the `Stdin` pipe. This code can be found in the `examples/pagination.go` file. Similar to the other examples we’ve shared when creating a command, we create a pipe and pass in the writer as an extra file descriptor to the command so that data may be written out:
-
-```markup
-pagesCmd := exec.Command(filepath.Join(os.Getenv("GOPATH"), "bin", "pages"))
-reader, writer, err := os.Pipe()
-if err != nil {
-    panic(err)
-}
-pagesCmd.Stdin = os.Stdin
-pagesCmd.Stdout = os.Stdout
-pagesCmd.Stderr = os.Stderr
-pagesCmd.ExtraFiles = []*os.File{writer}
-if err := pagesCmd.Run(); err != nil {
-    panic(err)
-}
-```
-
-Again, the data from the reader is decoded into the `data` `string` variable:
-
-```markup
-var data string
-decoder := json.NewDecoder(reader)
-if err := decoder.Decode(&data); err != nil {
-    panic(err)
-}
-```
-
-This string is then passed into the `Strings.NewReader` method and defined as the input for the `less` UNIX command:
-
-```markup
-lessCmd := exec.Command("/usr/bin/less")
-lessCmd.Stdin = strings.NewReader(data)
-lessCmd.Stdout = os.Stdout
-err = lessCmd.Run()
-if err != nil {
-    panic(err)
-}
-```
-
-When the command is run, the data is output as pages. The user then can press the spacebar to continue to the next page or use any of the command keys to navigate the data output.
-
-## Rate limiting
-
-Often, when dealing with third-party APIs, there’s a limit to how many requests can be handled within a particular time. This is commonly known as **rate limiting**. For a single command, you might require multiple requests to an HTTP endpoint and so you might prefer to limit how often you’re sending these requests. Most public APIs will inform users of their rate limits, but there are times when you’ll hit the rate limit of an API unexpectedly. We’ll discuss how to limit your requests to stay within the limits.
-
-There is a useful library, `x/time/rate`, that can be used to define the limit, which is how often something should be executed, and limiters that control the process from executing within the limit. Let’s use some example code, supposing we want to execute something every five seconds.
-
-The code for this particular example is located in the `examples/limiting.go` file. To reiterate, this is just an example and there are different ways to use `runner`. We’re going to cover just a basic use case. We start by defining a struct that contains a function, `Run`, and the `limiter` field, which controls how often it will run. The `Limit()` function will use the `runner` struct to call a function within a rate limit:
-
-```markup
-type runner struct {
-    Run func() bool
-    limiter *rate.Limiter
-}
-func Limit() {
-    thing := runner{}
-    start := time.Now()
-```
-
-After defining `thing` as a `runner` instance, we get the start time and then define the function of `thing`. If the call is allowed within the time, because it does not exceed the limit, we print the current timestamp and return a `false` variable. We exit the function when at least 30 seconds have passed:
-
-```markup
-    thing.Run = func() bool {
-        if thing.limiter.Allow() {
-            fmt.Println(time.Now()) // or call request
-            return false
-        }
-        if time.Since(start) > 30*time.Second {
-            return true
-        }
-        return false
+    fmt.Println(os.ExpandEnv("WORKING_DIR=${WORKING_DIR}"))
+    fmt.Println("unsetting WORKING_DIR")
+    err = os.Unsetenv("WORKING_DIR")
+    if err != nil {
+        fmt.Println("error unsetting working directory:", err)
     }
-```
-
-We define the limiter for `thing`. We’ve used a customer variable, which we’ll look at in more detail shortly. Simply, the `NewLimiter` method takes two variables. The first parameter is the limit, one event every five seconds, and the second parameter allows bursts for, at most, a single token:
-
-```markup
-    thing.limiter = rate.NewLimiter(forEvery(1, 5*time.
-    Second),     1)
-```
-
-For those not familiar with the difference between a limit and a burst, a burst defines the number of concurrent requests the API can handle. The rate limit is the number of requests allowed per the defined time.
-
-Next, inside a `for` loop, we call the `Run` function and only break when it returns `true`, which should be after 30 seconds have passed:
-
-```markup
-    for {
-        if thing.Run() {
-            break
-        }
+    fmt.Println(os.ExpandEnv("WORKING_DIR=${WORKING_DIR}"))
+    fmt.Printf("There are %d environment variables:\n", len(os.
+        Environ()))
+    for _, envar := range os.Environ() {
+        fmt.Println("\t", envar)
     }
 }
 ```
 
-As mentioned, the `forEvery` function, which returns a rate limit, is passed into the `NewLimiter` method. It simply calls the `rate.Every` method, which takes the minimum time interval between events and converts it into a limit:
+To briefly describe the preceding code, we first get the working directory, then set it to the `WORKING_DIR` environment variable. To show the change, we utilize `os.ExpandEnv` to print the key-value pair. We then unset the `WORKING_DIR` environment variable. Again, we show it is unset by using `os.ExpandEnv` to print out the key-value pair. The `os.ExpandEnv` variable will print an empty string if the environment variable is unset. Finally, we print out the count of the environment variables and then range through all to print them. Running the preceding code will produce the following output:
 
 ```markup
-func forEvery(eventCount int, duration time.Duration) rate.Limit {
-    return rate.Every(duration / time.Duration(eventCount))
+retrieved working directory:  /Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7
+setting WORKING_DIR to /Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7
+WORKING_DIR=/Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7
+There are 44 environment variables.
+key=WORKING_DIR, value=/Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7
+unsetting WORKING_DIR
+WORKING_DIR=
+```
+
+If you run this code on your machine rather than Linux, Unix, or Windows, the resulting output will be similar. Try for yourself.
+
+Notes on running the following examples
+
+To run the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) examples, you’ll first need to run the install command to install the sleep command to your GOPATH. On Unix-like systems, run the `make install` command followed by the `make run` command. On Linux systems, run the `./build-linux.sh` script followed by the `./run-linux.sh` script. On Windows, run `.\build-windows.ps1` followed by the `.\run-windows.ps1` Powershell script.
+
+### File operations
+
+The `os` package also offers a wide variety of file operations that can be applied universally across different operating systems. Many functions and methods can be applied to files, so rather than going over each by name, I will group the functionality and name a few of each:
+
+-   The following can be used to change file, directory, and link permissions and owners:
+    -   `func Chmod(name string, mode` `FileMode) error`
+    -   `func Chown(name string uid, gid` `int) error`
+    -   `func Lchown(name string uid, gid` `int) error`
+-   The following can be used to create pipes, files, directories, and links:
+    -   `func Pipe() (r *File, w *File,` `err error)`
+    -   `func Create(name string) (*``File, error)`
+    -   `func Mkdir(name string, perm` `FileMode) error`
+    -   `func Link(oldname, newname` `string) error`
+-   The following are used to read from files, directories, and links:
+    -   `func ReadFile(name string) ([]``byte, error)`
+    -   `func ReadDir(name string) ([]``DirEntry, error)`
+    -   `func Readlink(name string) (``string, error)`
+-   The following retrieve user-specific data:
+    -   `func UserCacheDir() (``string, error)`
+    -   `func UserConfigDir() (``string, error)`
+    -   func UserHomeDir() (string, error)
+-   The following are used to write to files:
+    -   func (f \*File) Write(b \[\]byte) (n int, err error)
+    -   func (f \*File) WriteString(s string) (n int, err error)
+    -   `func WriteFile(name string, data []byte, perm` `FileMode) error`
+-   The following are used for file comparison:
+    -   `func SameFile(fi1, fi2` `FileInfo) bool`
+
+There is a `file.go` file within the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) code on GitHub in which we have some sample code using these operations. Within the file are multiple functions, the first, `func createFiles() error`, handles the creation of three files to play around with:
+
+```markup
+func createFiles() error {
+    filename1 := "file1"
+    filename2 := "file2"
+    filename3 := "file3"
+    f1, err := os.Create(filename1)
+    if err != nil {
+        return fmt.Errorf("error creating %s: %v\n", filename1, 
+          err)
+    }
+    defer f1.Close()
+    f1.WriteString("abc")
+    f2, err := os.Create(filename2)
+    if err != nil {
+        return fmt.Errorf("error creating %s: %v\n", filename2, 
+          err)
+    }
+    defer f2.Close()
+    f2.WriteString("123")
+    f3, err := os.Create(filename3)
+    if err != nil {
+        return fmt.Errorf("error creating %s: %v", filename3, 
+          err)
+    }
+    defer f3.Close()
+    f3.WriteString("xyz")
+    return nil
 }
 ```
 
-We run this code and the timestamps are output. Notice that they are output every five seconds:
+The `os.Create` method allows file creation to work seamlessly on different operating systems. The next function, `file()`, utilizes these files to show how to use methods that exist within the `os` package. The `file()` function primarily gets or changes the current working directory and runs different functions, including the following:
+
+-   `func createExamplesDir() (string, error)`: This creates an `examples` directory in the user’s home directory
+-   `func printFiles(dir string) error`: This prints the files/directories under the directory represented by `dir string`
+-   `func sameFileCheck(f1, f2 string) error`: This checks whether two files, represented by the `f1` and `f2` strings are the same file
+
+Let’s first show the `file()` function to get the overall gist of what is going on:
 
 ```markup
-2022-09-11 18:45:44.356917 -0700 PDT m=+0.000891459
-2022-09-11 18:45:49.356877 -0700 PDT m=+5.000891042
-2022-09-11 18:45:54.356837 -0700 PDT m=+10.000891084
-2022-09-11 18:45:59.356797 -0700 PDT m=+15.000891084
-2022-09-11 18:46:04.356757 -0700 PDT m=+20.000891167
-2022-09-11 18:46:09.356718 -0700 PDT m=+25.000891167
+originalWorkingDir, err := os.Getwd()
+if err != nil {
+    fmt.Println("getting working directory: ", err)
+}
+fmt.Println("working directory: ", originalWorkingDir)
+examplesDir, err := createExamplesDir()
+if err != nil {
+    fmt.Println("creating examples directory: ", err)
+}
+err = os.Chdir(examplesDir)
+if err != nil {
+    fmt.Println("changing directory error:", err)
+}
+fmt.Println("changed working directory: ", examplesDir)
+workingDir, err := os.Getwd()
+if err != nil {
+    fmt.Println("getting working directory: ", err)
+}
+fmt.Println("working directory: ", workingDir)
+createFiles()
+err = printFiles(workingDir)
+if err != nil {
+    fmt.Printf("Error printing files in %s\n", workingDir)
+}
+err = os.Chdir(originalWorkingDir)
+if err != nil {
+    fmt.Println("changing directory error: ", err)
+}
+fmt.Println("working directory: ", workingDir)
+symlink := filepath.Join(originalWorkingDir, "examplesLink")
+err = os.Symlink(examplesDir, symlink)
+if err != nil {
+    fmt.Println("error creating symlink: ", err)
+}
+fmt.Printf("created symlink, %s, to %s\n", symlink, examplesDir)
+err = printFiles(symlink)
+if err != nil {
+    fmt.Printf("Error printing files in %s\n", workingDir)
+}
+file := filepath.Join(examplesDir, "file1")
+linkedFile := filepath.Join(symlink, "file1")
+err = sameFileCheck(file, linkedFile)
+if err != nil {
+    fmt.Println("unable to do same file check: ", err)
+}
+// cleanup
+err = os.Remove(symlink)
+if err != nil {
+    fmt.Println("removing symlink error: ", err)
+}
+err = os.RemoveAll(examplesDir)
+if err != nil {
+    fmt.Println("removing directory error: ", err)
+}
 ```
 
-There are other ways of handling limiting requests, such as using a `time.Sleep(d Duration)` method after the code that is called inside a loop. I suggest using the `rate` package because it is great for not only limiting executions but also handling bursts. It has a lot more functionality that can be used for more complex situations when you are sending requests to an external API.
+Let’s walk through the preceding code. First, we get the current working directory and print it out. Then, we call the `createExamplesDir()` function and change direction into it.
 
-You’ve now learned how to send requests to external APIs and how to handle the response, and when you receive a successful response, how to transform and paginate the results. Also, because rate limiting is commonly required for APIs, we’ve discussed how to do that. Since this section has only handled the case of success, let’s consider how to handle the case of failure in the following section.
+We then get the current working directory after we change it to ensure it’s now the `examplesDir` value. Next, we call the `createFiles()` function to create those three files inside the `examplesDir` folder and call the `printFiles()` function to list the files in the `examplesDir` working directory.
 
-Just Imagine
+We change the working directory back to the original working directory and create a `symlink` to the `examplesDir` folder under the home directory. We print the files existing under the `symlink` to see that they are equal.
 
-# Handling the expected – timeouts and errors
+Next, we take `file0` from `examplesDir` and `file0` from `symlink` and compare them within the `sameFileCheck` function to ensure they are equal.
 
-When building a CLI that calls external commands or sends HTTP requests to an external API, with data that is passed in by the user, it’s a good idea to expect the unexpected. In a perfect world, you can guard against bad data. I’m sure you are familiar with the phrase _garbage in_, _garbage out._ You can create tests that also ensure that your code is covered for as many bad cases as you can think of. However, timeouts and errors happen. It’s the nature of software, and as you come across them within your development and also in production, you can modify your code to handle new cases.
+Finally, we run some cleanup functions to remove the `symlink` and `examplesDir` folders.
 
-## Timeouts with external command processes
-
-Let’s first discuss how to handle timeouts when calling external commands. The timeout code exists within the `examples/timeout.go` file. The following is the entire method, which calls the `timeout` command. If you take a look at the `timeout` command code, located within `cmd/timeout/timeout.go`, you’ll see that it contains a basic infinite loop. This command will time out, but we need to handle the timeout with the following code:
+The `file` function utilizes many methods available in the `os` package, from getting the working directory to changing it, creating a `symlink`, and removing files and directories. Showing the separate function call code will give more uses of the `os` package. First, let’s show the code for `createExamplesDir`:
 
 ```markup
-func Timeout() {
-    errChan := make(chan error, 1)
+func createExamplesDir() (string, error) {
+    homeDir, err := os.UserHomeDir()
+    if err != nil {
+        return "", fmt.Errorf("getting user's home directory: 
+          %v\n", err)
+    }
+    fmt.Println("home directory: ", homeDir)
+    examplesDir := filepath.Join(homeDir, "examples")
+    err = os.Mkdir(examplesDir, os.FileMode(int(0777)))
+    if err != nil {
+        return "", fmt.Errorf("making directory error: %v\n", 
+          err)
+    }
+    fmt.Println("created: ", examplesDir)
+    return examplesDir, nil
+}
+```
+
+The preceding code uses the `os` package when getting the user’s home directory with the `os.UserHomeDir` method and then creates a new folder with the `os.Mkdir` method. The next function, `printFiles`, gets the files to print from the `os.ReadDir` method:
+
+```markup
+func printFiles(dir string) error {
+    files, err := os.ReadDir(dir)
+    if err != nil {
+        return fmt.Errorf("read directory error: %s\n", err)
+    }
+    fmt.Printf("files in %s:\n", dir)
+    for i, file := range files {
+        fmt.Printf(" %v %v\n", i, file.Name())
+    }
+    return nil
+}
+```
+
+Lastly, `sameFileCheck` takes two files represented by strings, `f1` and `f2`. To get the file info for each file, the `os.Lstat` method is called on the file string. `os.SameFile` takes this file info and returns a `boolean` value to symbolize the result – `true` if the files are the same and `false` if not:
+
+```markup
+func sameFileCheck(f1, f2 string) error {
+    fileInfo0, err := os.Lstat(f1)
+    if err != nil {
+        return fmt.Errorf("getting fileinfo: %v", err)
+    }
+    fileInfo0Linked, err := os.Lstat(f2)
+    if err != nil {
+        return fmt.Errorf("getting fileinfo: %v", err)
+    }
+    isSameFile := os.SameFile(fileInfo0, fileInfo0Linked)
+    if isSameFile {
+        fmt.Printf("%s and %s are the same file.\n", fileInfo0.
+            Name(), fileInfo0Linked.Name())
+    } else {
+    fmt.Printf("%s and %s are NOT the same file.\n", fileInfo0.
+        Name(), fileInfo0Linked.Name())
+    }
+    return nil
+}
+```
+
+This concludes the code samples utilizing methods from the `os` package related to file operations. Next, we will discuss some operations related to processes running on the machine.
+
+### Process operations
+
+When calling external commands, we can get a **process ID** (**pid**), associated with the process. Within the `os` package, we can perform actions on the process, send the process signals, or wait for the process to complete and then receive a process state with information regarding the process that was completed. In the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) code, we have a `process()` function, which utilizes some of the following methods for processes and process states:
+
+-   `func Getegid() int`: This returns the effective group ID of the caller. Note, this is not supported in Windows, the concept of group IDs is specific to Unix-like or Linux systems. For example, this will return `–1` on Windows.
+-   `func Geteuid() int`: This returns the effective user ID of the caller. Note, this is not supported in Windows, the concept of user IDs is specific to Unix-like or Linux systems. For example, this will return `-1` on Windows.
+-   `func Getpid() int`: This gets the process ID of the caller.
+-   `func FindProcess(pid int) (*Process, error)`: This returns the process associated with the `pid`.
+-   `func (p *Process) Wait() (*ProcessState, error)`: This returns the process state when the process completes.
+-   `func (p *ProcessState) Exited() bool`: This returns `true` if the process exited.
+-   `func (p *ProcessState) Success() bool`: This returns `true` if the process exited successfully.
+-   `func (p *ProcessState) ExitCode() int`: This returns the exit code of the process.
+-   `func (p *ProcessState) String() string`: This returns the process state in string format.
+
+The code is as follows and starts with several print line statements that return the caller’s effective group, user, and process ID. Next, a `cmd` sleep command is defined. The command is started and from the `cmd` value, and we get the pid:
+
+```markup
+func process() {
+    fmt.Println("Caller group id:", os.Getegid())
+    fmt.Println("Caller user id:", os.Geteuid())
+    fmt.Println("Process id of caller", os.Getpid())
     cmd := exec.Command(filepath.Join(os.Getenv("GOPATH"), 
-           "bin", "timeout"))
+           "bin", "sleep"))
+    fmt.Println("running sleep for 1 second...")
     if err := cmd.Start(); err != nil {
         panic(err)
     }
-    go func() {
-        errChan <- cmd.Wait()
-    }()
-    select {
-        case <-time.After(time.Second * 10):
-            fmt.Println("timeout command timed out")
-            return
-        case err := <-errChan:
+    fmt.Println("Process id of sleep", cmd.Process.Pid)
+    this, err := os.FindProcess(cmd.Process.Pid)
+    if err != nil {
+        fmt.Println("unable to find process with id: ", cmd.
+            Process.Pid)
+    }
+    processState, err := this.Wait()
+    if err != nil {
+        panic(err)
+    }
+    if processState.Exited() && processState.Success() {
+        fmt.Println("Sleep process ran successfully with exit 
+            code: ", processState.ExitCode())
+    } else {
+        fmt.Println("Sleep process failed with exit code: ", 
+            processState.ExitCode())
+    }
+    fmt.Println(processState.String())
+}
+```
+
+From the process' pid, we then can find the process using the `os.FindProcess` method. We call the `Wait()` method in the process to get `os.ProcessState`. This `Wait()` method, like the `cmd.Wait()` method, waits for the process to complete. Once completed, the process state is returned. We can check whether the process state is exited with the `Exited()` method and whether it was successful with the `Success()` method. If so, we print that the process ran successfully along with the exit code, which we get from the `ExitCode()` method. Finally, the process state can be printed cleanly with the `String()` method.
+
+## The time package
+
+Operating systems provide access to time via two different types of internal clocks:
+
+-   **A wall clock**: This is used for telling the time and is subject to variations due to clock synchronization with the **Network Time** **Protocol** (**NTP**)
+-   **A monotonic clock**: This is used for measuring time and is not subject to variations due to clock synchronization
+
+To be more specific on the variations, if the wall clock notices that it is moving faster or slower than the NTP, it will adjust its clock rate. The monotonic clock will not adjust. When measuring durations, it’s important to use the monotonic clock. Luckily with Go, the `Time` struct contains both the wall and monotonic clocks, and we don’t need to specify which is used. Within the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) code, there is a `timer.go` file, which shows how to get the current time and duration, regardless of the operating system:
+
+```markup
+func timer() {
+    start := time.Now()
+    fmt.Println("start time: ", start)
+    time.Sleep(1 * time.Second)
+    elapsed := time.Until(start)
+    fmt.Println("elapsed time: ", elapsed)
+}
+```
+
+When running the following code, you’ll see a similar output:
+
+```markup
+start time:  2022-09-24 23:47:38.964133 -0700 PDT m=+0.000657043
+elapsed time:  -1.002107875s
+```
+
+Also, many of you have also seen that there is a `time.Now().Unix()` method. It returns to the epoch time, or time that has elapsed since the Unix epoch, January 1, 1970, UTC. These methods will work similarly regardless of the operating system and architecture they are run on.
+
+## The path package
+
+When developing a command-line application for different operating systems, you’ll most likely have to deal with handling file or directory path names. In order to handle these appropriately across different operating systems, you’ll need to use the `path` package. Because this package does not handle Windows paths with drive letters or backslashes, as we used in the previous examples, we’ll use the `path/filepath` package.
+
+The `path/filepath` package uses either forward or back slashes depending on the operating system. Just for fun, within the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) `walking.go` file, I’ve used the `filepath` package to walk through a directory. Let’s look at the code:
+
+```markup
+func walking() {
+    workingDir, err := os.Getwd()
+    if err != nil {
+        panic(err)
+    }
+    dir1 := filepath.Join(workingDir, "dir1")
+    filepath.WalkDir(dir1, func(path string, d fs.DirEntry, err 
+      error) error {
+        if !d.IsDir() {
+            contents, err := os.ReadFile(path)
             if err != nil {
-                fmt.Println("timeout error:", err)
+                return err
             }
-    }
-}
-```
-
-We first define an error channel, `errChan`, which will receive any error returned from the `cmd.Wait()` method. The command, `cmd`, is then defined, and next `cmd`’s `Start` method is called to initiate the external process. Within a Go function, we wait for the command to return using the `cmd.Wait()` method. `errChan` will only receive the error value once the command has exited and the copying to standard input and standard error has completed. Within the following `select` block, we wait to receive from two different channels. The first case waits for the time returned after 10 seconds. The second case waits for the command to complete and receive the error value. This code allows us to gracefully handle any timeout issues.
-
-## Errors or panics with external command processes
-
-First, let’s define the difference between errors and panics. Errors occur when the application can be recovered but is in an abnormal state. If a panic occurs, then something unexpected happened. For example, we try to access a field on a `nil` pointer or attempt to access an index that is out of bounds for an array. We can start by handling errors.
-
-There are a couple of errors that exist within the `os/exec` package:
-
--   `exec.ErrDot`: Error when the file path of the command failed to resolve within the current directory, `"."`, hence the name `ErrDot`
--   `exec.ErrNotFound`: Error when the executable fails to resolve in the defined file path
-
-You can check for the type to handle each error uniquely.
-
-### Handling errors when a command’s path cannot be found
-
-The following code exists within the `examples/error.go` file in the `HandlingDoesNotExistErrors` function:
-
-```markup
-cmd := exec.Command("doesnotexist", "arg1")
-if errors.Is(cmd.Err, exec.ErrDot) {
-    fmt.Println("path lookup resolved to a local directory")
-}
-if err := cmd.Run(); err != nil {
-    if errors.Is(err, exec.ErrNotFound) {
-        fmt.Println("executable failed to resolve")
-    }
-}
-```
-
-When checking the type of the command, use the `errors.Is` method, rather than checking whether `cmd.Err == exec.ErrDot` because the error is not returned directly. The `errors.Is` method checks the error chain for any occurrence of the specific error type.
-
-### Handling other errors
-
-Also, within the `examples/error.go` file is handling an error thrown by the command process itself. This second method, `HandlingOtherMethods`, sets the command’s standard error to a buffer that we can later use if an error is returned from the command. Let’s take a look at the code:
-
-```markup
-cmd := exec.Command(filepath.Join(os.Getenv("GOPATH"), "bin", "error"))
-var out bytes.Buffer
-var stderr bytes.Buffer
-cmd.Stdout = &out
-cmd.Stderr = &stderr
-if err := cmd.Run(); err != nil {
-    fmt.Println(fmt.Sprint(err) + ": " + stderr.String())
-    return
-}
-fmt.Println(out.String())
-```
-
-When an error is encountered, we print not only the error, `exit status 1`, but also any data that has been piped into the standard error pipe, which should give the users more detail on why the error occurred.
-
-To further understand how this code works, let’s take a look at the error command implementation that exists in the `cmd/error/error.go` file:
-
-```markup
-func main() {
-    if len(os.Args) != 0 { // not passing in any arguments in this example throws an error
-        fmt.Fprintf(os.Stderr, "missing arguments\n")
-        os.Exit(1)
-    }
-    fmt.Println("executing command with no errors")
-}
-```
-
-Since we are not passing any arguments into the command function, after we check the length of `os.Args`, we print to the standard error pipe the reason we are exiting with a non-zero exit code. This is a very simple way to handle errors in an effective manner. When calling this external process, we just return the errors, but as we’ve all probably experienced, error messages can be a bit cryptic. In later chapters, we will talk about how we can rewrite these to be more human-readable and provide a few examples.
-
-In [_Chapter 4_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_04.xhtml#_idTextAnchor087), _Popular Frameworks for Building CLIs_, we discussed the use of the `RunE` function within the Cobra Command struct, which allows us to return an error value when the command is run. If you are calling an external process within the `RunE` method, then you can capture and return the error to the user, after rewriting it to a more human-readable format, of course!
-
-Panics are handled differently than errors, but it is a good practice to, within your own code, provide a way to recover from a panic gracefully. You can see this code initiated within the `examples/panic.go` file within the `Panic` method. This calls the `panic` command, located in `cmd/panic/panic.go`. This command simply panics and then recovers. It returns the panic message to the standard error pipe, prints the stack, and exits with a non-zero exit code:
-
-```markup
-defer func() {
-    if panicMessage := recover(); panicMessage != nil {
-        fmt.Fprintf(os.Stderr, "(panic) : %v\n", panicMessage)
-        debug.PrintStack()
-        os.Exit(1)
-    }
-}()
-panic("help!")
-```
-
-On the side that runs this command, we handle it just like any other error by capturing the error and printing data piped into the standard error.
-
-## Timeouts and other errors with HTTP requests
-
-Similarly, you could also experience errors when sending requests to an external API server. To be clear, timeouts are considered errors as well. The code for this example is located within `examples/http.go`, which contains two functions:
-
--   `HTTPTimeout()`
--   `HTTPError()`
-
-Before we dig into the previous methods, let’s talk about the code that needs to be running in order for these methods to execute properly.
-
-The `cmd/api/` folder contains the code for defining the handlers and starting an HTTP server locally. The `mux.HandleFunc` method defines the request pattern and matches it to the `handler` function. The server is defined by its address, which runs on localhost, port `8080`, and the `Handler`, `mux`. Finally, the `server.ListenAndServe()` method is called on the defined server:
-
-```markup
-func main() {
-    mux := http.NewServeMux()
-    server := &http.Server{
-        Addr: ":8080",
-        Handler: mux,
-    }
-    mux.HandleFunc("/timeout", timeoutHandler)
-    mux.HandleFunc("/error", errorHandler)
-    err := server.ListenAndServe()
-    if err != nil {
-        fmt.Println("error starting api: ", err)
-        os.Exit(1)
-    }
-}
-```
-
-The timeout handler is defined simply. It waits two seconds before sending the response by using the `time.After(time.Second*2)` channel:
-
-```markup
-func timeoutHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("got /timeout request")
-    <-time.After(time.Second * 2)
-    w.WriteHeader(http.StatusOK)
-    w.Write([]byte("this took a long time"))
-}
-```
-
-The error handler returns a status code of `http.StatusInternalServerError`:
-
-```markup
-func errorHandler(w http.ResponseWriter, r *http.Request) {
-    fmt.Println("got /error request")
-    w.WriteHeader(http.StatusInternalServerError)
-    w.Write([]byte("internal service error"))
-}
-```
-
-In a separate terminal, run the `make install` command inside the root of the repository to start the API server. Now, let’s look at the code that calls each endpoint and show how we handle it. Let’s first discuss the first type of error – the timeout:
-
--   `HTTPTimeout`: Inside the `examples/http.go` file resides the `HTTPTimeout` method. Let’s walk through the code together:
-    -   First, we _define the client_ using the `http.Client` struct, specifying the timeout as one second. Remember that as the timeout handler on the API returns a response after two seconds, the request is sure to timeout:
-
-```markup
-client := http.Client{
-    Timeout: 1 * time.Second,
-}
-```
-
--   Next, we _define the request_: a `GET` method to the `/timeout` endpoint. We pass in an empty body:
-
-```markup
-body := &bytes.Buffer{}
-req, err := http.NewRequest(http.MethodGet, "http://localhost:8080/timeout", body)
-if err != nil {
-    panic(err)
-}
-```
-
--   The client `Do` method is called with the request variable passed in as a parameter. We wait for the server to respond within a second and if not, an error is returned. Any errors returned by the client’s `Do` method will be of the `*url.Error` type. You can access the different fields to this error type, but in the following code, we check whether the error’s `Timeout` method returns `true`. In this statement, we can act however we’d like. We can return the error for now. We can back off and retry or we can exit. It depends on what your specific use case is:
-
-```markup
-resp, err := client.Do(req)
-if err != nil {
-    urlErr := err.(*url.Error)
-    if urlErr.Timeout() {
-        fmt.Println("timeout: ", err)
-        return
-    }
-}
-defer resp.Body.Close()
-```
-
-When this method is executed, the output is printed:
-
-```markup
-timeout:  Get "http://localhost:8080/timeout": context deadline exceeded (Client.Timeout exceeded while awaiting headers)
-```
-
-A timeout is just one error, but there are many others you might encounter. Since the client `Do` method returns a particular error type in the `net/url` package, let’s discuss that. Inside the `net/url` package exists the `url.Error` type definition:
-
-```markup
-type Error struct {
-    Op  string // Operation
-    URL string // URL
-    Err error // Error
-}
-```
-
-The error contains the `Timeout()`method, which returns `true` when a request times out, and it is important to note that when the response status is anything other than `200 OK`, the error is not set. However, the status code indicates an error response. Error responses can be split into two different categories:
-
--   **Client error responses** (status codes range from `400` to `499`) indicate an error on the client’s side. A few examples of this include `Bad Request (400)`, `Unauthorized (401)`, and `Not` `Found (404)`.
--   **Server error messages** (status codes range from `500` to `599`) indicate an error on the server side. A few common examples of this include `Internal Server Error (500)`, `Bad Gateway (502)`, and `Service` `Unavailable (503)`.
-
-`HTTPErrors`: Some sample code of how this can be handled exists within the `examples/http.go` file within the `HTTPErrors` method. Again, it’s important to make sure that the API server is running before executing this code:
-
--   The code within the method starts by calling a `GET` request to the `/``error` endpoint:
-
-```markup
-resp, err := http.Get("http://localhost:8080/error")
-```
-
--   If the error is not `nil`, then we cast it to the `url.Error` type to access the fields and methods within it. For example, we check whether `urlError` is a timeout or a temporary network error. If it is neither, then we can output as much information as we know about the error to standard output. This additional information can help us to determine what steps to take next:
-
-```markup
-if err != nil {
-    urlErr := err.(*url.Error)
-    if urlErr.Timeout() {
-         // a timeout is a type of error
-        fmt.Println("timeout: ", err)
-        return
-    }
-    if urlErr.Temporary() {
-        // a temporary network error, retry later
-        fmt.Println("temporary: ", err)
-        return
-    }
-    fmt.Printf("operation: %s, url: %s, error: %s\n", urlErr.
-        Op,        urlErr.URL, urlErr.Error())
-    return
-}
-```
-
--   Since the status code error response isn’t considered a Golang error, the response body might have some useful information. If it’s not `nil`, then we can read the status code:
-
-```markup
-if resp != nil {
-    defer resp.Body.Close()
-```
-
--   We initially check that `StatusCode` doesn’t equal `http.StatusOK`. From there, we can check for particular error messages and take the appropriate action. In this example, we only check for three different types of error responses, but you can check for whichever ones make sense for what you’re doing:
-
-```markup
-if resp.StatusCode != http.StatusOK {
-        // action for when status code is not okay
-        switch resp.StatusCode {
-        case http.StatusBadRequest:
-            fmt.Printf("bad request: %v\n", resp.Status)
-        case http.StatusInternalServerError:
-            fmt.Printf("internal service error: %v\n", resp.
-                Status)
-        default:
-            fmt.Printf("unexpected status code: %v\n", resp.
-                StatusCode)
+            fmt.Printf("%s -> %s\n", d.Name(), 
+                string(contents))
         }
-    }
-```
-
--   Finally, a client or server error status does not necessarily mean that the response body is `nil`. We can output the response body in case there’s any useful information we can further gather:
-
-```markup
-    data, err := ioutil.ReadAll(resp.Body)
-    if err != nil {
-        fmt.Println("err:", err)
-    }
-    fmt.Println("response body:", string(data))
+        return nil
+    })
 }
 ```
 
-This concludes the section for handling HTTP timeouts and other errors. Although the examples are simple, they give you the necessary information and guidance to handle timeouts, temporary networks, and other errors.
+We get the current working directory with `os.Getwd()`. Then create a path for the `dir1` directory that can be used for any operating system using the `filepath.Join` method. Finally, we walk the directory using `filepath.WalkDir` and print out the filename and its contents.
+
+## The runtime package
+
+The final package to discuss within this section is the `runtime` package. It’s mentioned because it’s used to easily determine the operating system the code is running on and therefore execute blocks of code, but there’s so much information you can get from the `runtime` system:
+
+-   `GOOS`: This returns the running application's operating system target
+-   `GOARCH:` This returns the running application’s architecture target
+-   `func GOROOT() string`: This returns the root of the Go tree
+-   `Compiler`: This returns the name of the compiler toolchain that built the binary
+-   `func NumCPU() int`: This returns the number of logical CPUs usable by the current process
+-   `func NumGoroutine() int`: This returns the number of goroutines that currently exist
+-   `func Version() string`: This returns the Go tree’s version string
+
+This package will provide you with enough information to understand the `runtime` environment. Within the [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143) code in the `checkRuntime.go` file is the `checkRuntime` function, which puts each of these into practice:
+
+```markup
+func checkRuntime() {
+    fmt.Println("Operating System:", runtime.GOOS)
+    fmt.Println("Architecture:", runtime.GOARCH)
+    fmt.Println("Go Root:", runtime.GOROOT())
+    fmt.Println("Compiler:", runtime.Compiler)
+    fmt.Println("No. of CPU:", runtime.NumCPU())
+    fmt.Println("No. of Goroutines:", runtime.NumGoroutine())
+    fmt.Println("Version:", runtime.Version())
+    debug.PrintStack()
+}
+```
+
+Running the code will provide a similar output to the following:
+
+```markup
+Operating System: darwin
+Architecture: amd64
+Go Root: /usr/local/go
+Compiler: gc
+No. of CPU: 10
+No. of Goroutines: 1
+Version: go1.19
+goroutine 1 [running]:
+runtime/debug.Stack()
+        /usr/local/go/src/runtime/debug/stack.go:24 +0x65
+runtime/debug.PrintStack()
+        /usr/local/go/src/runtime/debug/stack.go:16 +0x19
+main.checkRuntime()
+        /Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7/checkRuntime.go:17 +0x372
+main.main()
+        /Users/mmontagnino/Code/src/github.com/marianina8/Chapter-7/main.go:9 +0x34
+```
+
+Now that we have learned about some of the packages required for building a command-line application that runs across multiple operating systems and architectures, in the next section, we’ll return to the `audiofile` CLI from previous chapters and implement a few new functions and show how the methods and functions we’ve learned in this section can come into play.
+
+Just Imagine
+
+# Implementing independent or platform-specific code
+
+The best way to learn is to put what has been learned into practice. In this section, we’ll revisit the `audiofile` CLI to implement a few new commands. In the code for the new features we’ll implement, the focus will be on the use of the `os` and `path`/`filepath` packages.
+
+## Platform-independent code
+
+Let’s now implement a few new features for the `audiofile` CLI that will run independently of the operating system:
+
+-   `Delete`: This deletes stored metadata by ID
+-   `Search`: This searches stored metadata for a specific search string
+
+The creation of each of these new feature commands was initiated with the cobra-CLI; however, the platform-specific code is isolated in the `storage/flatfile.go` file, which is the flat file storage for the storage interface.
+
+First, let’s show the `Delete` method:
+
+```markup
+func (f FlatFile) Delete(id string) error {
+    dirname, err := os.UserHomeDir()
+    if err != nil {
+        return err
+    }
+    audioIDFilePath := filepath.Join(dirname, "audiofile", id)
+    err = os.RemoveAll(audioIDFilePath)
+    if err != nil {
+        return err
+    }
+    return nil
+}
+```
+
+The flat file storage is stored under the user’s home directory under the `audiofile` directory. Then, as each new audio file and matching metadata is added, it is stored within its unique identifier ID. From the `os` package, we use `os.UserHomeDir()` to get the user’s home directory and then use the `filepath.Join` method to create the required path to delete all the metadata and files associated with the ID independent of the operating system. Make sure you have some audiofiles stored locally in the flat file storage. If not, add a few files. For example, use the `audio/beatdoctor.mp3` file and upload using the following command:
+
+```markup
+./bin/audiofile upload --filename audio/beatdoctor.mp3
+```
+
+The ID is returned after a successful upload:
+
+```markup
+Uploading audio/beatdoctor.mp3 ...
+Audiofile ID:  a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba
+```
+
+You can ensure that the data has been added by running the `list` command:
+
+```markup
+./bin/audiofile list
+```
+
+The `audiofile` metadata is returned, so we have double-checked its existence in storage:
+
+```markup
+    {
+        "Id": "a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba",
+        "Path": "/Users/mmontagnino/audiofile/a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba/beatdoctor.mp3",
+        "Metadata": {
+            "tags": {
+                "title": "Shot In The Dark",
+                "album": "Best Bytes Volume 4",
+                "artist": "Beat Doctor",
+                "album_artist": "Toucan Music (Various Artists)",
+                "composer": "",
+                "genre": "Electro House",
+                "year": 0,
+                "lyrics": "",
+                "comment": "URL: http://freemusicarchive.org/music/Beat_Doctor/Best_Bytes_Volume_4/09_beat_doctor_shot_in_the_dark\r\nComments: http://freemusicarchive.org/\r\nCurator: Toucan Music\r\nCopyright: Attribution-NonCommercial 3.0 International: http://creativecommons.org/licenses/by-nc/3.0/"
+            },
+            "transcript": ""
+        },
+        "Status": "Complete",
+        "Error": null
+    },
+```
+
+Now, we can delete it:
+
+```markup
+./bin/audiofile delete --id a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba
+success
+```
+
+Then confirm that it’s been deleted by trying to get the audio by ID:
+
+```markup
+./bin/audiofile get --id a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba
+Error: unexpected response: 500 Internal Server Error
+Usage:
+  audiofile get [flags]
+Flags:
+  -h, --help        help for get
+      --id string   audiofile id
+unexpected response: 500 Internal Server Error%
+```
+
+Looks like an unexpected error has occurred, and we haven’t properly implemented how to handle this when searching for metadata for a file that has been deleted. We’ll need to modify the `services/metadata/handler_getbyid.go` file. At line 20, where we call the `GetById` method and handle the error, let’s return `200` instead of `500` after confirming the error is related to a folder not being found. It’s not necessarily an error that the user is searching for an ID that does not exist:
+
+```markup
+audio, err := m.Storage.GetByID(id)
+if err != nil {
+    if strings.Contains(err.Error(), "not found") ||     strings.Contains(err.Error(), "no such file or directory") {
+        io.WriteString(res, "id not found")
+        res.WriteHeader(200)
+        return
+    }
+    res.WriteHeader(500)
+    return
+}
+```
+
+Let’s try it again:
+
+```markup
+./bin/audiofile get --id a5d9ab11-6f5f-4da0-9307-a3b609b0a6ba
+id not found
+```
+
+That’s much better! Now let’s implement the search functionality. The implementation again is isolated to the `storage/flatfile.go` file where you will find the `Search` method:
+
+```markup
+func (f FlatFile) Search(searchFor string) ([]*models.Audio, error) {
+    dirname, err := os.UserHomeDir()
+    if err != nil {
+        return nil, err
+    }
+    audioFilePath := filepath.Join(dirname, "audiofile")
+    matchingAudio := []*models.Audio{}
+    err = filepath.WalkDir(audioFilePath, func(path string, 
+          d fs.DirEntry, err error) error {
+        if d.Name() == "metadata.json" {
+            contents, err := os.ReadFile(path)
+            if err != nil {
+                return err
+            }
+            if strings.Contains(strings.
+               ToLower(string(contents)), strings.
+               ToLower(searchFor)) {
+                data := models.Audio{}
+                err = json.Unmarshal(contents, &data)
+                if err != nil {
+                    return err
+                }
+                matchingAudio = append(matchingAudio, &data)
+            }
+        }
+        return nil
+    })
+    return matchingAudio, err
+}
+```
+
+Like most of the methods existing in the storage, we start by getting the user’s home directory with the `os.UserHomeDir()` method and then, again, use `filepath.Join` to get the root `audiofile` path directory, which we will be walking. The `filepath.WalkDir` method is called starting at `audioFilePath`. We check each of the `metadata.json` files to see whether the `searchFor` string exists within the contents. The method returns a slice of `*models.Audio` and if the `searchFor` string is found within the contents, the audio is appended onto the slice that will be returned later.
+
+Let’s give this a try with the following command and see that the expected metadata is returned:
+
+```markup
+./bin/audiofile search --value "Beat Doctor"
+```
+
+Now that we’ve created a few new commands to show how the `os` package and `path/filepath` packages can be used in a real-life example, let’s try to write some code that can run specifically on one operating system or another.
+
+## Platform-specific code
+
+Suppose your command-line application requires an external application that exists on the operating system, but the application required differs between operating systems. For the `audiofile` command-line application, suppose we want to create a command to play the audio file via the command line. Each operating system will need to use a different command to play the audio, as follows:
+
+-   macOS: `afplay <filepath>`
+-   Windows: `start <filepath>`
+-   Linux: `aplay <filepath>`
+
+Again, we use the Cobra-CLI to create the new `play` command. Let’s look at each different function that would need to be called for each operating system to play the audio file. First is the code for macOS:
+
+```markup
+func darwinPlay(audiofilePath string) {
+    cmd := exec.Command("afplay", audiofilePath)
+    if err := cmd.Start(); err != nil {
+       panic(err)
+    }
+    fmt.Println("enjoy the music!")
+    err := cmd.Wait()
+    if err != nil {
+       panic(err)
+    }
+}
+```
+
+We create a command to use the `afplay` executable and pass in the `audiofilePath`. Next is the code for Windows:
+
+```markup
+func windowsPlay(audiofilePath string) {
+    cmd := exec.Command("cmd", "/C", "start", audiofilePath)
+    if err := cmd.Start(); err != nil {
+        return err
+    }
+    fmt.Println("enjoy the music!")
+    err := cmd.Wait()
+    if err != nil {
+        return err
+    }
+}
+```
+
+This is a very similar function, except it uses the `start` executable in Windows to play the audio. Last is the code for Linux:
+
+```markup
+func linuxPlay(audiofilePath string) {
+    cmd := exec.Command("aplay", audiofilePath)
+    if err := cmd.Start(); err != nil {
+        panic(err)
+    }
+    fmt.Println("enjoy the music!")
+    err := cmd.Wait()
+    if err != nil {
+        panic(err)
+    }
+}
+```
+
+Again, the code is practically identical except for the application which is called to play the audio. In another case, this code could be more specific for the operating system, require different arguments, and even require a full path specific to the operating system. Regardless, we are ready to use these functions within the `play` command’s `RunE` field. The full `play` command is as follows:
+
+```markup
+var playCmd = &cobra.Command{
+    Use: "play",
+    Short: "Play audio file by id",
+    RunE: func(cmd *cobra.Command, args []string) error {
+        b, err := getAudioByID(cmd)
+        if err != nil {
+            return err
+        }
+        audio := models.Audio{}
+        err = json.Unmarshal(b, &audio)
+        if err != nil {
+            return err
+        }
+        switch runtime.GOOS {
+        case "darwin":
+            darwinPlay(audio.Path)
+            return nil
+        case "windows":
+            windowsPlay(audio.Path)
+            return nil
+        case "linux":
+            linuxPlay(audio.Path)
+            return nil
+        default:
+            fmt.Println(`Your operating system isn't supported 
+                for playing music yet.
+                Feel free to implement your additional use 
+                case!`)
+        }
+        return nil
+    },
+}
+```
+
+The important part of this code is that we have created a switch case for the `runtime.GOOS` value, which tells us what operating system the application is running on. Depending on the operating system, a different method is called to start a process to play the audio file. Let’s recompile and try the play method with one of the stored audio file IDs:
+
+```markup
+./bin/audiofile play --id bf22c5c4-9761-4b47-aab0-47e93d1114c8
+enjoy the music!
+```
+
+The final section of this chapter will show us how to implement this differently, if we’d like to, using build tags.
+
+Just Imagine
+
+# Build tags for targeted platforms
+
+Built tags, or build constraints, can be used for many purposes, but in this section, we will be discussing how to use build tags to identify which files should be included in a package when building for specific operating systems. Build tags are given in a comment at the top of a file:
+
+```markup
+//go:build
+```
+
+Build tags are passed in as flags when running `go build`. There could be more than one tag on a file, and they follow on from the comment with the following syntax:
+
+```markup
+//go:build [tags]
+```
+
+Each tag is separated by a space. Suppose we want to indicate that this file will only be included in a build for the Darwin operating system, then we would add this to the top of the file:
+
+```markup
+//go:build darwin
+```
+
+Then when building the application, we would use something like this:
+
+```markup
+go build –tags darwin
+```
+
+This is just a super quick overview of how build tags can be used to constrain files specific to operating systems. Before we go into an implementation of this, let’s discuss the `build` package in a bit more detail.
+
+## The build package
+
+The `build` package gathers information about Go packages. In the _Chapter07_ code repository, there is a `buildChecks.go` file, which uses the `build` package to get information about the current package. Let’s see what information this code can give us:
+
+```markup
+func buildChecks() {
+    ctx := build.Context{}
+    p1, err := ctx.Import(".", ".", build.AllowBinary)
+    if err != nil {
+        fmt.Println("err: ", err)
+    }
+    fmt.Println("Dir:", p1.Dir)
+    fmt.Println("Package name: ", p1.Name)
+    fmt.Println("AllTags: ", p1.AllTags)
+    fmt.Println("GoFiles: ", p1.GoFiles)
+    fmt.Println("Imports: ", p1.Imports)
+    fmt.Println("isCommand: ", p1.IsCommand())
+    fmt.Println("IsLocalImport: ", build.IsLocalImport("."))
+    fmt.Println(ctx)
+}
+```
+
+We first create the `context` variable and then call the `Import` method. The `Import` method is defined in the documentation as follows:
+
+```markup
+func (ctxt *Context) Import(path string, srcDir string, mode ImportMode) (*Package, error)
+```
+
+It returns the details about the Go package named by the `path` and `srcDir` source directory parameters. In this case, the `main` package is returned from the package, then we can check all the variables and methods that exist to get more information on the package. Running this method locally will return something like this:
+
+```markup
+Dir: .
+Package name:  main
+AllTags:  [buildChecks]
+GoFiles:  [checkRuntime.go environment.go file.go main.go process.go timer.go walking.go]
+Imports:  [fmt io/fs os os/exec path/filepath runtime runtime/debug strings time]
+isCommand/main package:  true
+IsLocalImport:  true
+```
+
+Most of the values we are checking are self-explanatory. `AllTags` returns all tags that exist within the `main` package. `GoFiles` returns all the files included in the `main` package. `Imports` are all the unique imports that exist within the package. `IsCommand()` returns `true` if the package is considered a command to be installed, or if it is the main package. Finally, the `IsLocalImport` method checks whether an import file is local. This is a fun extra detail to interest you more about what the `build` package could potentially offer you.
+
+## Build tags
+
+Now that we have learned a little bit more about the `build` package, let’s use it for the main purpose of this chapter, building packages for specific operating systems. Build tags should be named intentionally, and since we are using them for a specific purpose, we can name each build tag by an operating system:
+
+```markup
+//go:build darwin
+//go:build linux
+//go:build windows
+```
+
+Let’s revisit the audio file code. Remember how in the `play` command, we check the `runtime` operating system and then call a specific method. Let’s rewrite this code using build tags.
+
+### Example in the audio file
+
+Let’s first simplify the command’s code to the following:
+
+```markup
+var playCmd = &cobra.Command{
+    Use: "play",
+    Short: "Play audio file by id",
+    Long: `Play audio file by id`,
+    RunE: func(cmd *cobra.Command, args []string) error {
+        b, err := getAudioByID(cmd)
+        if err != nil {
+            return err
+        }
+        audio := models.Audio{}
+        err = json.Unmarshal(b, &audio)
+        if err != nil {
+            return err
+        }
+        return play(audio.Path)
+    },
+}
+```
+
+Basically, we’ve simplified the code greatly by removing the operating system switch statement and the three functions that implement the play feature for each operating system. Instead, we’ve taken the code and created three new files: `play_darwin.go`, `play_windows.go`, and `play_linux.go`. Within each of these files is a build tag for each operating system. Let’s take the Darwin file, `play_darwin.go`, for example:
+
+```markup
+//go:build darwin
+package cmd
+import (
+    "fmt"
+    "os/exec"
+)
+func play(audiofilePath string) error {
+    cmd := exec.Command("afplay", audiofilePath)
+    if err := cmd.Start(); err != nil {
+        return err
+    }
+    fmt.Println("enjoy the music!")
+    err := cmd.Wait()
+    if err != nil {
+        return err
+    }
+    return nil
+}
+```
+
+Notice that the `play` function has been renamed to match the function called in the `play` command in `play.go`. Since only one of the files gets included in the build, there’s no confusion as to which `play` function is called. We ensure that only one gets called within the `make` file, which is how we are currently running the application. In `Makefile`, I’ve designated a command to build specifically for Darwin:
+
+```markup
+build-darwin:
+    go build -tags darwin -o bin/audiofile main.go
+    chmod +x bin/audiofile
+```
+
+A Go file containing the `play` function is created for Windows and Linux. The specific tags for each operating system will similarly need to be passed into the `-tags` flag when building your application. In later chapters, we will discuss cross-compiling, which is the next step. But before we do, let’s leave this chapter by reviewing a list of OS-level differences to keep in mind while developing for multiple platforms.
+
+## OS-level differences
+
+Since you’ll be building your application for the main operating systems, it’s important to know the differences between them and know what to look out for. Let’s dive in with the following list:
+
+-   **Filesystem**:
+    -   Windows uses a different filesystem than Linux and Unix, so be mindful of the file paths when accessing files in your Go code.
+    -   File paths in Windows use backslashes, (`\`), as directory separators, while Linux and Unix use forward slashes (`/`).
+-   **Permissions**:
+    -   Unix-like systems use file modes to manage permissions, where permissions are assigned to files and directories.
+    -   Windows uses an **access control list** (**ACL**) to manage permissions, where permissions are assigned to specific users or groups for a file or directory in a more flexible and granular manner.
+    -   In general, it’s a good practice to carefully consider user and group permissions when developing any command-line application, regardless of the operating system it will be running on.
+-   **Executing commands**:
+    -   The `exec` package in Go provides a convenient way to run commands in the same manner as in the terminal. However, it’s important to note that the command and its arguments must be passed in the correct format for each operating system.
+    -   On Windows, you need to specify the file extension (for example, `.exe`, `.bat`, etc.) to run an executable file.
+-   **Environmental variables**:
+    -   Environmental variables can be used to configure your application, but their names and values may be different between Windows and Linux/Unix.
+    -   On Windows, environmental variable names are case-insensitive, while on Linux/Unix, they are case-sensitive.
+-   **Line endings**:
+    -   Windows uses a different line ending character than Linux/Unix, so be careful when reading or writing files in your Go code. Windows uses a carriage return (`\r`) followed by a line feed (`\n`), while Linux/Unix uses only a line feed (`\n`).
+-   **Signal handling**:
+    -   In Unix systems, the `os/signal` package provides a way to handle signals sent to your application. However, this package is not supported on Windows.
+    -   To handle signals in a cross-platform way, you can use the `os/exec` package instead.
+-   **User input**:
+    -   The way user input is read may also be different between Windows and Linux/Unix. On Windows, you may need to use the `os.Stdin` property, while on Linux/Unix you can use `os.Stdin` or the `bufio` package to read user input.
+-   **Console colors**:
+    -   On Windows, the console does not support ANSI escape codes for changing text color, so you will need to use a different approach for coloring text in the console.
+    -   There are libraries available in Go, such as `go-colorable`, that provide a platform-independent way to handle console colors.
+-   **Standard streams**:
+    -   Standard streams, such as `os.Stdin`, `os.Stdout`, and `os.Stderr` may behave differently between Windows and Linux/Unix. It’s important to test your code on both platforms to make sure it works as expected.
+
+These are some of the differences to be aware of when developing a command-line application in Go for different operating systems. It’s important to thoroughly test your application on each platform to ensure it behaves as expected.
 
 Just Imagine
 
 # Summary
 
-Over the course of this chapter, you’ve learned about the `os/exec` package in depth. This included learning about the different ways to create commands: using the `command` struct or the `Command` method. Not only have we created commands, but we’ve also passed file descriptors to them to receive information back. We learned about the different ways to run a command using the `Run` or `Start` method and the multiple ways of retrieving data from the standard output, standard error types, and other file descriptors.
+The more operating systems your application supports, the more complicated it will get. Hopefully armed with the knowledge of some supportive packages for developing independently of the platform, you’ll feel confident that your application will run similarly across different operating systems. Also, by checking the `runtime` operating system and even separating code into separate operating system-specific files with build tags, you have at least a couple of options for defining how to organize your code. This chapter goes more in-depth than may be necessary, but hopefully, it inspires you.
 
-In this chapter, we also discussed the `net/http` and `net/url` packages, which are important to be comfortable with when creating HTTP requests to external API servers. Several examples taught us how to create requests with the methods on `http.Client`, including `Do`, `Get`, `Post`, and `PostForm`.
+Building for multiple operating systems will expand the usage of your command-line application. Not only can you reach Linux or Unix users but also Darwin and Windows users as well. If you want to grow your user base, then building an application to support more operating systems is an easy way to do so.
 
-It’s important to learn how to build robust code, and handling errors gracefully is part of the process. We need to know how to capture errors first, so we discussed how to detect some common errors that can occur when running an external process or sending a request to an external API server. Capturing and handling other errors gives us confidence that our code is ready to take appropriate action when they occur. Finally, we now know how to check for different status codes when the response is not okay.
-
-With all the information learned in this chapter, we should now be more confident in building a CLI that interacts with external commands or sends requests to external APIs. In the next chapter, we’ll learn how to write code that can run on multiple different architectures and operating systems.
+In the next chapter, [_Chapter 8_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_08.xhtml#_idTextAnchor166), _Building for Humans Versus Machines_, we’ll learn how to build a CLI that outputs according to who is receiving it: a machine or human. We’ll also learn how to structure the language for clarity and name commands for consistency with the rest of the CLIs in the community.
 
 Just Imagine
 
 # Questions
 
-1.  What method in the `time` package do we use to receive the time after a particular duration via a channel?
-2.  What is the error type returned from `http.Client`’s `Do` method?
-3.  When an HTTP request receives a response with a status code other than `StatusOK`, is the error returned from the request populated?
+1.  What are the two different clocks that exist within an operating system? And does the `time.Time` struct in Go store one or the other clock, or both? Which should be used for calculating duration?
+2.  Which package constant can be used to determine the `runtime` operating system?
+3.  Where is the build tag comment set within a Go file – at the top, bottom, or above the defined function?
 
 Just Imagine
 
 # Answers
 
-1.  `time.After(d Duration) <-``chan Time`
-2.  `*``url.Error`
-3.  No
+1.  The wall clock and monotonic clock. The `time.Time` struct stores both time values. The monotonic clock value should be used when calculating duration.
+2.  `runtime.GOOS`
+3.  At the top first line of the Go file.
 
 Just Imagine
 
 # Further reading
 
--   Visit the online documentation for `net/http` `at` `h`[ttps://pkg.go.dev/net/http](https://pkg.go.dev/net/http), and for net/url at h[ttps://pkg.go.dev/net/url](https://pkg.go.dev/net/url)
+-   Visit the online documentation for the packages discussed at [https://pkg.go.dev/](https://pkg.go.dev/).

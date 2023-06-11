@@ -3,9 +3,27 @@
 
 all: clean test
 
-build-darwin:
-	go build -tags darwin -o bin/audiofile main.go
+build-darwin-free:
+	go build -tags "darwin free" -o bin/audiofile main.go
 	chmod +x bin/audiofile
+
+build-darwin-dev:
+	go build -tags "darwin dev pro" -o bin/audiofile main.go
+	chmod +x bin/audiofile
+
+build-darwin-pro:
+	go build -tags "darwin pro" -o bin/audiofile main.go
+	chmod +x bin/audiofile
+
+build-darwin-pro-profile:
+	go build -tags "darwin pro profile" -o bin/audiofile main.go
+	chmod +x bin/audiofile
+
+test:
+	go test ./cmd -tags pro
+
+test-verbose:
+	go test -v ./cmd -tags pro
 
 manpages:
 	mkdir -p pages

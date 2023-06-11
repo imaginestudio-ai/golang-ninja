@@ -10,4 +10,5 @@ type Storage interface {
 	List() ([]*models.Audio, error)
 	GetByID(id string) (*models.Audio, error)
 	Delete(id string) error
+	Search(searchFor string) ([]*models.Audio, error)
 }

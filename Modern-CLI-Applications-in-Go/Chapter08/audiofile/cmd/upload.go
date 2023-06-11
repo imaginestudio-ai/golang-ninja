@@ -27,8 +27,10 @@ var uploadCmd = &cobra.Command{
 	Short: "Upload an audio file",
 	Long: `Upload an audio file by passing in the --filename or -f flag followed by the 
 filepath of the audiofile.`,
+	Example:    `audiofile upload --filename ./audio/beatdoctor.mp3`,
 	SuggestFor: []string{"add"},
 	RunE: func(cmd *cobra.Command, args []string) error {
+		verbose, _ := cmd.Flags().GetBool("verbose")
 		client := &http.Client{
 			Timeout: 15 * time.Second,
 		}
@@ -41,7 +43,7 @@ filepath of the audiofile.`,
 		if filename == "" {
 			filename, err = utils.AskForFilename()
 			if err != nil {
-				return err
+				return utils.Error("\n  %v\n  try again and enter a filename", err, verbose)
 			}
 		}
 		path := fmt.Sprintf("http://%s:%d/upload", viper.Get("cli.hostname"), viper.GetInt("cli.port"))
@@ -49,17 +51,17 @@ filepath of the audiofile.`,
 		multipartWriter := multipart.NewWriter(payload)
 		file, err := os.Open(filename)
 		if err != nil {
-			return err
+			return utils.Error("\n  unable to open file, "+filename+": %v", err, verbose)
 		}
 		defer file.Close()
 		partWriter, err := multipartWriter.CreateFormFile("file", filepath.Base(filename))
 		if err != nil {
-			return err
+			return utils.Error("\n  %v\n  problems preparing file for upload", err, verbose)
 		}
 
 		_, err = io.Copy(partWriter, file)
 		if err != nil {
-			return err
+			return utils.Error("\n  %v\n  problems preparing file for upload", err, verbose)
 		}
 		if utils.IsaTTY() && runtime.GOOS != "windows" {
 			p.UpdateTitle("Creating multipart writer...")
@@ -68,7 +70,7 @@ filepath of the audiofile.`,
 		}
 		err = multipartWriter.Close()
 		if err != nil {
-			return err
+			return utils.Error("\n  %v\n  problems preparing file for upload", err, verbose)
 		}
 		if utils.IsaTTY() && runtime.GOOS != "windows" {
 			pterm.Success.Println("Created multipart writer")
@@ -79,9 +81,9 @@ filepath of the audiofile.`,
 		}
 		req, err := http.NewRequest(http.MethodPost, path, payload)
 		if err != nil {
-			return err
+			return utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port", err, verbose)
 		}
-
+		utils.LogRequest(verbose, http.MethodPost, path, payload.String())
 		req.Header.Set("Content-Type", multipartWriter.FormDataContentType())
 		if utils.IsaTTY() && runtime.GOOS != "windows" {
 			pterm.Success.Printf("Sending request: %s %s...", http.MethodPost, path)
@@ -91,7 +93,7 @@ filepath of the audiofile.`,
 		}
 		resp, err := client.Do(req)
 		if err != nil {
-			return err
+			return utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port\n  or check that api is running", err, verbose)
 		}
 		defer resp.Body.Close()
 		if utils.IsaTTY() && runtime.GOOS != "windows" {
@@ -103,16 +105,19 @@ filepath of the audiofile.`,
 		}
 		err = utils.CheckResponse(resp)
 		if err != nil {
-			return err
+			return utils.Error("\n  checking response: %v", err, verbose)
 		}
 		b, err := io.ReadAll(resp.Body)
 		if err != nil {
-			return err
+			return utils.Error("\n  reading response: %v\n  ", err, verbose)
 		}
+		utils.LogHTTPResponse(verbose, resp, b)
 		if utils.IsaTTY() && runtime.GOOS != "windows" {
 			p.UpdateTitle("Process response...")
 			pterm.Success.Println("Process response...")
 			p.Increment()
+		} else {
+			fmt.Println("Process response...")
 		}
 		if utils.IsaTTY() && runtime.GOOS != "windows" {
 			fmt.Fprintf(cmd.OutOrStdout(), fmt.Sprintf("%s Successfully uploaded!\n Audiofile ID: %s", checkMark, string(b)))

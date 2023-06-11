@@ -1,586 +1,655 @@
-# Custom Builds and Testing CLI Commands
+# Cross-Compilation across Different Platforms
 
-With any Golang application, you’ll need to build and test. However, it is increasingly important as the project and its user base grow. Build tags with Boolean logic give you the ability to create targeted builds and testing and further stabilize your project with each new feature.
+This chapter introduces the user to cross-compilation, a powerful feature of Go, across different platforms. While build automation tools exist, understanding how to cross-compile provides essential knowledge for debugging and customization when necessary. This chapter will explain the different operating systems and architectures that Go can compile and how to determine which is needed. After Go is installed in your environment, there is a command, `go env`, with which you can see all the Go-related environment variables. We will discuss the two major ones used for building: `GOOS` and `GOARCH`.
 
-Given a deeper understanding of build tags and how to use them, we will use a real-world example, the audio file CLI, to integrate levels (free and pro) and enable a profiling feature.
+We will give examples of how to build or install an application for each major operating system: Linux, macOS, and Windows. You will learn how to determine the Go operating system and architecture settings based on your environment and the available architectures for each major operating system.
 
-Build tags are not only used as input when building but also when testing. We will spend the latter half of this chapter on testing. We will learn specifically how to mock an HTTP client that our CLI is using, configure tests locally, write tests for individual commands, and run them. In this chapter, we will cover the following topics in detail:
+This chapter ends with an example script to automate cross-compilation across the major operating systems and architectures. A script to run on the Darwin, Linux, or Windows environments is provided. In this chapter, we will cover the following topics in detail:
 
--   What are build tags and how can you use them?
--   Building with tags
--   Testing CLI commands
+-   Manual compilation versus build automation tools
+-   Using `GOOS` and `GOARCH`
+-   Compiling for Linux, macOS, and Windows
+-   Scripting to compile for multiple platforms
 
+# Manual compilation versus build automation tools
 
-# What are build tags and how can you use them?
-
-**Build tags** are indicators of when a code file should be included within the build process. In Go, they are defined by a single line at the top, or near the top, of any source file, not just a Go file. They must precede the package clause and be followed by a blank line. They have the following syntax:
-
-```markup
-//go:build [tag]
-```
-
-This line can only be defined once in a file. More than one definition would generate an error. However, when more than one tag is used, they interact using Boolean logic. In [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143), _Developing for Different Platforms_, we briefly touched on tags and their logic. The other method for handling the development of different platforms uses a series of `if-else` statements that check the operating system at runtime. Another method is to include the operating system in the filename. For example, if there’s a filename ending in `_windows.go`, we indicate to the compiler to only include this file when building for `windows`.
-
-Tags can help separate code to include when compiling for different operating systems using `$GOOS` and `$GOARCH`. Valid combinations of operating systems and the architecture can be found here: [https://go.dev/doc/install/source#environment](https://go.dev/doc/install/source#environment).
-
-Besides targeting platforms, build tags can be customized to separate featured code or integration tests. Often, integration tags receive a specific tag, as they often take a longer time to run. Separating unit tests from integration tests adds a level of control when testing your application.
-
-These build constraints, when used together, can powerfully compile different versions of your code. As mentioned, they are evaluated together using Boolean logic. Expressions contain build tags combined using the `||`, `&&`, and `!` operators and parentheses. To learn more about build constraints, run the following command in your terminal:
-
-```markup
-go help buildconstraint
-```
-
-As an example, the following build tags constrain a file to build when the `linux` or `openbsd` tags are satisfied and when `amd64` is satisfied and `cgo` is not:
-
-```markup
-//go:build (linux  || openbsd) && amd64 && !cgo
-```
-
-Run `go` `env` in your terminal to see which tags are satisfied automatically when building your application. You’ll see the target operating system (`$GOOS`) and architecture (`$GOARCH`) and `unix` if the operating system is Unix or Unix-like. The `cgo` field is determined by the `CGO_ENABLED` environment variable, the term for each Go major release, and any additional tags given by the `–``tags` flag.
-
-As mentioned earlier, you can create your own pro and free versions based on tags placed at the top of code files, `//go:build pro` or `//go:build free`. Integration test files can be tagged with `//go:build int`, for example. However you want to customize your builds, you can do so with the power of tags and Boolean logic. Now, in the next section, let’s use tags in our code to do just that.
+In [_Chapter 14_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_14.xhtml#_idTextAnchor359), _Publishing Your Go Binary as a Homebrew Formula with GoReleaser_, we will delve into a fantastic open source tool, **GoReleaser**, which automates the process of building and releasing Go binaries. Despite its power and usefulness, it’s crucial to know how to manually compile your Go code. You see, not all projects can be built and released with GoReleaser. For instance, if your application requires unique build flags or dependencies, manual compilation may be necessary. Moreover, understanding how to manually compile your code is essential for addressing issues that may crop up during the build process. In essence, tools such as GoReleaser can make the process a lot smoother, but having a good grasp of the manual compile process is vital to ensure that your **command-line interface (CLI)** applications can be built and released in various scenarios.
 
 Just Imagine
 
-# How to utilize build tags
+# Using GOOS and GOARCH
 
-As mentioned, we can use build tags to separate builds based on the operating system and architecture. Within the audio file repository, we’re already doing so with the following files associated with the `play` and `bug` commands. For the `bug` command, we have the following files:
+When developing your command-line application, it is important to maximize the audience by developing for as many platforms as possible. However, you may also want to target just a particular set of operating systems and architectures. In the past, it was much more difficult to deploy to platforms that differed from the one you were developing on. In fact, developing on a macOS platform and deploying it on a Windows machine involved setting up a Windows build machine to build the binary. The tooling would have to be synchronized, and there would be other deliberations that made collaborative testing and distribution cumbersome.
 
--   `bug_darwin.go //` only builds on Darwin systems
--   `bug_linux.go //` only builds on Linux systems
--   `bug_windows.go //` only builds on Windows platforms
+Luckily, Golang has solved this by building support for multiple platforms directly into the language’s toolchain. As discussed in [_Chapter 7_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_07.xhtml#_idTextAnchor143), _Developing for Different Platforms_, and [_Chapter 11_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_11.xhtml#_idTextAnchor258), _Custom Builds and Testing CLI Commands_, we learned how to write platform-independent code and use the `go build` command and build tags to target specific operating systems and architectures. You may also use environment variables to target the operating system and architecture as well.
 
-Each of those files contains a function that is specifically coded for the targeted platform. The file suffixes have similar functionality to the build tags. You can choose a file suffix that matches the exact platform and architecture. However, build tags are preferred when you want to target more than one platform and architecture. Inside the files is the matching build tag, used as an example, but duplicates functionality. Inside `bug_darwin.go`, for example, at the top of the file is the following:
+First, it’s good to know which operating systems and architectures are available for distribution. To find out, within your terminal, run the following command:
 
 ```markup
-//go:build darwin
+go tool dist list
 ```
 
-Since we already have these build tags set up throughout the repo to target platforms where needed, let’s explore a few other ways to utilize build tags.
+The list is output in the following format: `GOOS`/`GOARCH`. `GOOS` is a local environment variable that defines the operating system to compile for and stands for **Go Operating System**. `GOARCH`, pronounced “gore-ch,” is a local environment variable that defines the architecture to compile for and stands for **Go Architecture**.
 
-## Creating a pro, free, and dev version
+![Figure 12.1 – List of supported operating systems and architectures](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_12.1_B18883.jpg)
 
-Suppose the command-line interface utilized build tags to create different levels of access to the application’s features. This could be for admin or basic level users or restricted by the level of permissions, but it could also be, especially if the CLI was for external customers, a pro and free level version of your application.
+Figure 12.1 – List of supported operating systems and architectures
 
-First, it’s important to decide which commands will be available for each version. Let’s give this a try with the audio file application:
-
-![Table 11.1 – List of commands included in the free or pro level](https://static.packt-cdn.com/products/9781804611654/graphics/image/Table_11.1_B18883.jpg)
-
-Table 11.1 – List of commands included in the free or pro level
-
-Let’s also include a dev version; this simply allows the API to be run locally. In a real-world scenario, the application would be configured to call a public API, and storage could be done in a database. This gives us another build tag to create.
-
-Now, let’s use build tags to distinguish the free, pro, and dev versions. The dev version build tag is placed at the top of the `cmd/api.go` file, making the API command only available when the `dev` tag is specified:
+You can also call the preceding command with the `–json` flag to view more details. For example, for `linux/arm64`, you can see that it’s supported by `Cgo` from the `"CgoSupported"` field, but also that it is a first-class **port**, another word for a `GOOS/GOARCH` pair, indicated by the `"``FirstClass"` field:
 
 ```markup
-//go:build dev
+{
+"GOOS": "linux",
+"GOARCH": "arm64",
+"CgoSupported": true,
+"FirstClass": true
+},
 ```
 
-Then, the tag to distinguish the pro version is as follows:
+A first-class port has the following properties:
+
+-   Releases are blocked by broken builds
+-   Official binaries are provided
+-   Installation is documented
+
+Next, determine your local operating system and architecture settings by running the following command within your terminal:
 
 ```markup
-//go:build !free && pro
+go env GOOS GOARCH
 ```
 
-There are a few files, as previously mentioned, that already have build tags to target platforms. This build tag means that the file will be available in the free, pro, and dev versions:
+Currently, running this command on my macOS machine with an AMD64 architecture gives the following output:
 
 ```markup
-//go:build darwin
+darwin
+amd64
 ```
 
-The preceding build tags utilize Boolean logic to state that the file should be included in the build process when both the `darwin` and `free` tags are defined.
+The first environment variable, `GOOS`, is set to `darwin`, and the second environment variable, `GOARCH`, is set to `amd64`. We now know what `GOOS` and `GOARCH` are within the Go environment, the possible values, and also what values are set on your machine. Let’s learn how to use these environment variables.
 
-Let’s break down the tags here with the Boolean logic syntax examples:
-
-![Table 11.2 – Boolean logic examples
-](https://static.packt-cdn.com/products/9781804611654/graphics/image/Table_11.2_B18883.jpg)
-
-Table 11.2 – Boolean logic examples
-
-This Boolean logic included within the build tag will allow developers to build for any combination of platforms and versions.
-
-## Adding build tags to enable pprof
-
-Another way to utilize build tags is to enable profiling on your API service. `pprof` is a tool for visualizing and analyzing profile data. The tool reads a collection of samples in `proto`, or protocol buffer, format and then creates reports that help visualize and analyze the data. This tool can generate text and graphical reports.
-
-Note
-
-To learn more about how to use this tool, visit [https://pkg.go.dev/net/http/pprof](https://pkg.go.dev/net/http/pprof).
-
-For this case, we’ll define a build tag called `pprof` to appropriately match its usage. Within the `services/metadata/metadata.go` file, we define the metadata service used to extract information from the audio files uploaded via the command-line interface. The `CreateMetadataService` function creates the metadata service and defines all the endpoints with matching handlers. To enable profiling, we will add this new block of code:
+You can use these two environment variables for compiling. Let’s generate a build to target the `darwin/amd64` port. You’ll do so by setting the `GOOS` or `GOARCH` environment variables and then running the `go build` command, or more specifically along with the `build` command:
 
 ```markup
-if profile {
-    mux.HandleFunc("/debug/pprof/", pprof.Index)
-    mux.HandleFunc("/debug/pprof/{action}", pprof.Index)
-    mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
-}
+GOOS=darwin GOARCH=amd64 go build
 ```
 
-At the top of the file, after the inputs, we’ll define the variable that it’s dependent on:
-
-```markup
-var (
-    profile = false
-)
-```
-
-However, we need some way to set the `profile` variable to `true`. To do so, we create a new file: `services/metadata/pprof.go`. This file contains the following content:
-
-```markup
-//go:build profile && (free || pro)
-package metadata
-func init() {
-    profile = true
-}
-```
-
-As you can see, whether building the `free`, `pro`, or `dev` version, if the `profile` build tag is added as tag input, then the `init` function will be called to set the `profile` variable to `true`. Now, we have another idea of how to use build tags – to set Boolean variables that act as feature flags. Now that we’ve changed the necessary files to include the build tags, let’s use these as inputs to the build commands.
+Let’s try this out with the audio file CLI and learn all the ways to compile for the three main operating systems: Linux, macOS, and Windows.
 
 Just Imagine
 
-# Building with tags
+# Compiling for Linux, macOS, and Windows
 
-By now, we have built our applications using `Makefile`, which contains the following command specific to building a Darwin application:
+There are several different ways to compile our command-line application for different operating systems and we’ll go over examples of each of these. First, you can compile by building or installing your application:
+
+-   **Building** – Compiles the executable file and then moves it to the current folder or the filename indicated by the `–o` (output) flag
+-   **Installing** – Compiles the executable file and then installs it to the `$GOPATH/bin` folder or `$GOBIN` if it is set and caches all non-main packages, which are imported to the `$``GOPATH/pkg` folder
+
+## Building using tags
+
+In our previous chapter, [_Chapter 11_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_11.xhtml#_idTextAnchor258), _Custom Builds and Testing CLI Commands_, we learned to build specifically for the macOS or Darwin operating system. To better understand how to use the `build` command, we run `go build –help` to see the usage:
 
 ```markup
-build-darwin:
-    go build -tags darwin -o bin/audiofile main.go
-    chmod +x bin/audiofile
+mmontagnino@Marians-MacCourse-Pro audiofile % go build -help
+usage: go build [-o output] [build flags] [packages]
+Run 'go help build' for details
 ```
 
-For the Darwin build, we can additionally build a version for a free and pro version and also a profile version to enable `pprof`.
-
-## Building a free version
-
-To build a `free` version for the Darwin operating system, we need to modify the preceding `make` command and create a new one:
+Running `go help build` will reveal the build flags available. However, in these examples, we only use the `tags` flag. Within the `Makefile`, we already have the following commands:
 
 ```markup
 build-darwin-free:
     go build -tags "darwin free" -o bin/audiofile main.go
     chmod +x bin/audiofile
-```
-
-In the `build-darwin-free` command, we pass in the two build tags: `darwin` and `free`. This will include files such as `bug_darwin.go` and `play_darwin.go`, which contain the following line at the top of the Go file:
-
-```markup
-//go:build darwin
-```
-
-Similarly, the files will be included in the build when we build the `pro` version.
-
-## Building a pro version
-
-To build a `pro` version for the Darwin operating system, we need to add a new `build` command:
-
-```markup
 build-darwin-pro:
     go build -tags "darwin pro" -o bin/audiofile main.go
     chmod +x bin/audiofile
-```
-
-In the `build-darwin-pro` command, we pass in the two build tags: `darwin` and `pro`.
-
-## Building to enable pprof on the pro version
-
-To build a `pro` version that has `pprof` enabled, we add the following `build` command:
-
-```markup
 build-darwin-pro-profile:
     go build -tags "darwin pro profile" -o bin/audiofile main.go
     chmod +x bin/audiofile
 ```
 
-In the `build-darwin-pro-profile` command, we pass three build tags: `darwin`, `pro`, and `profile`. This will include the `services/metadata/pprof.go` file, which includes the line at the top of the file:
+In these commands, we compile the application and output it to the `bin/audiofile` filename. To specify the Darwin operating system, we pass in the Darwin build tag to specify the files associated with the Darwin operating system. We’ll need to modify the output files to a folder that specifies Darwin, but also for other specifics such as the free versus the pro version since we’ll be building for other operating systems and levels. Let’s modify these.
+
+### Building applications for a Darwin operating system using tags
+
+The new `Makefile` commands to compile the application for the Darwin operating system are now as follows:
 
 ```markup
-//go:build profile
+build-darwin-free:
+    go build -tags "darwin free" -o builds/free/darwin/audiofile main.go
+    chmod +x builds/free/darwin/audiofile
+build-darwin-pro:
+    go build -tags "darwin pro" -o builds/pro/darwin/audiofile main.go
+    chmod +x builds/pro/darwin/audiofile
+build-darwin-pro-profile:
+    go build -tags "darwin pro profile" -o builds/profile/darwin/audiofile main.go
+    chmod +x builds/profile/darwin/audiofile
 ```
 
-Similarly, the files will be included in the build when we build for the free version.
+We’ve swapped out the `bin/audiofile` output to something more specific. The free version for Darwin now outputs to `builds/free/darwin/audiofile`, the pro version outputs to `builds/pro/darwin/audiofile`, and the profile version outputs to `builds/profile/darwin/audiofile`. Let’s continue with the next operating system, Linux.
 
-At this point, we’ve learned what build tags are, the different ways to use build tags within your code, and, finally, how to build applications targeted to specific uses using build tags. Specifically, while build tags can be used to define different levels of features available (free versus pro), you can also enable profiling or any other debug tooling using build tags. Now that we have understood how to build our command-line application for different targets, let’s learn how to test our CLI commands.
+We can do the same for Linux and Windows, like so:
+
+```markup
+build-linux-free:
+    go build -tags "linux free" -o builds/free/linux/audiofile main.go
+    chmod +x builds/free/linux/audiofile
+build-linux-pro:
+   go build -tags "linux pro" -o builds/pro/linux/audiofile main.go
+   chmod +x builds/pro/linux/audiofile
+build-linux-pro-profile:
+   go build -tags "linux pro profile" -o builds/profile/linux/audiofile main.go
+   chmod +x builds/profile/linux/audiofile
+build-windows-free:
+    go build -tags "windows free" -o builds/free/windows/ audiofile.exe main.go
+build-windows-pro:
+    go build -tags "windows pro" -o builds/pro/windows/audiofile.exe main.go
+build-windows-pro-profile:
+    go build -tags "windows pro profile" -o builds/profile/windows/audiofile.exe main.go
+```
+
+The free Windows version is output to `builds/free/windows/audiofile.exe`, the pro Windows version is output to `builds/pro/windows/audiofile.exe`, and the Windows profile version is output to `builds/profile/windows/audiofile.exe`. Now, suppose we don’t want to run each of the individual commands one by one, as there are so many to run! We can write a command to build all versions using tags.
+
+### Building applications for all operating systems using tags
+
+Let’s add a new `Makefile` command to build all the operating systems. Basically, we write one command that calls all other commands:
+
+```markup
+build-all: build-darwin-free build-darwin-pro build-darwin-pro-profile build-linux-free build-linux-pro build-linux-pro-profile build-windows-free build-windows-pro build-windows-pro-profile
+```
+
+Let’s try running this command via the terminal:
+
+```markup
+make build-all
+```
+
+If you’re running on Darwin, you’ll see the following output:
+
+```markup
+mmontagnino@Marians-MacCourse-Pro audiofile % make build-all
+go build -tags "darwin free" -o builds/free/darwin/audiofile main.go
+chmod +x builds/free/darwin/audiofile
+go build -tags "darwin pro" -o builds/pro/darwin/audiofile main.go
+chmod +x builds/pro/darwin/audiofile
+go build -tags "darwin pro profile" -o builds/profile/darwin/audiofile main.go
+chmod +x builds/profile/darwin/audiofile
+go build -tags "linux free" -o builds/free/linux/audiofile main.go
+# internal/goos
+/usr/local/go/src/internal/goos/zgoos_linux.go:7:7: GOOS redeclared in this block
+        /usr/local/go/src/internal/goos/zgoos_darwin.go:7:7: other declaration of GOOS
+/usr/local/go/src/internal/goos/zgoos_linux.go:9:7: IsAix redeclared in this block
+        /usr/local/go/src/internal/goos/zgoos_darwin.go:9:7: other declaration of IsAix
+/usr/local/go/src/internal/goos/zgoos_linux.go:10:7: IsAndroid redeclared in this block
+...
+/usr/local/go/src/internal/goos/zgoos_linux.go:17:7: too many errors
+make: *** [build-linux-free] Error 2
+```
+
+I’ve removed part of the error message; however, the most important message is `GOOS redeclared in this block`. This error message comes up when the operating system is set but conflicts with the `GOOS` environment variable. For example, the command that failed used the operating build tag to specify a Linux build:
+
+```markup
+go build -tags "linux free" -o builds/free/linux/audiofile main.go
+```
+
+However, running `go env | grep GOOS` in my macOS terminal shows the value of the `GOOS` environment variable:
+
+```markup
+GOOS="darwin"
+```
+
+Let’s modify the build commands to set the `GOOS` environment variable so it matches the output type based on the build tag.
+
+## Building using the GOOS environment variable
+
+The Linux builds have been modified to set the `GOOS` environment variable to Linux by prepending `GOOS=linux` before the `build` command:
+
+```markup
+build-linux-free:
+    GOOS=linux go build -tags "linux free" -o builds/free/linux/audiofile main.go
+    chmod +x builds/free/linux/audiofile
+build-linux-pro:
+    GOOS=linux go build -tags "linux pro" -o builds/pro/linux/audiofile main.go
+    chmod +x builds/pro/linux/audiofile
+build-linux-pro-profile:
+    GOOS=linux go build -tags "linux pro profile" -o builds/profile/linux/audiofile main.go
+    chmod +x builds/profile/linux/audiofile
+```
+
+The Windows builds have been modified to set the `GOOS` environment variable to Windows by prepending `GOOS=windows` before the `build` command:
+
+```markup
+build-windows-free:
+    GOOS=windows go build -tags "windows free" -o builds/free/windows/audiofile.exe main.go
+build-windows-pro:
+    GOOS=windows go build -tags "windows pro" -o builds/pro/windows/audiofile.exe main.go
+build-windows-pro-profile:
+    GOOS=windows go build -tags "windows pro profile" -o builds/profile/windows/audiofile.exe main.go
+```
+
+Now, let’s try the `build-all` command again. It runs successfully and we can see all the files generated by the `build` command by running `find –type –f ./builds` in the repo:
+
+```markup
+mmontagnino@Marians-MacCourse-Pro audiofile % find ./builds -type f
+./builds/pro/linux/audiofile
+./builds/pro/darwin/audiofile
+./builds/pro/windows/audiofile.exe
+./builds/free/linux/audiofile
+./builds/free/darwin/audiofile
+./builds/free/windows/audiofile.exe
+./builds/profile/linux/audiofile
+./builds/profile/darwin/audiofile
+./builds/profile/windows/audiofile.exe
+```
+
+## Building using the GOARCH environment variable
+
+Many different possible architecture values can be associated with a single operating system. Rather than creating a command for each, we’ll start with just one example:
+
+```markup
+build-darwin-amd64-free:
+    GOOS=darwin GOARCH=amd64 go build -tags "darwin free" -o builds/free/darwin/audiofile main.go
+    chmod +x builds/free/darwin/audiofile
+```
+
+This example specifies the operating system, the `GOOS` environment variable, as `darwin`, and then the architecture, the `GOARCH` environment variable, as `amd64`.
+
+There’d be too many commands to create if we were to create a `build` command for each architecture of each major operating system. We’ll save this for a script within the last section of this chapter.
+
+## Installing using tags and GOOS env va
+
+-   As mentioned earlier, another way to compile your command-line application is by installing it. The `install` command compiles the application, like the `go build` command, but also with the additional step of moving the compiled application to the `$GOPATH/bin` folder or `$GOBIN` value. To learn more about the `install` command, we run the following `go install –``help` command:
+
+```markup
+mmontagnino@Marians-MacCourse-Pro audiofile % go install -help
+usage: go install [build flags] [packages]
+Run 'go help install' for details
+```
+
+-   The same flags for building are available for installing. Again, we will use the `tags` flag only. Let’s first run the `install` command on the macOS system:
+
+```markup
+go install -tags "darwin pro" github.com/marianina8/audiofile
+```
+
+However, running `go env | grep GOPATH` in my macOS terminal shows the value of the `GOOS` environment variable:
+
+```markup
+mmontagnino@Marians-MacCourse-Pro audiofile % go env | grep GOPATH
+GOPATH="/Users/mmontagnino/Code"
+```
+
+Confirm that the audio file CLI executable exists in the `$GOPATH/bin` or `/``Users/mmontagnino/Code/bin` folder.
+
+As mentioned, we can use build tags to separate builds based on the operating system and architecture. Within the audio file repository, we’re already doing so with the following files associated with the `play` and `bug` commands. For the `bug` command, we have the following files. Now, let’s add some `install` commands within the `Makefile` now that we understand how to use the build tags and `GOOS` environment variables.
+
+### install commands for the Darwin operating system
+
+The `install` commands for the Darwin operating system include passing in the specific tags, including `darwin`, and the levels, defined by tags, to install:
+
+```markup
+install-darwin-free:
+    go install -tags "darwin free" github.com/marianina8/audiofile
+install-darwin-pro:
+    go install -tags "darwin pro" github.com/marianina8/audiofile
+install-darwin-pro-profile:
+    go install -tags "darwin pro profile" github.com/marianina8/audiofile
+```
+
+### install commands for the Linux operating system
+
+The `install` commands for the Linux operating system include passing in the specific tags, including `linux`, and the package to install. To ensure the commands do not error out with conflicting `GOOS` settings, we set the matching environment variable, `GOOS`, to `linux`:
+
+```markup
+install-linux-free:
+    GOOS=linux go install -tags "linux free" github.com/marianina8/audiofile
+install-linux-pro:
+    GOOS=linux go install -tags "linux pro" github.com/marianina8/audiofile
+install-linux-pro-profile:
+    GOOS=linux go install -tags "linux pro profile" github.com/marianina8/audiofile
+```
+
+### install commands for the Windows operating system
+
+The `install` commands for the Windows operating system include passing in the specific tags, including `windows`, and the package to install. To ensure the commands do not error out with conflicting `GOOS` settings, we set the matching environment variable, `GOOS`, to `windows`:
+
+```markup
+install-windows-free:
+    GOOS=windows go install -tags "windows free" github.com/marianina8/audiofile
+install-windows-pro:
+    GOOS=windows go install -tags "windows pro" github.com/marianina8/audiofile
+install-windows-pro-profile:
+    GOOS=windows go install -tags "windows pro profile" github.com/marianina8/audiofile
+```
+
+Remember that for your `Makefile`, you’ll need to change the location of the package if you have forked the repo under your own account. Run the `make` command for the operating system you need and confirm that the application is installed by checking the `$GOPATH/bin` or `$``GOBIN` folder.
+
+## Installing using tags and GOARCH env var
+
+While many different possible architecture values can be associated with a single operating system, let’s start with just one example of installing with `GOARCH` `env var`:
+
+```markup
+install-linux-amd64-free:
+    GOOS=linux GOARCH=amd64 go install -tags "linux free" github.com/marianina8/audiofile
+```
+
+This example specifies the operating system, the `GOOS` environment variable, as `linux`, and then the architecture, the `GOARCH` environment variable, as `amd64`. Rather than creating a command for each pair of operating systems and architectures, again, we’ll save this for a script within the last section of this chapter.
 
 Just Imagine
 
-# Testing CLI commands
+# Scripting to compile for multiple platforms
 
-While building your command-line application, it’s important to also build testing around it so you can ensure that the application works as expected. There are a few things that typically need to be done, including the following:
+We’ve learned several different ways to compile for operating systems using the `GOOS` and `GOARCH` environment variables and using build tags. The `Makefile` can fill up rather quickly with all the different combinations of `GOOS`/`GOARCH` pairs and scripting may provide a better solution if you want to generate builds for many more specific architectures.
 
-1.  Mock the HTTP client
-2.  Handle test configuration
-3.  Create a test for each command
+## Creating a bash script to compile in Darwin or Linux
 
-We’ll go over the code for each of these steps that exist in the audio file repository for [_Chapter 11_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_11.xhtml#_idTextAnchor258).
-
-## Mocking the HTTP client
-
-To mock the HTTP client, we’ll need to create an interface to mimic the client’s `Do` method, as well as a function that returns this interface, which is both satisfied by the real and mocked client.
-
-In the `cmd/client.go` file, we’ve written some code to handle all of this:
+Let’s start by creating a bash script. Let’s name it `build.sh`. To create the file, I simply type the following:
 
 ```markup
-type AudiofileClient interface {
-    Do(req *http.Request) (*http.Response, error)
-}
-var (
-    getClient = GetHTTPClient()
-)
-func GetHTTPClient() AudiofileClient {
-    return &http.Client{
-        Timeout: 15 * time.Second,
-    }
-}
+touch build.sh
 ```
 
-We can now easily create a mock client by replacing the `getClient` variable with a function that returns a mocked client. If you look at each command’s code, it uses the `getClient` variable. For example, the `upload.go` file calls the `Do` method with the following line:
+The preceding command creates the file when it does not exist. The file extension is `.sh`, which, while unnecessary to add, clearly indicates that the file is a bash script type. Next, we want to edit it. If using `vi`, use the following command:
 
 ```markup
-resp, err := getClient.Do(req)
+vi build.sh
 ```
 
-When the application runs, this returns the actual HTTP client with a 15-second timeout. However, in each test, we’ll set the `getClient` variable to a mocked HTTP client.
+Otherwise, edit the file using the editor of your choice.
 
-The mocked HTTP client is set in the `cmd/client_test.go` file. First, we define the type:
+### Adding the shebang
+
+The first line of a bash script is called the **shebang**. It is a character sequence that indicates the program loader’s first instruction. It defines which interpreter to run when reading, or interpreting, the script. The first line to indicate to use the bash interpreter is as follows:
 
 ```markup
-type ClientMock struct {
-}
+#!/bin/bash
 ```
 
-Then, to satisfy the `AudiofileClient` interface previously defined, we implement the `Do` method:
+The shebang consists of a couple of elements:
+
+-   `#!` instructs the program loader to load an interpreter for the code
+-   `/bin/bash` indicates the bash or interpreter’s location
+
+These are some typical shebangs for different interpreters:
+
+<table id="table001-3" class="No-Table-Style"><colgroup><col> <col></colgroup><tbody><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break"><strong class="bold">Interpreter</strong></span></p></td><td class="No-Table-Style"><p><span class="No-Break"><strong class="bold">Shebang</strong></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break">Bash</span></p></td><td class="No-Table-Style"><p><code class="literal">#!/</code><span class="No-Break"><code class="literal">bin/bash</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break">Bourne shell</span></p></td><td class="No-Table-Style"><p><code class="literal">#!/</code><span class="No-Break"><code class="literal">bin/sh</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p><span class="No-Break">Powershell</span></p></td><td class="No-Table-Style"><p><code class="literal">#!/</code><span class="No-Break"><code class="literal">user/bin/pwsh</code></span></p></td></tr><tr class="No-Table-Style"><td class="No-Table-Style"><p>Other <span class="No-Break">scripting languages</span></p></td><td class="No-Table-Style"><p><code class="literal">#!/</code><span class="No-Break"><code class="literal">user/bin/env &lt;interpreter&gt;</code></span></p></td></tr></tbody></table>
+
+Table 12.1 – Shebang lines for different interpreters
+
+### Adding comments
+
+To add comments to your bash script, simply start the comment with the `#` symbol and the pound sign, followed by comment text. This text can be used by you and other developers to document information that might not be easily understood from the code alone. It could also just add some details on the usage of the script, who the author is, and so on.
+
+### Adding print lines
+
+In a bash file, to print lines out, simply use the `echo` command. These print lines will help you to understand exactly where your application is within its running process. Use these lines with intention and they will give you and your users some useful insight that can even make debugging easier.
+
+### Adding code
+
+Within the bash script, we’ll generate builds for all the differing build tags for each operating system and architecture pair. Let’s first start to see which architecture values are available for Darwin:
 
 ```markup
-func (c *ClientMock) Do(req *http.Request) (*http.Response, error) {
+go tool dist list | grep darwin
 ```
 
-Some of the requests, including `list`, `get`, and `search` endpoints, will return data that is stored in JSON files under the `cmd/testfiles` folder. We read these files and store them in the corresponding byte slices: `listBytes`, `getBytes`, and `searchBytes`:
+The values returned are as follows:
 
 ```markup
-listBytes, err := os.ReadFile("./testfiles/list.json")
-if err != nil {
-    return nil, fmt.Errorf("unable to read testfile/list.json")
-}
-getBytes, err := os.ReadFile("./testfiles/get.json")
-if err != nil {
-    return nil, fmt.Errorf("unable to read testfile/get.json")
-}
-searchBytes, err := os.ReadFile("./testfiles/search.json")
-if err != nil {
-    return nil, fmt.Errorf("unable to read testfile/search.json")
-}
+darwin/amd64
+darwin/arm64
 ```
 
-The data read from these files is used within the response. Since the `Do` method receives the request, we can create a switch case for each request endpoint and then handle the response individually. You can create more detailed cases to handle errors, but in this case, we are only returning the successful case. For the first case, the `/request` endpoint, we return `200 OK`, but the body of the response also contains the string value from `getBytes`. You can see the actual data in the `./``testfiles/get.json` file:
+Let’s generate the different Darwin builds – free, pro, and profile versions – for all architectures with the following code:
 
 ```markup
-    switch req.URL.Path {
-         case "/request":
-             return &http.Response{
-                 Status:  "OK",
-                 StatusCode: http.StatusOK,
-                 Body: ioutil.NopCloser(bytes.NewBufferString(string(getBytes))),
-      ContentLength: int64(len(getBytes)),
-      Request: req,
-      Header: make(http.Header, 0),
-  }, nil
+# Generate darwin builds
+darwin_archs=(amd64 arm64)
+for darwin_arch in ${darwin_archs[@]}
+do
+    echo "building for darwin/${darwin_arch} free version..."
+    env GOOS=darwin GOARCH=${darwin_arch} go build -tags free -o builds/free/darwin/${darwin_arch}/audiofile main.go
+    echo "building for darwin/${darwin_arch} pro version..."
+    env GOOS=darwin GOARCH=${darwin_arch} go build -tags pro -o builds/pro/darwin/${darwin_arch}/audiofile main.go
+    echo "building for darwin/${darwin_arch} profile version..."
+    env GOOS=darwin GOARCH=${darwin_arch} go build -tags profile -o builds/profile/darwin/${darwin_arch}/audiofile main.go
+done
 ```
 
-For the `/upload` endpoint, we return `200 OK`, but the body of the response also contains the `"123"` string value:
+Next, let’s do the same with Linux, first grabbing the architecture values available:
 
 ```markup
-         case "/upload":
-             return &http.Response{
-                 Status:  "OK",
-                 StatusCode: http.StatusOK,
-      Body: ioutil.NopCloser(bytes.NewBufferString("123")),
-      ContentLength: int64(len("123")),
-      Request: req,
-      Header: make(http.Header, 0),
-   }, nil
+go tool dist list | grep linux
 ```
 
-For the `/list` endpoint, we return `200 OK`, but the body of the response also contains the string value from `listBytes`. You can see the actual data in the `./``testfiles/list.json` file:
+The values returned are as follows:
 
 ```markup
-        case "/list":
-            return &http.Response{
-                Status:  "OK",
-                StatusCode: http.StatusOK,
-                Body: ioutil.NopCloser(bytes.
-                      NewBufferString(string(listBytes))),
-                      ContentLength: int64(len(listBytes)),
-                      Request: req,
-                      Header: make(http.Header, 0),
- }, nil
+linux/386        linux/mips64le
+linux/amd64    linux/mipsle
+linux/arm        linux/ppc64
+linux/arm64    linux/ppc64le
+linux/loong64    linux/riscv64
+linux/mips        linux/s390x
+linux/mips64
 ```
 
-For the `/delete` endpoint, we return `200 OK`, but the body of the response also contains `"successfully deleted audio with` `id: 456"`:
+Let’s generate the different Linux builds – the free, pro, and profile versions – for all architectures with the following code:
 
 ```markup
-        case "/delete":
-            return &http.Response{
-                Status:  "OK",
-                StatusCode: http.StatusOK,
-                Body: ioutil.NopCloser(bytes.
-                      NewBufferString("successfully deleted 
-                        audio with id: 456")),
-                      ContentLength: int64(len("successfully 
-                                     deleted audio with id: 
-                                     456")),
-                      Request: req,
-                      Header: make(http.Header, 0),
-}, nil
+# Generate linux builds
+linux_archs=(386 amd64 arm arm64 loong64 mips mips64 mips64le mipsle ppc64 ppc64le riscv64 s390x)
+for linux_arch in ${linux_archs[@]}
+do
+    echo "building for linux/${linux_arch} free version..."
+    env GOOS=linux GOARCH=${linux_arch} go build -tags free -o builds/free/linux/${linux_arch}/audiofile main.go
+    echo "building for linux/${linux_arch} pro version..."
+    env GOOS=linux GOARCH=${linux_arch} go build -tags pro -o builds/pro/linux/${linux_arch}/audiofile main.go
+    echo "building for linux/${linux_arch} profile version..."
+    env GOOS=linux GOARCH=${linux_arch} go build -tags profile -o builds/profile/linux/${linux_arch}/audiofile main.go
+done
 ```
 
-For the `/search` endpoint, we return `200 OK`, but the body of the response also contains the string value from `searchBytes`. You can see the actual data in the `./``testfiles/search.json` file:
+Next, let’s do the same with Windows, first grabbing the architecture values available:
 
 ```markup
-        case "/search":
-            return &http.Response{
-                Status:  "OK",
-                StatusCode: http.StatusOK,
-                Body: ioutil.NopCloser(bytes.
-                NewBufferString(string(searchBytes))),
-                ContentLength: int64(len(list searchBytes 
-                Bytes)),
-                Request: req,
-                Header: make(http.Header, 0),
-}, nil
-}
-return &http.Response{}, nil
-}
+go tool dist list | grep windows
 ```
 
-Finally, if the request path doesn’t match any of the endpoints in the `switch` statement, then an empty response is returned.
-
-## Handling test configuration
-
-We handle the test configuration in the `cmd/root_test.go` file:
+The values returned are as follows:
 
 ```markup
-var Logger *zap.Logger
-var Verbose *zap.Logger
-func ConfigureTest() {
-    getClient = &ClientMock{}
-    viper.SetDefault("cli.hostname", "testHostname")
-    viper.SetDefault("cli.port", 8000)
-    utils.InitCLILogger()
-}
+windows/386
+windows/amd64
+windows/arm
+windows/arm64
 ```
 
-Within the `ConfigureTest` function, we set the `getClient` variable to a pointer to the `ClientMock` type. Because the `viper` configuration values are checked when the command is called, we set some default values for the CLI’s hostname and port to random test values. Finally, in this file, the regular logger, `Logger`, and verbose logger, `Verbose`, are both defined and then later initialized by the `utils.InitCLILogger()` method call.
-
-## Creating a test for a command
-
-Now that we have the mocked client, configuration, and loggers set up, let’s create a test for the commands. Before I dive into the code for each, it’s important to mention the line of code that’s reused at the start of each test:
+Finally, let’s generate the different Windows builds – the free, pro, and profile versions – for all architectures with the following code:
 
 ```markup
-ConfigureTest()
+# Generate windows builds
+windows_archs=(386 amd64 arm arm64)
+for windows_arch in ${windows_archs[@]}
+do
+    echo "building for windows/${windows_arch} free version..."
+    env GOOS=windows GOARCH=${windows_arch} go build -tags free -o builds/free/windows/${windows_arch}/audiofile.exe main.go
+    echo "building for windows/${windows_arch} pro version..."
+    env GOOS=windows GOARCH=${windows_arch} go build -tags pro -o builds/pro/windows/${windows_arch}/audiofile.exe main.go
+    echo "building for windows/${windows_arch} profile version..."
+    env GOOS=windows GOARCH=${windows_arch} go build -tags profile -o builds/profile/windows/${windows_arch}/audiofile.exe main.go
+done
 ```
 
-The preceding section discusses the details of this function, but it prepares each state with a mocked client, default configuration values, and initialized loggers. In our examples, we use the `testing` package, which provides support for automated tests in Go. It is designed to be used in concert with the `go test` command, which executes any function in your code defined with the following format:
+Here’s the code when run from the Darwin/macOS or Linux terminal:
 
 ```markup
-func TestXxx(*testing.T)
+./build.sh
 ```
 
-`Xxx` can be replaced with anything else, but the first character needs to be capital. The name itself is used to identify the type of test that is being executed. I won’t go into each individual test, just three as examples. To view the entirety of tests, visit the audio file repository for this chapter.
-
-### Testing the bug command
-
-The function for testing the `bug` command is defined here. It takes a single parameter, which is a pointer to the `testing.T` type, and fits the function format defined in the last section. Let’s break down the code:
+We can check that the executable files have been generated. The full list is quite long, and they have been organized within the following nested folder structure:
 
 ```markup
-func TestBug(t *testing.T) {
-    ConfigureTest()
-    b := bytes.NewBufferString("")
-    rootCmd.SetOut(b)
-    rootCmd.SetArgs([]string{"bug", "unexpected"})
-    err := rootCmd.Execute()
-    if err != nil {
-        fmt.Println("err: ", err)
-    }
-    actualBytes, err := ioutil.ReadAll(b)
-    if err != nil {
-        t.Fatal(err)
-    }
-    expectedBytes, err := os.ReadFile("./testfiles/bug.txt")
-    if err != nil {
-        t.Fatal(err)
-    }
-    if strings.TrimSpace(string(actualBytes)) != strings.
-       TrimSpace(string(expectedBytes)) {
-        t.Fatal(string(actualBytes), "!=", 
-          string(expectedBytes))
-    }
-}
+/builds/{level}/{operating-system}/{architecture}/{audiofile-executable}
 ```
 
-In this function, we first define the output buffer, `b`, which we can later read for comparison to the expected output. We set the arguments using the `SetArgs` method and pass in an unexpected argument. The command is executed with the `rootCmd.Execute()` method and the actual result is read from the buffer and saved in the `actualBytes` variable. The expected output is stored within the `./testfiles/bug.txt` file and is read into the `expectedBytes` variable. We compare these values to ensure that they are equal. Since we passed in an unexpected argument, the command usage is printed out. This test is designed to pass; however, if the trimmed strings are not equal, the test fails.
+![Figure 12.2 – Screenshot of generated folders from the build bash script](https://static.packt-cdn.com/products/9781804611654/graphics/image/Figure_12.2_B18883.jpg)
 
-### Testing the get command
+Figure 12.2 – Screenshot of generated folders from the build bash script
 
-The function for testing the `get` command is defined here. Similarly, the function definition fits the format to be picked up in the `go test` command. Remember the mocked client and that the `get` command calls the `/request` endpoint. The response body contains the value found in the `./testfiles/get.json` file. Let’s break down the code:
+A script to generate these builds will need to be different if run on Windows, for example. If you are running your application on Darwin or Linux, try running the build script and see the generated builds populate. You can now share these builds with other users running on a different platform. Next, we’ll create a PowerShell script to generate the same builds to run in Windows.
+
+## Creating a PowerShell script in Windows
+
+Let’s start by creating a PowerShell script. Let’s name it `build.ps1`. Create the file by typing the following command within PowerShell:
 
 ```markup
-func TestGet(t *testing.T) {
-    ConfigureTest()
-    b := bytes.NewBufferString("")
-    rootCmd.SetOut(b)
+notepad build.ps1
 ```
 
-We pass in the following arguments to mimic the `audiofile get –id 123 –``json` call:
+The preceding command asks to create the file when it does not exist. The file extension is `.ps1`, which indicates that the file is a PowerShell script type. Next, we want to edit it. You may use Notepad or another editor of your choice.
+
+Unlike a bash script, a PowerShell script does not require a shebang. To learn more about how to write a PowerShell script, you can review the documentation here: [https://learn.microsoft.com/en-us/powershell/](https://learn.microsoft.com/en-us/powershell/).
+
+### Adding comments
+
+To add comments to your PowerShell script, simply start the comment with a `#` symbol and a pound sign, followed by comment text.
+
+### Adding print lines
+
+In a PowerShell file, to print lines out, simply use the `Write-Output` command:
 
 ```markup
-    rootCmd.SetArgs([]string{"get", "--id", "123", "--json"})
+Write-Output "building for windows/amd64..."
 ```
 
-We execute the root command with the preceding arguments:
+Writing output will help you to understand exactly where your application is within its running process, make it easier to debug, and give the user a sense that something is running. Having no output at all is not only boring but also communicates nothing to the user.
+
+### Adding code
+
+Within the PowerShell script, we’ll generate builds for all the differing build tags for each operating system and architecture pair. Let’s start by seeing which architecture values are available for Darwin via a Windows command:
 
 ```markup
-    err := rootCmd.Execute()
-    if err != nil {
-        fmt.Println("err: ", err)
-    }
+PS C:\Users\mmontagnino\Code\src\github.com\marianina8\audiofile> go tool dist list | Select-String darwin
 ```
 
-We read the actual data output from `rootCmd`’s execution and store it in the `actualBytes` variable:
+Using the `Select-String` command, we can return only the values that contain `darwin`. These values are returned:
 
 ```markup
-    actualBytes, err := ioutil.ReadAll(b)
-    if err != nil {
-        t.Fatal(err)
-    }
+darwin/amd64
+darwin/arm64
 ```
 
-We read the expected data output from the `./``testfiles/get.json` file:
+We can run a similar command for Linux:
 
 ```markup
-    expectedBytes, err := os.ReadFile("./testfiles/get.json")
-    if err != nil {
-        t.Fatal(err)
-    }
+PS C:\Users\mmontagnino\Code\src\github.com\marianina8\audiofile> go tool dist list | Select-String linux
 ```
 
-Then, the data of both `actualBytes` and `expectedBytes` is unmarshalled into the `models.Audio` struct and then compared:
+And a command for Windows:
 
 ```markup
-    var audio1, audio2 models.Audio
-    json.Unmarshal(actualBytes, &audio1)
-    json.Unmarshal(expectedBytes, &audio2)
-    if !(audio1.Id == audio2.Id &&
-    audio1.Metadata.Tags.Album == audio2.Metadata.Tags.Album &&
-    audio1.Metadata.Tags.AlbumArtist == audio2.Metadata.Tags.AlbumArtist &&
-    audio1.Metadata.Tags.Artist == audio2.Metadata.Tags.Artist &&
-    audio1.Metadata.Tags.Comment == audio2.Metadata.Tags.Comment &&
-    audio1.Metadata.Tags.Composer == audio2.Metadata.Tags.Composer &&
-    audio1.Metadata.Tags.Genre == audio2.Metadata.Tags.Genre &&
-    audio1.Metadata.Tags.Lyrics == audio2.Metadata.Tags.Lyrics &&
-    audio1.Metadata.Tags.Year == audio2.Metadata.Tags.Year) {
-        t.Fatalf("expected %q got %q", string(expectedBytes), string(actualBytes))
-    }
+PS C:\Users\mmontagnino\Code\src\github.com\marianina8\audiofile> go tool dist list | Select-String windows
+```
+
+The same values are returned within the previous sections, so I won’t print them out. However, now that we know how to get the architecture for each operating system, we can add the code to generate the builds for all of them.
+
+The code to generate Darwin builds is as follows:
+
+```markup
+# Generate darwin builds
+$darwin_archs="amd64","arm64"
+foreach ($darwin_arch in $darwin_archs)
+{
+    Write-Output "building for darwin/$($darwin_arch) free version..."
+    $env:GOOS="darwin";$env:GOARCH=$darwin_arch; go build -tags free -o .\builds\free\darwin\$darwin_arch\audiofile main.go
+    Write-Output "building for darwin/$($darwin_arch) pro version..."
+    $env:GOOS="darwin";$env:GOARCH=$darwin_arch; go build -tags pro -o .\builds\pro\darwin\$darwin_arch\audiofile main.go
+    Write-Output "building for darwin/$($darwin_arch) profile version..."
+    $env:GOOS="darwin";$env:GOARCH=$darwin_arch; go build -tags profile -o .\builds\profile\darwin\$darwin_arch\audiofile main.go
 }
 ```
 
-This test was designed to succeed, but if the data is not as expected, then the test fails.
-
-### Testing the upload command
-
-The function for testing the `upload` command is defined here. Again, the function definition fits the format to be picked up in the `go test` command. Remember the mocked client and that the `upload` command calls the `/upload` endpoint with a mocked response body containing the `"123"` value. Let’s break down the code:
+The code to generate Linux builds is as follows:
 
 ```markup
-func TestUpload(t *testing.T) {
-    ConfigureTest()
-    b := bytes.NewBufferString("")
-    rootCmd.SetOut(b)
-    rootCmd.SetArgs([]string{"upload", "--filename", "list.
-                   go"})
-    err := rootCmd.Execute()
-    if err != nil {
-        fmt.Println("err: ", err)
-    }
-    expected := "123"
-    actualBytes, err := ioutil.ReadAll(b)
-    if err != nil {
-        t.Fatal(err)
-    }
-    actual := string(actualBytes)
-    if !(actual == expected) {
-        t.Fatalf("expected \"%s\" got \"%s\"", expected, 
-                actual)
-    }
+# Generate linux builds
+$linux_archs="386","amd64","arm","arm64","loong64","mips","mips64","mips64le","mipsle","ppc64","ppc64le","riscv64","s390x"
+foreach ($linux_arch in $linux_archs)
+{
+    Write-Output "building for linux/$($linux_arch) free version..."
+    $env:GOOS="linux";$env:GOARCH=$linux_arch; go build -tags free -o .\builds\free\linux\$linux_arch\audiofile main.go
+    Write-Output "building for linux/$($linux_arch) pro version..."
+    $env:GOOS="linux";$env:GOARCH=$linux_arch; go build -tags pro -o .\builds\pro\linux\$linux_arch\audiofile main.go
+    Write-Output "building for linux/$($linux_arch) profile version..."
+    $env:GOOS="linux";$env:GOARCH=$linux_arch; go build -tags profile -o .\builds\profile\linux\$linux_arch\audiofile main.go
 }
 ```
 
-`rootCmd`’s arguments are set to mimic the following command call:
+Finally, the code to generate Windows builds is as follows:
 
 ```markup
-audiofile upload –filename list.go
+# Generate windows builds
+$windows_archs="386","amd64","arm","arm64"
+foreach ($windows_arch in $windows_archs)
+{
+    Write-Output "building for windows/$($windows_arch) free version..."
+    $env:GOOS="windows";$env:GOARCH=$windows_arch; go build -tags free -o .\builds\free\windows\$windows_arch\audiofile.exe main.go
+    Write-Output "building for windows/$($windows_arch) pro version..."
+    $env:GOOS="windows";$env:GOARCH=$windows_arch; go build -tags pro -o .\builds\pro\windows\$windows_arch\audiofile.exe main.go
+    Write-Output "building for windows/$($windows_arch) profile version..."
+    $env:GOOS="windows";$env:GOARCH=$windows_arch; go build -tags profile -o .\builds\profile\windows\$windows_arch\audiofile.exe main.go
+}
 ```
 
-The file type and data are not validated because that happens on the API side, which is mocked. However, since we know the body of the response contains the `123` value, we set the expected variable to `123`. The `actual` value, which contains the output of the command execution, is then later compared to the expected one. The test is designed for success, but if the values are not equal, then the test fails.
-
-We’ve now gone over several examples of how to test a CLI Cobra command. You can now create your own tests for your CLI, by mocking your own HTTP client and creating tests for each individual command. We haven’t done so in this chapter, but it’s good to know that build tags can also be used to separate different kinds of tests – for example, integration tests and unit tests.
-
-## Running the tests
-
-To test your commands, you can run `go test` and pass in a few additional flags:
-
--   `-v` for verbose mode
--   `-tags` for any files you want to specifically target
-
-In our test, we want to target just the `pro` build tag because that will cover all commands. We add two additional `Makefile` commands, one to run tests in verbose mode and one that doesn’t:
+Each section generates a build for one of the three major operating systems and all the available architectures. To run the script from PowerShell, just run the following script:
 
 ```markup
-test:
-  go test ./... -tags pro
-test-verbose:
-  go test –v ./... -tags pro
+./build.ps1
 ```
 
-After saving the `Makefile` from the terminal, you can execute the command:
+The following will be the output for each port:
 
 ```markup
-make test
+building for $GOOS/$GOARCH [free/pro/profile] version...
 ```
 
-The following output is expected:
+Check the `builds` folder to see all the ports generated successfully. The full list is quite long, and they have been organized within the following nested folder structure:
 
 ```markup
-go test ./cmd -tags pro
-ok      github.com/marianina8/audiofile/cmd
+/builds/{level}/{operating-system}/{architecture}/{audiofile-executable}
 ```
 
-We now know how to run the tests utilizing build tags as well. This should be all the tools needed to run your own CLI testing.
+Now, we can generate builds for all operating systems and architectures from a PowerShell script, which can be run on Windows. If you run any of the major operating systems – Darwin, Linux, or Windows – you can now generate a build for your own platform or anyone else who would like to use your application.
 
 Just Imagine
 
 # Summary
 
-In this chapter, you learned what build tags are and how to use them for different purposes. Build tags can be used for generating builds of different levels, separating our specific tests, or adding debug features. You also learned how to generate builds with the build tags that you added to the top of your files and how to utilize the Boolean logic of tags to quickly determine whether files will or won’t be included.
+In this chapter, you learned what the `GOOS` and `GOARCH` environment variables are and how you can use them, as well as build tags, to customize builds based on the operating system, architecture, and levels. These environment variables help you to learn more about the environment you’re building in and possibly understand why a build may have trouble executing on another platform.
 
-You also learned how to test your Cobra CLI commands with Golang’s default `testing` package. Some necessary tools were also included, such as learning how to mock an HTTP client. Together with the build tags, you can now not only build targeted applications with tags but also run tests with the same tags to target specific tests. In the next chapter, [_Chapter 12_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_12.xhtml#_idTextAnchor291), _Cross-Compilation Across Different Platforms_, we will learn how to use these tags and compile for the different major operating systems: `darwin`, `linux`, and `windows`.
+There are also two ways to compile an application – building or installing. In this chapter, we discussed how to build or install the application and what the difference is. The same flags are available for each command, but we discussed how to build or install on each of the major operating systems using the `Makefile`. However, this also showed how large the `Makefile` can become!
+
+Finally, we learned how to create a simple script to run in Darwin, Linux, or Windows to generate all the builds needed for all the major operating systems. You learned how to write both a bash and PowerShell script to generate builds. In the next chapter, [_Chapter 13_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_13.xhtml#_idTextAnchor331), _Using Containers for Distribution_, we will learn how to run these compiled applications on containers made from different operating system images. Finally, in [_Chapter 14_](https://subscription.imaginedevops.io/book/programming/9781804611654/2B18883_14.xhtml#_idTextAnchor359), _Publishing Your Go Binary as a Homebrew Formula with GoReleaser_, you’ll explore the tools required to automate the process of building and releasing your Go binaries across a range of operating systems and architectures. By learning how to use GoReleaser, you can significantly accelerate the process of releasing and deploying your application. This way, you can concentrate on developing new features and addressing bugs instead of getting bogged down with the build and compile process. Ultimately, using GoReleaser can save you valuable time and energy that you can use to make your application even better.
 
 Just Imagine
 
 # Questions
 
-1.  Where does the build tag go in a Golang file and what is the syntax?
-2.  What flag is used for both `go build` and `go test` to pass in the build tags?
-3.  What build tag could you place on an integration test Golang file and how would you run `go test` with the tag?
+1.  What Go environment variables define the operating system and the architecture?
+2.  What additional security do you get from building with a first-class port?
+3.  What command would you run on Linux to find the port values for the Darwin operating system?
 
 Just Imagine
 
 # Answers
 
-1.  It’s placed at the top of the file, before the package declaration, followed by a single empty line. The syntax is: `//``go:build [tag]`.
-2.  The `–tags` flag is used to pass in build tags for both the `go build` and `go` `test` methods.
-3.  You could add the `//go:build int` build tag at the top of any integration test file, and then modify the test file to run this command: `go test ./cmd -tags "``pro int"`.
+1.  `GOOS` is the Golang operating system, and `GOARCH` is the Golang architecture value.
+2.  There are several reasons why a first-class port is more secure: releases are blocked by broken builds, official binaries are provided, and installation is documented.
+3.  `go tool dist list |` `grep darwin`.
 
 Just Imagine
 
 # Further reading
 
--   Read more about the `build` package at [https://pkg.go.dev/go/build](https://pkg.go.dev/go/build), and read more about the `testing` package at [https://pkg.go.dev/testing](https://pkg.go.dev/testing)
+-   Read more about compiling at [https://go.dev/doc/tutorial/compile-install](https://go.dev/doc/tutorial/compile-install)[](https://go.dev/doc/tutorial/compile-install%0A)
+-   Read more about Go environment variables at [https://pkg.go.dev/cmd/go](https://pkg.go.dev/cmd/go)

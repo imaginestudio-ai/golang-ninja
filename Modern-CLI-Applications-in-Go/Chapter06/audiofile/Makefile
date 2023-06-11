@@ -1,10 +1,10 @@
 
-.PHONY: all test clean build
+.PHONY: all test clean
 
-all: clean test build
+all: clean test
 
-build:
-	go build -o bin/audiofile main.go
+build-darwin:
+	go build -tags darwin -o bin/audiofile main.go
 	chmod +x bin/audiofile
 
 clean:

@@ -16,10 +16,6 @@ build-darwin-free:
 	GOOS=darwin GOARCH=amd64 go build -tags "darwin free" -o builds/free/darwin/audiofile main.go
 	chmod +x builds/free/darwin/audiofile
 
-build-darwin-dev:
-	go build -tags "darwin dev pro" -o bin/audiofile main.go
-	chmod +x bin/audiofile
-
 build-darwin-pro:
 	GOOS=darwin GOARCH=amd64 go build -tags "darwin pro" -o builds/pro/darwin/audiofile main.go
 	chmod +x builds/pro/darwin/audiofile

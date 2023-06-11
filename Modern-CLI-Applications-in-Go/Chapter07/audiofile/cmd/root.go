@@ -4,6 +4,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -25,4 +26,13 @@ func Execute() {
 
 func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func Configure() {
+	viper.AddConfigPath("./configs")
+	viper.SetConfigName("cli")
+	viper.SetConfigType("json")
+	viper.ReadInConfig()
+	viper.SetDefault("cli.hostname", "localhost")
+	viper.SetDefault("cli.port", 8000)
 }

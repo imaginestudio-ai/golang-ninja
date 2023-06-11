@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/marianina8/audiofile/models"
 	"github.com/marianina8/audiofile/utils"
@@ -44,9 +43,6 @@ and transcript if available.`,
 }
 
 func callList(verbose bool) ([]byte, error) {
-	client := &http.Client{
-		Timeout: 15 * time.Second,
-	}
 	path := fmt.Sprintf("http://%s:%d/list", viper.Get("cli.hostname"), viper.GetInt("cli.port"))
 	payload := &bytes.Buffer{}
 	req, err := http.NewRequest(http.MethodGet, path, payload)
@@ -54,7 +50,7 @@ func callList(verbose bool) ([]byte, error) {
 		return nil, utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port", err, verbose)
 	}
 	utils.LogRequest(verbose, http.MethodGet, path, payload.String())
-	resp, err := client.Do(req)
+	resp, err := getClient.Do(req)
 	if err != nil {
 		return nil, utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port\n  or check that api is running", err, verbose)
 	}

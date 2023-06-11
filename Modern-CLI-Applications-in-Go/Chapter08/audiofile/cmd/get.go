@@ -17,11 +17,13 @@ import (
 
 // getCmd represents the get command
 var getCmd = &cobra.Command{
-	Use:   "get",
-	Short: "Get audio metadata",
-	Long:  `Get audio metadata by audiofile id.  Metadata includes available tags and transcript.`,
+	Use:     "get",
+	Short:   "Get audio metadata",
+	Long:    `Get audio metadata by audiofile id.  Metadata includes available tags and transcript.`,
+	Example: `audiofile get --id 45705eba-9342-4952-8cd4-baa2acc25188`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		b, err := getAudioByID(cmd)
+		verbose, _ := cmd.Flags().GetBool("verbose")
+		b, err := getAudioByID(cmd, verbose)
 		if err != nil {
 			return err
 		}
@@ -48,7 +50,7 @@ func init() {
 	rootCmd.AddCommand(getCmd)
 }
 
-func getAudioByID(cmd *cobra.Command) ([]byte, error) {
+func getAudioByID(cmd *cobra.Command, verbose bool) ([]byte, error) {
 	client := &http.Client{
 		Timeout: 15 * time.Second,
 	}
@@ -57,30 +59,30 @@ func getAudioByID(cmd *cobra.Command) ([]byte, error) {
 	if id == "" {
 		id, err = utils.AskForID()
 		if err != nil {
-			return nil, err
+			return nil, utils.Error("\n  %v\n  try again and enter an id", err, verbose)
 		}
 	}
 	params := "id=" + url.QueryEscape(id)
 	path := fmt.Sprintf("http://%s:%d/request?%s", viper.Get("cli.hostname"), viper.GetInt("cli.port"), params)
 	payload := &bytes.Buffer{}
-
 	req, err := http.NewRequest(http.MethodGet, path, payload)
 	if err != nil {
-		return nil, err
+		return nil, utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port", err, verbose)
 	}
-	fmt.Printf("Sending request: %s %s %s...\n", http.MethodGet, path, payload)
+	utils.LogRequest(verbose, http.MethodGet, path, payload.String())
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return nil, utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port\n  or check that api is running", err, verbose)
 	}
 	defer resp.Body.Close()
 	err = utils.CheckResponse(resp)
 	if err != nil {
-		return nil, err
+		return nil, utils.Error("\n  checking response: %v", err, verbose)
 	}
 	b, err := io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, utils.Error("\n  reading response: %v\n  ", err, verbose)
 	}
+	utils.LogHTTPResponse(verbose, resp, b)
 	return b, nil
 }

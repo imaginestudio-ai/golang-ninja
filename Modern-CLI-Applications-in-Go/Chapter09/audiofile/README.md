@@ -1,5 +1,5 @@
 # audiofile
-In Chapter 9 we discuss how to integrate empathy into our documentation.  Errors are decorated and reworded before returned.  Also, logging with the Zap logger has been added and the verbose flag shows this debug output when used.  Finally, a new documentation page has been added in conjunction with a make command to generate man pages for the audiofile CLI.
+In Chapter 10 we discuss how to create a terminal dashboard.  Here we add a new command, player, which launches a audiofile player dashboard in the users terminal.
 
 ## To generate the audiofile CLI documentation on MacOS:
 make manpages

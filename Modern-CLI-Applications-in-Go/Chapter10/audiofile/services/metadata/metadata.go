@@ -6,6 +6,11 @@ import (
 
 	"fmt"
 	"net/http"
+	"net/http/pprof"
+)
+
+var (
+	profile = false
 )
 
 type MetadataService struct {
@@ -22,6 +27,13 @@ func CreateMetadataService(port int, storage interfaces.Storage) *MetadataServic
 		},
 		Storage: storage,
 	}
+
+	if profile {
+		mux.HandleFunc("/debug/pprof/", pprof.Index)
+		mux.HandleFunc("/debug/pprof/{action}", pprof.Index)
+		mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
+	}
+
 	mux.HandleFunc("/upload", metadataService.uploadHandler)
 	mux.HandleFunc("/request", metadataService.getByIDHandler)
 	mux.HandleFunc("/list", metadataService.listHandler)

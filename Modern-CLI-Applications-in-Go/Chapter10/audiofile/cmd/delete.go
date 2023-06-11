@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/marianina8/audiofile/utils"
 	"github.com/spf13/cobra"
@@ -21,9 +20,6 @@ var deleteCmd = &cobra.Command{
 	Long:    `Delete audiofile by id. This command removes the entire folder containing all stored metadata`,
 	Example: `audiofile delete --id 45705eba-9342-4952-8cd4-baa2acc25188`,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		client := &http.Client{
-			Timeout: 15 * time.Second,
-		}
 		var err error
 		silence, _ := cmd.Flags().GetBool("silence")
 		verbose, _ := cmd.Flags().GetBool("verbose")
@@ -34,10 +30,10 @@ var deleteCmd = &cobra.Command{
 				return utils.Error("\n  %v\n  try again and enter an id", err, verbose)
 			}
 		}
-		confirmed := utils.Confirm("Confirm you'd like to delete audiofile with matching id: " + id)
-		if !confirmed {
-			return nil
-		}
+		// confirmed := utils.Confirm("Confirm you'd like to delete audiofile with matching id: " + id)
+		// if !confirmed {
+		// 	return nil
+		// }
 		params := "id=" + url.QueryEscape(id)
 		path := fmt.Sprintf("http://%s:%d/delete?%s", viper.Get("cli.hostname"), viper.GetInt("cli.port"), params)
 		payload := &bytes.Buffer{}
@@ -47,14 +43,14 @@ var deleteCmd = &cobra.Command{
 			return utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port", err, verbose)
 		}
 		utils.LogRequest(verbose, http.MethodDelete, path, payload.String())
-		resp, err := client.Do(req)
+		resp, err := getClient.Do(req)
 		if err != nil {
 			return utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port\n  or check that api is running", err, verbose)
 		}
+		defer resp.Body.Close()
 		if !silence {
 			fmt.Printf("Sending request: %s %s %s...\n", http.MethodDelete, path, payload)
 		}
-		defer resp.Body.Close()
 		err = utils.CheckResponse(resp)
 		if err != nil {
 			return utils.Error("\n  checking response: %v", err, verbose)

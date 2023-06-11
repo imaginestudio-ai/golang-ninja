@@ -13,7 +13,9 @@ func play(audiofilePath string, verbose bool) (int, error) {
 	if err := cmd.Start(); err != nil {
 		return 0, utils.Error("\n  starting start command: %v", err, verbose)
 	}
-	fmt.Println("Enjoy the music...")
+	if verbose {
+		fmt.Println("Enjoy the music...")
+	}
 	err := cmd.Wait()
 	if err != nil {
 		return 0, utils.Error("\n  running start command: %v", err, verbose)

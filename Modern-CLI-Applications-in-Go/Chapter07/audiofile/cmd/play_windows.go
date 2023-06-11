@@ -3,7 +3,7 @@
 package cmd
 
 import (
-	"fmt"
+	"github.com/marianina8/audiofile/utils"
 	"os/exec"
 )
 
@@ -12,9 +12,10 @@ func play(audiofilePath string) error {
 	if err := cmd.Start(); err != nil {
 		return err
 	}
-	fmt.Println("enjoy the music!")
+	fmt.Println("Enjoy the music...")
 	err := cmd.Wait()
 	if err != nil {
 		return err
 	}
+	return nil
 }

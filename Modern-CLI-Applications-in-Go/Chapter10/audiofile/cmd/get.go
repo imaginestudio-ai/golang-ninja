@@ -7,7 +7,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/marianina8/audiofile/models"
 	"github.com/marianina8/audiofile/utils"
@@ -51,9 +50,6 @@ func init() {
 }
 
 func getAudioByID(cmd *cobra.Command, verbose bool) ([]byte, error) {
-	client := &http.Client{
-		Timeout: 15 * time.Second,
-	}
 	var err error
 	id, _ := cmd.Flags().GetString("id")
 	if id == "" {
@@ -70,7 +66,7 @@ func getAudioByID(cmd *cobra.Command, verbose bool) ([]byte, error) {
 		return nil, utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port", err, verbose)
 	}
 	utils.LogRequest(verbose, http.MethodGet, path, payload.String())
-	resp, err := client.Do(req)
+	resp, err := getClient.Do(req)
 	if err != nil {
 		return nil, utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port\n  or check that api is running", err, verbose)
 	}

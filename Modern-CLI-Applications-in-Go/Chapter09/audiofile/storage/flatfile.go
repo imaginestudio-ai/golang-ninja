@@ -94,6 +94,7 @@ func (f FlatFile) List() ([]*models.Audio, error) {
 	}
 	files, err := os.ReadDir(metadataFilePath)
 	if err != nil {
+		fmt.Println("reading user home dir:", err.Error())
 		return nil, err
 	}
 	audioFiles := []*models.Audio{}

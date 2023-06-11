@@ -1,3 +1,5 @@
+//go:build !free && pro
+
 package cmd
 
 import (
@@ -7,7 +9,6 @@ import (
 	"io"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/marianina8/audiofile/models"
 	"github.com/marianina8/audiofile/utils"
@@ -23,9 +24,6 @@ var searchCmd = &cobra.Command{
 	Example: `./bin/audiofile search --value electronic`,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		verbose, _ := cmd.Flags().GetBool("verbose")
-		client := &http.Client{
-			Timeout: 15 * time.Second,
-		}
 		var err error
 		value, _ := cmd.Flags().GetString("value")
 		if value == "" {
@@ -43,7 +41,7 @@ var searchCmd = &cobra.Command{
 			return utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port", err, verbose)
 		}
 		utils.LogRequest(verbose, http.MethodGet, path, payload.String())
-		resp, err := client.Do(req)
+		resp, err := getClient.Do(req)
 		if err != nil {
 			return utils.Error("\n  %v\n  check configuration to ensure properly configured hostname and port\n  or check that api is running", err, verbose)
 		}

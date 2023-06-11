@@ -1,0 +1,3 @@
+module github.com/ImagineDevOps/Chapter4/Examples/HotdogShop/ImpureHotdogShop
+
+go 1.18

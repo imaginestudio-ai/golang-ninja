@@ -1,11 +1,6 @@
 # 
 # Functional Programming in Go.
 
-
-<a href="https://www.imaginedevops.io/product/functional-programming-in-go/9781801811163?utm_source=github&utm_medium=repository&utm_campaign="><img src="https://static.packt-cdn.com/products/9781801811163/cover/smaller" alt="" height="256px" align="right"></a>
-
-This is the code repository for [ Functional Programming in Go ](https://www.imaginedevops.io/product/functional-programming-in-go/9781801811163?utm_source=github&utm_medium=repository&utm_campaign=), published by ImagineDevOps .
-
 **Apply functional techniques in Golang to improve the testability, readability, and security of your code**
 
 ## What is this book about?
@@ -18,11 +13,6 @@ This book covers the following exciting features:
 * Apply functional design patterns for problem solving
 * Understand when to choose and not choose FP concepts
 * Discover the benefits of functional programming when dealing with concurrent code
-
-If you feel this book is for you, get your [copy](https://www.amazon.com/dp/1801811164) today!
-
-<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps DevOps/GitHub/master/GitHub.png" 
-alt="https://www.imaginedevops.io/" border="5" /></a>
 
 ## Instructions and Navigations
 All of the code is organized into folders. For example, Chapter04.
@@ -43,24 +33,3 @@ With the following software and hardware list you can run all code files present
 | -------- | ------------------------------------ | ----------------------------------- |
 | 1-11 | Go (pre- and post-generics) | Windows, Mac OS X, and Linux (Any) |
 
-
-We also provide a PDF file that has color images of the screenshots/diagrams used in this book. [Click here to download it](https://packt.link/5tPDg).
-
-### Related products
-* Domain-Driven Design with Golang  [[ImagineDevOps ]](https://www.imaginedevops.io/product/domain-driven-design-with-golang/9781804613450?utm_source=github&utm_medium=repository&utm_campaign=) [[Amazon]](https://www.amazon.com/dp/1804613452)
-
-* Event-Driven Architecture in Golang  [[ImagineDevOps ]](https://www.imaginedevops.io/product/event-driven-architecture-in-golang/9781803238012?utm_source=github&utm_medium=repository&utm_campaign=) [[Amazon]](https://www.amazon.com/dp/1803238011)
-
-
-
-## Get to Know the Author
-**Dylan Meeus**
-is a Software Engineer, with over a decade of experience in various functional and non-functional programming languages. He has used Go to develop systems in a variety of domains, from healthcare to frameworks for machine learning platforms and digital signal processing software. He developed a passion for Functional Programming when learning Haskell and applied this knowledge to traditionally non-functional languages like Java. Over the past several years, Dylan has been a speaker at various Go and Java-oriented conferences such as GopherCon and Devoxx
-
-
-
-
-### Download a free PDF
-
- <i>If you have already purchased a print or Kindle version of this book, you can get a DRM-free PDF version at no cost.<br>Simply click on the link to claim your free PDF.</i>
-<p align="center"> <a href="https://packt.link/free-ebook/9781801811163">https://packt.link/free-ebook/9781801811163 </a> </p>

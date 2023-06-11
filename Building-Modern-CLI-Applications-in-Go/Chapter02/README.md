@@ -14,13 +14,7 @@ This chapter will cover the following topics:
 -   Determining use cases and requirements
 -   Structuring an audio metadata CLI application
 
-Bookmark
 
-# Technical requirements
-
-You can find the program layout examples on GitHub at [https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter02/Chapter-2](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter02/Chapter-2).
-
-Bookmark
 
 # Commonly used program layouts for robust applications
 

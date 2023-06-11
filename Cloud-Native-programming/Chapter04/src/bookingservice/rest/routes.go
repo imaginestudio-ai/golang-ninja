@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/martin-helmich/cloudnativego-backend/src/lib/msgqueue"
 	"github.com/martin-helmich/cloudnativego-backend/src/lib/persistence"
@@ -14,7 +15,7 @@ func ServeAPI(listenAddr string, database persistence.DatabaseHandler, eventEmit
 	r.Methods("post").Path("/events/{eventID}/bookings").Handler(&CreateCourseingHandler{eventEmitter, database})
 
 	srv := http.Server{
-		Handler:      r,
+		Handler:      handlers.CORS()(r),
 		Addr:         listenAddr,
 		WriteTimeout: 2 * time.Second,
 		ReadTimeout:  1 * time.Second,

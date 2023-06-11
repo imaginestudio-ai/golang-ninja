@@ -51,3 +51,10 @@ services:
       - MONGO_URL=mongodb://bookings-db/bookings
     networks:
       - myevents
+  
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - 80:80

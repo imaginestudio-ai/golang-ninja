@@ -1,7 +1,7 @@
 package mongolayer
 
 import (
-	"github.com/ImagineDevOps DevOps/Cloud-Native-programming-with-Golang/chapter02/myevents/src/lib/persistence"
+	"github.com/ImagineDevOps DevOps/Cloud-Native-programming-with-Golang/chapter03/myevents/src/lib/persistence"
 
 	mgo "gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -32,7 +32,7 @@ func (mgoLayer *MongoDBLayer) AddEvent(e persistence.Event) ([]byte, error) {
 		e.ID = bson.NewObjectId()
 	}
 
-	if !e.Location.ID.Valid() {
+	if e.Location.ID.Valid() {
 		e.Location.ID = bson.NewObjectId()
 	}
 

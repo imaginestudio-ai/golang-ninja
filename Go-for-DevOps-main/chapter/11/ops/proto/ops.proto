@@ -5,7 +5,7 @@ package ops;
 import "google/protobuf/duration.proto";
 import "jaeger/model/model.proto";
 
-option go_package = "github.com/ImagineDevOps/Go-for-DevOps/chapter/10/ops/proto";
+option go_package = "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/10/ops/proto";
 
 // The request to get traces from Jaeger.
 message ListTracesReq {

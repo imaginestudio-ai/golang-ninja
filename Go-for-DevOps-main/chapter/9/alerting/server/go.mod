@@ -1,4 +1,4 @@
-module github.com/ImagineDevOps/Go-for-DevOps/chapter/9/logging/demo/server
+module github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/9/logging/demo/server
 
 go 1.17
 

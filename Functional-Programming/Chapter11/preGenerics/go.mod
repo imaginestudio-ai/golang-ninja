@@ -1,4 +1,4 @@
-module github.com/ImagineDevOps/Chapter11/pregenerics
+module github.com/ImagineDevOps DevOps/Chapter11/pregenerics
 
 go 1.18
 

@@ -1,5 +1,5 @@
 # Mastering Go
-This is the code repository for [Mastering Go](https://www.imaginedevops.io/golang-ninja/mastering-go), published by [Imagine](https://www.imaginedevops.io/?utm_source=github). It contains all the supporting project files necessary to work through the book from start to finish.
+This is the code repository for [Mastering Go](https://www.imaginedevops.io/golang-ninja/mastering-go), published by [ImagineDevOps ](https://www.imaginedevops.io/?utm_source=github). It contains all the supporting project files necessary to work through the book from start to finish.
 
 
 

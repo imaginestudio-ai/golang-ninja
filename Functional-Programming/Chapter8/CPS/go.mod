@@ -1,3 +1,3 @@
-module github.com/ImagineDevOps/Chapter8/CPS
+module github.com/ImagineDevOps DevOps/Chapter8/CPS
 
 go 1.18

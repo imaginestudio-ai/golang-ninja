@@ -2,7 +2,7 @@
 
 <a href="https://www.imaginedevops.io/product/network-automation-with-go/9781800560925?utm_source=github&utm_medium=repository&utm_campaign=9781800560925"><img src="https://static.packt-cdn.com/products/9781800560925/cover/smaller" alt="Early Access" height="256px" align="right"></a>
 
-This is the code repository for [Network Automation with Go](https://www.imaginedevops.io/product/network-automation-with-go/9781800560925?utm_source=github&utm_medium=repository&utm_campaign=9781800560925), published by Imagine.
+This is the code repository for [Network Automation with Go](https://www.imaginedevops.io/product/network-automation-with-go/9781800560925?utm_source=github&utm_medium=repository&utm_campaign=9781800560925), published by ImagineDevOps .
 
 **Learn how to automate network operations and build applications using the Go programming language**
 
@@ -20,7 +20,7 @@ This book covers the following exciting features:
 
 If you feel this book is for you, get your [copy](https://www.amazon.com/dp/1800560923) today!
 
-<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps/GitHub/master/GitHub.png" 
+<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps DevOps/GitHub/master/GitHub.png" 
 alt="https://www.imaginedevops.io/" border="5" /></a>
 
 ## Instructions and Navigations
@@ -53,9 +53,9 @@ With the following software and hardware list you can run all code files present
 We also provide a PDF file that has color images of the screenshots/diagrams used in this book. [Click here to download it](https://packt.link/hOgov).
 
 ### Related products
-*  Python Network Programming Techniques[[Imagine]](https://www.imaginedevops.io/product/python-network-programming-techniques/9781838646639?utm_source=github&utm_medium=repository&utm_campaign=9781838646639) [[Amazon]](https://www.amazon.com/dp/1838646639)
+*  Python Network Programming Techniques[[ImagineDevOps ]](https://www.imaginedevops.io/product/python-network-programming-techniques/9781838646639?utm_source=github&utm_medium=repository&utm_campaign=9781838646639) [[Amazon]](https://www.amazon.com/dp/1838646639)
 
-*  Network Automation Cookbook[[Imagine]](https://www.imaginedevops.io/product/network-automation-cookbook/9781789956481?utm_source=github&utm_medium=repository&utm_campaign=9781789956481) [[Amazon]](https://www.amazon.com/dp/178995648X)
+*  Network Automation Cookbook[[ImagineDevOps ]](https://www.imaginedevops.io/product/network-automation-cookbook/9781789956481?utm_source=github&utm_medium=repository&utm_campaign=9781789956481) [[Amazon]](https://www.amazon.com/dp/178995648X)
 
 ## Get to Know the Authors
 **Nicolas**

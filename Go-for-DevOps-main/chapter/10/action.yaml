@@ -24,7 +24,7 @@ outputs:
     description: 'message sent to Twitter'
 runs:
   using: docker
-  image: docker://ghcr.io/ImagineDevOps/tweeter:1.0.0
+  image: docker://ghcr.io/ImagineDevOps DevOps/tweeter:1.0.0
   args:
     - --message
     - "${{ inputs.message }}"

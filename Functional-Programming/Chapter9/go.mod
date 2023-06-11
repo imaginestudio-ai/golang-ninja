@@ -1,3 +1,3 @@
-module github.com/ImagineDevOps/Chapter9
+module github.com/ImagineDevOps DevOps/Chapter9
 
 go 1.18

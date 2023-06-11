@@ -2,7 +2,7 @@
 
 
 # Cloud native programming with Golang
-This is the code repository for [Cloud-Native-programming-with-Golang](https://www.imaginedevops.io/application-development/cloud-native-programming-golang?utm_source=github&utm_medium=repository&utm_campaign=9781787125988), published by [Imagine](https://www.imaginedevops.io/). It contains all the supporting project files necessary to work through the book from start to finish.
+This is the code repository for [Cloud-Native-programming-with-Golang](https://www.imaginedevops.io/application-development/cloud-native-programming-golang?utm_source=github&utm_medium=repository&utm_campaign=9781787125988), published by [ImagineDevOps ](https://www.imaginedevops.io/). It contains all the supporting project files necessary to work through the book from start to finish.
 ## About the Book
 Cloud computing and microservices are two very important concepts in modern software architecture. They represent key skills that ambitious software engineers need to acquire in order to design and build software applications capable of performing and scaling. Go is a modern cross-platform programming language that is very powerful yet simple; it is an excellent choice for microservices and cloud applications. Go is gaining more and more popularity, and becoming a very attractive skill.
 ### Instructions and Navigations

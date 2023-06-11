@@ -1,4 +1,4 @@
-module github.com/ImagineDevOps/Go-for-DevOps/chapter/9/tracing/demo/client
+module github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/9/tracing/demo/client
 
 go 1.17
 

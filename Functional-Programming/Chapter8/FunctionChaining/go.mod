@@ -1,3 +1,3 @@
-module github.com/ImagineDevOps/Chapter8/FunctionChaining
+module github.com/ImagineDevOps DevOps/Chapter8/FunctionChaining
 
 go 1.18

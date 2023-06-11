@@ -880,7 +880,7 @@ The next subsection illustrates how to define the JSON tags in a Go structure in
 
 ## Structures and JSON
 
-Imagine that you have a Go structure that you want to convert into a JSON record without including any empty fields—the next code illustrates how to perform that task with the use of `omitempty`:
+ImagineDevOps  that you have a Go structure that you want to convert into a JSON record without including any empty fields—the next code illustrates how to perform that task with the use of `omitempty`:
 
 ```markup
 // Ignoring empty fields in JSON
@@ -921,7 +921,7 @@ So far, we have seen working with single JSON records. But what happens when you
 
 ## Reading and writing JSON data as streams
 
-Imagine that you have a slice of Go structures that represent JSON records that you want to process. Should you process the records one by one? It can be done but does it look efficient? It does not! The good thing is that Go supports the processing of multiple JSON records as streams instead of individual records, which is faster and more efficient. This subsection teaches how to perform that using the `JSONstreams.go` utility, which contains the following two functions:
+ImagineDevOps  that you have a slice of Go structures that represent JSON records that you want to process. Should you process the records one by one? It can be done but does it look efficient? It does not! The good thing is that Go supports the processing of multiple JSON records as streams instead of individual records, which is faster and more efficient. This subsection teaches how to perform that using the `JSONstreams.go` utility, which contains the following two functions:
 
 ```markup
 // DeSerialize decodes a serialized slice with JSON records

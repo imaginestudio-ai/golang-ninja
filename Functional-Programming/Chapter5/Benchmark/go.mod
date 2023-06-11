@@ -1,3 +1,3 @@
-module github.com/ImagineDevOps/Chapter5/Benchmark
+module github.com/ImagineDevOps DevOps/Chapter5/Benchmark
 
 go 1.18

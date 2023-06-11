@@ -2,7 +2,7 @@
 
 
 # Security with Go
-This is the code repository for [Security with Go](https://www.imaginedevops.io/networking-and-servers/security-go?utm_source=github&utm_medium=repository&utm_campaign=9781788627917), published by [Imagine](https://www.imaginedevops.io/?utm_source=github). It contains all the supporting project files necessary to work through the book from start to finish.
+This is the code repository for [Security with Go](https://www.imaginedevops.io/networking-and-servers/security-go?utm_source=github&utm_medium=repository&utm_campaign=9781788627917), published by [ImagineDevOps ](https://www.imaginedevops.io/?utm_source=github). It contains all the supporting project files necessary to work through the book from start to finish.
 ## About the Book
 Go is becoming more and more popular as a language for security experts. Its wide use in the server and cloud environment, its speed and ease of use, and its evident capabilities in data analysis have made it a prime choice for developers concerned with security.
 

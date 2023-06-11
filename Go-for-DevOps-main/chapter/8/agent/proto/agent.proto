@@ -1,7 +1,7 @@
 syntax = "proto3";
 package system.agent;
 
-option go_package = "github.com/ImagineDevOps/Go-for-DevOps/chapter/6/agent/proto/agent";
+option go_package = "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/6/agent/proto/agent";
 
 message InstallReq {
 	string name = 1;

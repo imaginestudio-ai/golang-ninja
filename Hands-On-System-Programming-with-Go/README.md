@@ -5,7 +5,7 @@
 
 <a href="https://www.imaginedevops.io/application-development/hands-systems-programming-go?utm_source=github&utm_medium=repository&utm_campaign=9781789804072"><img src="https://packt-type-cloud.s3.amazonaws.com/uploads/sites/3122/2019/07/cover.png" alt="Hands-On System Programming with Go " height="256px" align="right"></a>
 
-This is the code repository for [Hands-On System Programming with Go ](https://www.imaginedevops.io/application-development/hands-systems-programming-go?utm_source=github&utm_medium=repository&utm_campaign=9781789804072), published by Imagine.
+This is the code repository for [Hands-On System Programming with Go ](https://www.imaginedevops.io/application-development/hands-systems-programming-go?utm_source=github&utm_medium=repository&utm_campaign=9781789804072), published by ImagineDevOps .
 
 **Build modern and concurrent applications for Unix and Linux systems using Golang**
 
@@ -23,7 +23,7 @@ This book covers the following exciting features:
 
 If you feel this book is for you, get your [copy](https://www.amazon.com/dp/1789804078) today!
 
-<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps/GitHub/master/GitHub.png" 
+<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps DevOps/GitHub/master/GitHub.png" 
 alt="https://www.imaginedevops.io/" border="5" /></a>
 
 ## Instructions and Navigations
@@ -50,9 +50,9 @@ With the following software and hardware list you can run all code files present
 We also provide a PDF file that has color images of the screenshots/diagrams used in this book. [Click here to download it](https://static.packt-cdn.com/downloads/9781789804072_ColorImages.pdf?).
 
 ### Related products
-* Hands-On Full Stack Development with Go  [[Imagine]](https://www.imaginedevops.io/web-development/hands-full-stack-development-go?utm_source=github&utm_medium=repository&utm_campaign=9781789130751) [[Amazon]](https://www.amazon.com/dp/1789130751)
+* Hands-On Full Stack Development with Go  [[ImagineDevOps ]](https://www.imaginedevops.io/web-development/hands-full-stack-development-go?utm_source=github&utm_medium=repository&utm_campaign=9781789130751) [[Amazon]](https://www.amazon.com/dp/1789130751)
 
-* Learn Data Structures and Algorithms with Golang  [[Imagine]](https://www.imaginedevops.io/application-development/learn-data-structures-and-algorithms-golang?utm_source=github&utm_medium=repository&utm_campaign=9781789618501) [[Amazon]](https://www.amazon.com/dp/1789618509)
+* Learn Data Structures and Algorithms with Golang  [[ImagineDevOps ]](https://www.imaginedevops.io/application-development/learn-data-structures-and-algorithms-golang?utm_source=github&utm_medium=repository&utm_campaign=9781789618501) [[Amazon]](https://www.amazon.com/dp/1789618509)
 
 
 ## Get to Know the Author

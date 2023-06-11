@@ -29,7 +29,7 @@ Before you run the playbook in your computer to create a Linux testing environme
 With all this in place, you can go ahead and clone the [book's GitHub repository][] with the `git clone` command.
 
 ```bash
-$ git clone https://github.com/ImagineDevOps/Network-Automation-with-Go
+$ git clone https://github.com/ImagineDevOps DevOps/Network-Automation-with-Go
 ```
 
 ## Creating the Testing Environment
@@ -354,7 +354,7 @@ Last, but not least, [Cisco Modeling Labs] offer access to Cisco virtual images 
 [reserve a DevNet Sandbox]: https://developer.cisco.com/docs/sandbox/#!first-reservation-guide/reservation-hello-world
 [EC2 Available Regions]: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-available-regions
 [Cisco Modeling Labs - Personal]: https://learningnetworkstore.cisco.com/cisco-modeling-labs-personal/cisco-cml-personal
-[book's GitHub repository]: https://github.com/ImagineDevOps/Network-Automation-with-Go
+[book's GitHub repository]: https://github.com/ImagineDevOps DevOps/Network-Automation-with-Go
 [AWS Free Tier]: https://aws.amazon.com/free/
 [Beginners Guide: Downloading Python]: https://wiki.python.org/moin/BeginnersGuide/Download
 [Installing Ansible with pip]: https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#installing-ansible-with-pip

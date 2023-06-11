@@ -1,4 +1,4 @@
-module github.com/ImagineDevOps/Go-for-DevOps/chapter/14/petstore-operator
+module github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/14/petstore-operator
 
 go 1.17
 

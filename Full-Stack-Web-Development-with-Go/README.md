@@ -2,7 +2,7 @@
 
 <a href="https://www.imaginedevops.io/product/becoming-a-full-stack-go-developer/9781803234199"><img src="https://static.packt-cdn.com/products/9781803234199/cover/smaller" alt="Web Development with Julia and Genie" height="256px" align="right"></a>
 
-This is the code repository for [Full-Stack Web Development with Go](https://www.imaginedevops.io/product/web-development-with-julia-and-genie/9781801811132), published by Imagine.
+This is the code repository for [Full-Stack Web Development with Go](https://www.imaginedevops.io/product/web-development-with-julia-and-genie/9781801811132), published by ImagineDevOps .
 
 **Build your web applications quickly using the Go Programming language and Vue.js**
 
@@ -19,7 +19,7 @@ This book covers the following exciting features:
 
 If you feel this book is for you, get your [copy](https://www.amazon.com/dp/1803234199) today!
 
-<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps/GitHub/master/GitHub.png" 
+<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps DevOps/GitHub/master/GitHub.png" 
 alt="https://www.imaginedevops.io/" border="5" /></a>
 
 
@@ -54,9 +54,9 @@ We also provide a PDF file that has color images of the screenshots/diagrams use
 
 
 ### Related products <Other books you may enjoy>
-* Network Automation with Go [[Imagine]](https://www.imaginedevops.io/product/network-automation-with-go/9781800560925) [[Amazon]](https://www.amazon.com/dp/1800560923)
+* Network Automation with Go [[ImagineDevOps ]](https://www.imaginedevops.io/product/network-automation-with-go/9781800560925) [[Amazon]](https://www.amazon.com/dp/1800560923)
 
-* Microservices with Go [[Imagine]](https://www.imaginedevops.io/product/rust-web-programming/9781800560819) [[Amazon]](https://www.amazon.com/dp/1804617008)
+* Microservices with Go [[ImagineDevOps ]](https://www.imaginedevops.io/product/rust-web-programming/9781800560819) [[Amazon]](https://www.amazon.com/dp/1804617008)
 
 ## Get to Know the Authors
 **Nanik Tolaram**

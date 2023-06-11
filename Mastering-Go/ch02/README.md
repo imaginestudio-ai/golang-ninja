@@ -1609,7 +1609,7 @@ The first two times the seed value was `10`, so we got the same output. The thir
 
 ## Generating random strings
 
-Imagine that you want to generate random strings that can be used as difficult to guess passwords or for testing purposes. Based on random number generation, we create a utility that produces random strings. The utility is implemented as `genPass.go` and can be found in the `ch02` directory of the book's GitHub repository. The core functionality of `genPass.go` is found in the next function.
+ImagineDevOps  that you want to generate random strings that can be used as difficult to guess passwords or for testing purposes. Based on random number generation, we create a utility that produces random strings. The utility is implemented as `genPass.go` and can be found in the `ch02` directory of the book's GitHub repository. The core functionality of `genPass.go` is found in the next function.
 
 ```markup
 func getString(len int64) string {

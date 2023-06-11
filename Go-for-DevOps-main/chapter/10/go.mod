@@ -1,4 +1,4 @@
-module github.com/ImagineDevOps/Go-for-DevOps/chapter/10
+module github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/10
 
 go 1.17
 

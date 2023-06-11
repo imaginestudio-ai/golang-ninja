@@ -8,6 +8,6 @@
 
 - name: Clone the book's repo
   ansible.builtin.git:
-    repo: https://github.com/ImagineDevOps/Network-Automation-with-Go.git
+    repo: https://github.com/ImagineDevOps DevOps/Network-Automation-with-Go.git
     dest: "/home/{{ ansible_user }}/network-automation-with-go"
   become: false

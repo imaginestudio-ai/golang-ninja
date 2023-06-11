@@ -2,13 +2,13 @@
 
 # Hands-on Software Engineering with Golang
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Go Report Card](https://goreportcard.com/badge/github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang)](https://goreportcard.com/report/github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang)
-[![Build Status](https://github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/actions/workflows/ci.yaml/badge.svg)](https://github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/actions/workflows/ci.yaml)
-[![Coverage Report](https://codecov.io/gh/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/branch/master/graph/badge.svg)](https://codecov.io/gh/ImagineDevOps/Hands-On-Software-Engineering-with-Golang)
+[![Go Report Card](https://goreportcard.com/badge/github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang)](https://goreportcard.com/report/github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang)
+[![Build Status](https://github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/actions/workflows/ci.yaml/badge.svg)](https://github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/actions/workflows/ci.yaml)
+[![Coverage Report](https://codecov.io/gh/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/branch/master/graph/badge.svg)](https://codecov.io/gh/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang)
 
 <a href="https://www.imaginedevops.io/in/programming/hands-on-software-engineering-with-golang?utm_source=github&utm_medium=repository&utm_campaign="><img src="https://www.imaginedevops.io/media/catalog/product/cache/e4d64343b1bc593f1c5348fe05efa4a6/9/7/9781838554491-original.png" alt="" height="256px" align="right"></a>
 
-This is the code repository for [Hands-on Software Engineering with Golang](https://www.imaginedevops.io/in/programming/hands-on-software-engineering-with-golang?utm_source=github&utm_medium=repository&utm_campaign=), published by Imagine.
+This is the code repository for [Hands-on Software Engineering with Golang](https://www.imaginedevops.io/in/programming/hands-on-software-engineering-with-golang?utm_source=github&utm_medium=repository&utm_campaign=), published by ImagineDevOps .
 
 **Move beyond basic programming to design and build reliable software with clean code**
 
@@ -30,7 +30,7 @@ This book covers the following exciting features:
 
 If you feel this book is for you, get your [copy](https://www.amazon.com/dp/1838554491) today!
 
-<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps/GitHub/master/GitHub.png" 
+<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps DevOps/GitHub/master/GitHub.png" 
 alt="https://www.imaginedevops.io/" border="5" /></a>
 
 ## Instructions
@@ -55,9 +55,9 @@ it](https://static.packt-cdn.com/downloads/9781838554491_ColorImages.pdf).
 This Golang programming book is for developers and software engineers looking to use Go to design and build scalable distributed systems effectively. Knowledge of Go programming and basic networking principles is required.
 
 ### Related products
-* Hands-On System Programming with Go  [[Imagine]](https://www.imaginedevops.io/application-development/hands-systems-programming-go?utm_source=github&utm_medium=repository&utm_campaign=9781789804072) [[Amazon]](https://www.amazon.com/dp/1789804078)
+* Hands-On System Programming with Go  [[ImagineDevOps ]](https://www.imaginedevops.io/application-development/hands-systems-programming-go?utm_source=github&utm_medium=repository&utm_campaign=9781789804072) [[Amazon]](https://www.amazon.com/dp/1789804078)
 
-* Go Programming Cookbook - Second Edition  [[Imagine]](https://www.imaginedevops.io/in/application-development/go-programming-cookbook-second-edition?utm_source=github&utm_medium=repository&utm_campaign=9781789800982) [[Amazon]](https://www.amazon.com/dp/1789800986)
+* Go Programming Cookbook - Second Edition  [[ImagineDevOps ]](https://www.imaginedevops.io/in/application-development/go-programming-cookbook-second-edition?utm_source=github&utm_medium=repository&utm_campaign=9781789800982) [[Amazon]](https://www.amazon.com/dp/1789800986)
 
 ## Get to Know the Author
 **Achilleas Anagnostopoulos**

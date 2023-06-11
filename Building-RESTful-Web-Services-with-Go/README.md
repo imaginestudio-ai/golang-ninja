@@ -2,7 +2,7 @@
 
 
 # Building RESTful Web services with Go
-This is the code repository for [Building RESTful Web services with Go](https://www.imaginedevops.io/application-development/building-restful-web-services-go?utm_source=github&utm_medium=repository&utm_campaign=9781788294287), published by [Imagine](https://www.imaginedevops.io/?utm_source=github). It contains all the supporting project files necessary to work through the book from start to finish.
+This is the code repository for [Building RESTful Web services with Go](https://www.imaginedevops.io/application-development/building-restful-web-services-go?utm_source=github&utm_medium=repository&utm_campaign=9781788294287), published by [ImagineDevOps ](https://www.imaginedevops.io/?utm_source=github). It contains all the supporting project files necessary to work through the book from start to finish.
 ## About the Book
 Initially, SOAP-based web services became more popular with XML. Then, since 2012,
 REST picked up the pace and gulped SOAP in whole. The rise of a new generation of web

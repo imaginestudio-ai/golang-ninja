@@ -1,3 +1,3 @@
-module github.com/ImagineDevOps/Chapter4/TestableCode
+module github.com/ImagineDevOps DevOps/Chapter4/TestableCode
 
 go 1.18

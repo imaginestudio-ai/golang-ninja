@@ -1,4 +1,4 @@
-module github.com/ImagineDevOps/Go-for-DevOps/chapter/13/petstore-provider
+module github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/13/petstore-provider
 
 go 1.17
 

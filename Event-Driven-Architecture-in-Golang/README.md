@@ -5,7 +5,7 @@
 
 <a href="https://www.imaginedevops.io/product/event-driven-architecture-in-golang/9781803238012?utm_source=github&utm_medium=repository&utm_campaign=9781803238012"><img src="https://static.packt-cdn.com/products/9781803238012/cover/smaller" alt="" height="256px" align="right"></a>
 
-This is the code repository for [Event-Driven Architecture in Golang](https://www.imaginedevops.io/product/event-driven-architecture-in-golang/9781803238012?utm_source=github&utm_medium=repository&utm_campaign=9781803238012), published by Imagine.
+This is the code repository for [Event-Driven Architecture in Golang](https://www.imaginedevops.io/product/event-driven-architecture-in-golang/9781803238012?utm_source=github&utm_medium=repository&utm_campaign=9781803238012), published by ImagineDevOps .
 
 **Building complex systems with asynchronicity and eventual consistency**
 
@@ -21,7 +21,7 @@ This book covers the following exciting features:
 
 If you feel this book is for you, get your [copy](https://www.amazon.com/dp/1803238011) today!
 
-<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps/GitHub/master/GitHub.png" 
+<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps DevOps/GitHub/master/GitHub.png" 
 alt="https://www.imaginedevops.io/" border="5" /></a>
 
 ## Instructions and Navigations
@@ -50,10 +50,10 @@ We also provide a PDF file that has color images of the screenshots/diagrams use
 
 ### Related products
 * Go for DevOps 
-[[Imagine]](https://www.imaginedevops.io/product/go-for-devops/9781801818896?utm_source=github&utm_medium=repository&utm_campaign=9781801818896) [[Amazon]](https://www.amazon.com/dp/1801818894)
+[[ImagineDevOps ]](https://www.imaginedevops.io/product/go-for-devops/9781801818896?utm_source=github&utm_medium=repository&utm_campaign=9781801818896) [[Amazon]](https://www.amazon.com/dp/1801818894)
 
 * Mastering Go - Third Edition 
-[[Imagine]](https://www.imaginedevops.io/product/mastering-go-third-edition/9781801079310?utm_source=github&utm_medium=repository&utm_campaign=9781801079310) [[Amazon]](https://www.amazon.com/dp/1801079315)
+[[ImagineDevOps ]](https://www.imaginedevops.io/product/mastering-go-third-edition/9781801079310?utm_source=github&utm_medium=repository&utm_campaign=9781801079310) [[Amazon]](https://www.amazon.com/dp/1801079315)
 
 
 ## Get to Know the Author

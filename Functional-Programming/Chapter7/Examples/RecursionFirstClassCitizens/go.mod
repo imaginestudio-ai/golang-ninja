@@ -1,3 +1,3 @@
-module github.com/ImagineDevOps/Chapter7/Examples/RecursionFirstClassCitizens
+module github.com/ImagineDevOps DevOps/Chapter7/Examples/RecursionFirstClassCitizens
 
 go 1.18

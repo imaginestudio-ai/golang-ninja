@@ -4,7 +4,7 @@
 
 <a href="https://www.imaginedevops.io/product/functional-programming-in-go/9781801811163?utm_source=github&utm_medium=repository&utm_campaign="><img src="https://static.packt-cdn.com/products/9781801811163/cover/smaller" alt="" height="256px" align="right"></a>
 
-This is the code repository for [ Functional Programming in Go ](https://www.imaginedevops.io/product/functional-programming-in-go/9781801811163?utm_source=github&utm_medium=repository&utm_campaign=), published by Imagine.
+This is the code repository for [ Functional Programming in Go ](https://www.imaginedevops.io/product/functional-programming-in-go/9781801811163?utm_source=github&utm_medium=repository&utm_campaign=), published by ImagineDevOps .
 
 **Apply functional techniques in Golang to improve the testability, readability, and security of your code**
 
@@ -21,7 +21,7 @@ This book covers the following exciting features:
 
 If you feel this book is for you, get your [copy](https://www.amazon.com/dp/1801811164) today!
 
-<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps/GitHub/master/GitHub.png" 
+<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps DevOps/GitHub/master/GitHub.png" 
 alt="https://www.imaginedevops.io/" border="5" /></a>
 
 ## Instructions and Navigations
@@ -47,9 +47,9 @@ With the following software and hardware list you can run all code files present
 We also provide a PDF file that has color images of the screenshots/diagrams used in this book. [Click here to download it](https://packt.link/5tPDg).
 
 ### Related products
-* Domain-Driven Design with Golang  [[Imagine]](https://www.imaginedevops.io/product/domain-driven-design-with-golang/9781804613450?utm_source=github&utm_medium=repository&utm_campaign=) [[Amazon]](https://www.amazon.com/dp/1804613452)
+* Domain-Driven Design with Golang  [[ImagineDevOps ]](https://www.imaginedevops.io/product/domain-driven-design-with-golang/9781804613450?utm_source=github&utm_medium=repository&utm_campaign=) [[Amazon]](https://www.amazon.com/dp/1804613452)
 
-* Event-Driven Architecture in Golang  [[Imagine]](https://www.imaginedevops.io/product/event-driven-architecture-in-golang/9781803238012?utm_source=github&utm_medium=repository&utm_campaign=) [[Amazon]](https://www.amazon.com/dp/1803238011)
+* Event-Driven Architecture in Golang  [[ImagineDevOps ]](https://www.imaginedevops.io/product/event-driven-architecture-in-golang/9781803238012?utm_source=github&utm_medium=repository&utm_campaign=) [[Amazon]](https://www.amazon.com/dp/1803238011)
 
 
 

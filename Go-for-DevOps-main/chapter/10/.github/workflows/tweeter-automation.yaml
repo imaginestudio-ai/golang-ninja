@@ -41,7 +41,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - run: docker pull ghcr.io/ImagineDevOps/tweeter:1.0.0
+      - run: docker pull ghcr.io/ImagineDevOps DevOps/tweeter:1.0.0
       - name: test the tweeter action in DRY_RUN
         id: tweeterAction
         env:
@@ -72,7 +72,7 @@ jobs:
       - name: build cross-platform binaries
         env:
           PLATFORMS: darwin/amd64 darwin/arm64 windows/amd64 linux/amd64 linux/arm64
-          VERSION_INJECT: github.com/ImagineDevOps/Go-for-DevOps/chapter/10/pkg/tweeter.Version
+          VERSION_INJECT: github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/10/pkg/tweeter.Version
           OUTPUT_PATH_FORMAT: ./bin/${{ env.RELEASE_VERSION }}/{{.OS}}/{{.Arch}}/tweeter
         run: |
           gox -osarch="${PLATFORMS}" -ldflags "-X ${VERSION_INJECT}=${RELEASE_VERSION}" -output "${OUTPUT_PATH_FORMAT}"

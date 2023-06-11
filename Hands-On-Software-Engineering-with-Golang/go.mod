@@ -1,4 +1,4 @@
-module github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang
+module github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang
 
 go 1.18
 

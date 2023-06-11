@@ -1,7 +1,7 @@
 syntax = "proto3";
 package rollout.lb;
 
-option go_package = "github.com/ImagineDevOps/Go-for-DevOps/chapter/6/rollout/lb/proto/lb";
+option go_package = "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/6/rollout/lb/proto/lb";
 
 // PoolType indicates what type of pool to use. This influences
 // how the pool distributes its workload.

@@ -26,5 +26,5 @@ jobs:
         with:
           push: true
           tags: |
-            ghcr.io/ImagineDevOps/tweeter:${{ env.RELEASE_VERSION }}
-            ghcr.io/ImagineDevOps/tweeter:latest
+            ghcr.io/ImagineDevOps DevOps/tweeter:${{ env.RELEASE_VERSION }}
+            ghcr.io/ImagineDevOps DevOps/tweeter:latest

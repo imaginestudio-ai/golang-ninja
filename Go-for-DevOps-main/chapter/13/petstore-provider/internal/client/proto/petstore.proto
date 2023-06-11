@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package petstore;
 
-option go_package = "github.com/ImagineDevOps/Go-for-DevOps/proto";
+option go_package = "github.com/ImagineDevOps DevOps/Go-for-DevOps/proto";
 
 import "google/type/date.proto";
 

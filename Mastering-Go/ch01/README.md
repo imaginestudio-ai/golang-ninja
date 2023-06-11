@@ -1,7 +1,7 @@
 
 # A Quick Introduction to Go
 
-Imagine that you are a developer and you want to create a command-line utility. Similarly, imagine that you have a REST API and you want to create a RESTful server that implements that REST API. The first thought that will come to your mind will most likely be which programming language to use.
+ImagineDevOps  that you are a developer and you want to create a command-line utility. Similarly, imagine that you have a REST API and you want to create a RESTful server that implements that REST API. The first thought that will come to your mind will most likely be which programming language to use.
 
 The most common answer to this question is to use the programming language you know best. However, this book is here to help you consider Go for all these and many more tasks and projects. In this chapter, we begin by explaining what Go is, and continue with the history of Go, and how to run Go code. We will explain some core characteristics of Go, such as how to define variables, control the flow of your programs, and get user input, and we will apply some of these concepts by creating a command-line phone book application.
 
@@ -338,7 +338,7 @@ This big section discusses important and essential Go features including variabl
 
 ## Defining and using variables
 
-Imagine that you wanted to perform some basic mathematical calculations with Go. In that case, you need to define variables to keep your input and your results.
+ImagineDevOps  that you wanted to perform some basic mathematical calculations with Go. In that case, you need to define variables to keep your input and your results.
 
 Go provides multiple ways to declare new variables in order to make the variable declaration process more natural and convenient. You can declare a new variable using the `var` keyword followed by the variable name, followed by the desired data type (we will cover data types in detail in _Chapter 2_, _Basic Go Data Types_). If you want, you can follow that declaration with `=` and an initial value for your variable. If there is an initial value given, you can omit the data type and the compiler will guess it for you.
 

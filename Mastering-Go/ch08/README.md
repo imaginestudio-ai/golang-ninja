@@ -617,7 +617,7 @@ Bookmark
 
 # Exposing metrics to Prometheus
 
-Imagine that you have an application that writes files to disk and you want to get metrics for that application to better understand how the writing of multiple files has an effect on the general performance—you need to gather performance data for understanding the behavior of your application. Although the presented application uses the _gauge_ type of metric only because it is what is appropriate for the information that is sent to Prometheus, Prometheus accepts many types of data. The list of supported data types for metrics is the following:
+ImagineDevOps  that you have an application that writes files to disk and you want to get metrics for that application to better understand how the writing of multiple files has an effect on the general performance—you need to gather performance data for understanding the behavior of your application. Although the presented application uses the _gauge_ type of metric only because it is what is appropriate for the information that is sent to Prometheus, Prometheus accepts many types of data. The list of supported data types for metrics is the following:
 
 -   _Counter_: This is a cumulative value that is used for representing increasing counters—the value of a counter can stay the same, go up, or be reset to zero but cannot decrease. Counters are usually used for representing cumulative values such as the number of requests served so far, the total number of errors, etc.
 -   _Gauge_: This is a single numerical value that is allowed to increase or decrease. Gauges are usually used for representing values that can go up or down such as the number of requests, time durations, etc.

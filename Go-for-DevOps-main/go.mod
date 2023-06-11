@@ -1,12 +1,12 @@
-module github.com/ImagineDevOps/Go-for-DevOps
+module github.com/ImagineDevOps DevOps/Go-for-DevOps
 
 go 1.18
 
-replace github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore => ./chapter/11/petstore
+replace github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore => ./chapter/11/petstore
 
 require (
 	github.com/360EntSecGroup-Skylar/excelize v1.4.1
-	github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore v0.0.0-00010101000000-000000000000
+	github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore v0.0.0-00010101000000-000000000000
 	github.com/aelsabbahy/goss v0.3.16
 	github.com/c9s/goprocinfo v0.0.0-20210130143923-c95fcf8c64a8
 	github.com/cenkalti/backoff v2.2.1+incompatible

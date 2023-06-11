@@ -1,4 +1,4 @@
-module github.com/ImagineDevOps/Go-for-DevOps/chapter/11/petstore
+module github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11/petstore
 
 go 1.18
 

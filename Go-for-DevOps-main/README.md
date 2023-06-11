@@ -5,7 +5,7 @@
 
 <a href="https://www.imaginedevops.io/product/go-for-devops/9781801818896?utm_source=github&utm_medium=repository&utm_campaign=9781801818896"><img src="https://static.packt-cdn.com/products/9781801818896/cover/smaller" alt="Go for DevOps" height="256px" align="right"></a>
 
-This is the code repository for [Go for DevOps](https://www.imaginedevops.io/product/go-for-devops/9781801818896?utm_source=github&utm_medium=repository&utm_campaign=9781801818896), published by Imagine.
+This is the code repository for [Go for DevOps](https://www.imaginedevops.io/product/go-for-devops/9781801818896?utm_source=github&utm_medium=repository&utm_campaign=9781801818896), published by ImagineDevOps .
 
 **Learn how to use the Go language to automate servers, the cloud, Kubernetes, GitHub, Packer, and Terraform**
 
@@ -24,7 +24,7 @@ This book covers the following exciting features:
 
 If you feel this book is for you, get your [copy](https://www.amazon.com/dp/1801818894) today!
 
-<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps/GitHub/master/GitHub.png" 
+<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps DevOps/GitHub/master/GitHub.png" 
 alt="https://www.imaginedevops.io/" border="5" /></a>
 
 ## Instructions and Navigations
@@ -61,9 +61,9 @@ With the following software and hardware list you can run all code files present
 We also provide a PDF file that has color images of the screenshots/diagrams used in this book. [Click here to download it](https://static.packt-cdn.com/downloads/9781801818896_ColorImages.pdf).
 
 ### Related products
-* Learning DevOps - Second Edition [[Imagine]](https://www.imaginedevops.io/product/learning-devops-second-edition/9781801818964?utm_source=github&utm_medium=repository&utm_campaign=9781801818964) [[Amazon]](https://www.amazon.com/dp/1801818967)
+* Learning DevOps - Second Edition [[ImagineDevOps ]](https://www.imaginedevops.io/product/learning-devops-second-edition/9781801818964?utm_source=github&utm_medium=repository&utm_campaign=9781801818964) [[Amazon]](https://www.amazon.com/dp/1801818967)
 
-* The DevOps Career Handbook [[Imagine]](https://www.imaginedevops.io/product/the-devops-career-handbook/9781803230948?utm_source=github&utm_medium=repository&utm_campaign=9781803230948) [[Amazon]](https://www.amazon.com/dp/1803230940)
+* The DevOps Career Handbook [[ImagineDevOps ]](https://www.imaginedevops.io/product/the-devops-career-handbook/9781803230948?utm_source=github&utm_medium=repository&utm_campaign=9781803230948) [[Amazon]](https://www.amazon.com/dp/1803230940)
 
 ## Errata
  * Page xxi (Under to get the most out of this book): **gPRC(https://grpc.io)** _should be_ **gRPC(https://grpc.io)**

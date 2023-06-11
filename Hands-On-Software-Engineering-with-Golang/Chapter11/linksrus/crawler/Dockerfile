@@ -4,7 +4,7 @@
 FROM golang:1.13 AS builder
 
 # Pull build dependencies
-WORKDIR $GOPATH/src/github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang
+WORKDIR $GOPATH/src/github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang
 COPY . .
 RUN make deps
 
@@ -14,7 +14,7 @@ RUN GIT_SHA=$(git rev-parse --short HEAD) && \
     go build -a \
     -ldflags "-extldflags '-static' -w -s -X main.appSha=$GIT_SHA" \
     -o /go/bin/linksrus-crawler \
-    github.com/ImagineDevOps/Hands-On-Software-Engineering-with-Golang/Chapter11/linksrus/crawler
+    github.com/ImagineDevOps DevOps/Hands-On-Software-Engineering-with-Golang/Chapter11/linksrus/crawler
 
 ########################################################
 # STEP 2 create alpine image with trusted certs

@@ -1,3 +1,3 @@
-module github.com/ImagineDevOps/Chapter7/Examples/Performance
+module github.com/ImagineDevOps DevOps/Chapter7/Examples/Performance
 
 go 1.18

@@ -621,7 +621,7 @@ This subsection explains how the database index is implemented with the help of 
 
 As a rule of thumb, you index a field that is going to be used for searching. There is no point in creating an index that is not going to be used for querying.
 
-Let us now see what this means in practice. Imagine that we have a slice named `S` with the following kind of data:
+Let us now see what this means in practice. ImagineDevOps  that we have a slice named `S` with the following kind of data:
 
 ```markup
 S[0]={0800123123, ...}

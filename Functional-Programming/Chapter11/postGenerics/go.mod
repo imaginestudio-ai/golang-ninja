@@ -1,4 +1,4 @@
-module github.com/ImagineDevOps/Chapter11/postgenerics
+module github.com/ImagineDevOps DevOps/Chapter11/postgenerics
 
 go 1.18
 

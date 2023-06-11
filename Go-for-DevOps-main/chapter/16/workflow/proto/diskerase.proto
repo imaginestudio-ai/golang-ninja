@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package diskerase;
 
-option go_package = "github.com/ImagineDevOps/Go-for-DevOps/chapter/18/diskerase/proto/diskerase";
+option go_package = "github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/18/diskerase/proto/diskerase";
 
 // WorkReq is the definition of some work to be done by the system.
 message WorkReq {

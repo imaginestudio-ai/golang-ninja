@@ -2,7 +2,7 @@ FROM golang:1.17
 COPY . /usr/src/server
 WORKDIR /usr/src/server
 RUN go env -w GOPROXY=direct GO111MODULE=on
-RUN go mod init github.com/ImagineDevOps/Go-for-DevOps/chapter/11
+RUN go mod init github.com/ImagineDevOps DevOps/Go-for-DevOps/chapter/11
 RUN go mod tidy
 WORKDIR /usr/src/server/ops
 RUN go install

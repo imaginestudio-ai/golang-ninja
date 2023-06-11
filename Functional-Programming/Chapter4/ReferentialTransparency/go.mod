@@ -1,3 +1,3 @@
-module github.com/ImagineDevOps/Chapter4/RefentialTransparency
+module github.com/ImagineDevOps DevOps/Chapter4/RefentialTransparency
 
 go 1.18

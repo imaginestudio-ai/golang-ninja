@@ -3,8 +3,6 @@
 
 # Event-Driven Architecture in Golang
 
-<a href="https://www.imaginedevops.io/product/event-driven-architecture-in-golang/9781803238012?utm_source=github&utm_medium=repository&utm_campaign=9781803238012"><img src="https://static.packt-cdn.com/products/9781803238012/cover/smaller" alt="" height="256px" align="right"></a>
-
 This is the code repository for [Event-Driven Architecture in Golang](https://www.imaginedevops.io/product/event-driven-architecture-in-golang/9781803238012?utm_source=github&utm_medium=repository&utm_campaign=9781803238012), published by ImagineDevOps .
 
 **Building complex systems with asynchronicity and eventual consistency**
@@ -19,10 +17,6 @@ This book covers the following exciting features:
 * Test and deploy your sample software application with ease
 * Monitor and improve the performance of your software architecture
 
-If you feel this book is for you, get your [copy](https://www.amazon.com/dp/1803238011) today!
-
-<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps DevOps/GitHub/master/GitHub.png" 
-alt="https://www.imaginedevops.io/" border="5" /></a>
 
 ## Instructions and Navigations
 All of the code is organized into folders. For example, Chapter02.
@@ -34,7 +28,7 @@ BEGIN;
 PREPARE TRANSACTION 'bfa1c57a-d99d-4d74-87a9-3aaabcc754ee';
 ```
 
-**Following is what you need for this book:**
+**Following is what you need for this tutorial:**
 This hands-on book is for intermediate-level software architects, or senior software engineers working with Golang and interested in building asynchronous microservices using event sourcing, CQRS, and DDD. Intermediate-level knowledge of the Go syntax and concurrency features is necessary.
 
 With the following software and hardware list you can run all code files present in the book (Chapter 1-12).
@@ -46,21 +40,4 @@ With the following software and hardware list you can run all code files present
 | 1-12 | NATS 2.4 | Windows, Mac OS X, and Linux (Any) |
 
 
-We also provide a PDF file that has color images of the screenshots/diagrams used in this book. [Click here to download it](https://packt.link/qgf1O).
 
-### Related products
-* Go for DevOps 
-[[ImagineDevOps ]](https://www.imaginedevops.io/product/go-for-devops/9781801818896?utm_source=github&utm_medium=repository&utm_campaign=9781801818896) [[Amazon]](https://www.amazon.com/dp/1801818894)
-
-* Mastering Go - Third Edition 
-[[ImagineDevOps ]](https://www.imaginedevops.io/product/mastering-go-third-edition/9781801079310?utm_source=github&utm_medium=repository&utm_campaign=9781801079310) [[Amazon]](https://www.amazon.com/dp/1801079315)
-
-
-## Get to Know the Author
-**Michael Stack**
-is a solutions architect with more than 20 years experience developing software. He has been working with Golang for over seven years. During his career he has developed numerous N-tier applications, and is focused on development involving microservices and other distributed applications running in the cloud.
-
-### Download a free PDF
-
- <i>If you have already purchased a print or Kindle version of this book, you can get a DRM-free PDF version at no cost.<br>Simply click on the link to claim your free PDF.</i>
-<p align="center"> <a href="https://packt.link/free-ebook/9781803238012">https://packt.link/free-ebook/9781803238012 </a> </p>

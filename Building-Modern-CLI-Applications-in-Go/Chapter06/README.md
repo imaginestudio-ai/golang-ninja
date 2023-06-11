@@ -10,16 +10,6 @@ Timeouts and other errors can occur when calling either type of process. We will
 -   Interacting with REST APIs
 -   Handling the expected – timeouts and errors
 
-Bookmark
-
-# Technical requirements
-
-You’ll need a UNIX operating system to understand and run the examples shared in the chapter.
-
-You can also find the code examples on GitHub at [https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter06](https://github.com/ImagineDevOps DevOps/Building-Modern-CLI-Applications-in-Go/tree/main/Chapter06).
-
-Bookmark
-
 # Calling external processes
 
 Within your command-line application, you may need to call some external processes. Sometimes, there are Golang libraries offered for third-party tools that function as a wrapper. For example, Go CV, [https://gocv.io/](https://gocv.io/), is a Golang wrapper offered for OpenCV, an open source computer vision library. Then, there’s GoFFmpeg, [https://github.com/xfrr/goffmpeg](https://github.com/xfrr/goffmpeg), which is a wrapper offered for FFmpeg, a library for recording, converting, and streaming audio and video files. Often, you need to install an underlying tool, such as OpenCV or FFmpeg, and then the library interacts with it. Calling these external processes then means importing the wrapper package and calling its methods within your code. Often, when you dive into the code, you’ll find that these libraries provide a wrapper for the C code.

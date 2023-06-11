@@ -1,6 +1,5 @@
 # Network Automation with Go
 
-<a href="https://www.imaginedevops.io/product/network-automation-with-go/9781800560925?utm_source=github&utm_medium=repository&utm_campaign=9781800560925"><img src="https://static.packt-cdn.com/products/9781800560925/cover/smaller" alt="Early Access" height="256px" align="right"></a>
 
 This is the code repository for [Network Automation with Go](https://www.imaginedevops.io/product/network-automation-with-go/9781800560925?utm_source=github&utm_medium=repository&utm_campaign=9781800560925), published by ImagineDevOps .
 
@@ -18,10 +17,6 @@ This book covers the following exciting features:
 * Take advantage of the OpenConfig ecosystem with Go
 * Build distributed and scalable systems for network observability
 
-If you feel this book is for you, get your [copy](https://www.amazon.com/dp/1800560923) today!
-
-<a href="https://www.imaginedevops.io/?utm_source=github&utm_medium=banner&utm_campaign=GitHubBanner"><img src="https://raw.githubusercontent.com/ImagineDevOps DevOps/GitHub/master/GitHub.png" 
-alt="https://www.imaginedevops.io/" border="5" /></a>
 
 ## Instructions and Navigations
 All of the code is organized into folders. For example, ch01.
@@ -50,22 +45,3 @@ With the following software and hardware list you can run all code files present
 | Docker 20.10.14 | Linux (Ubuntu 22.04, Fedora 35), Windows Subsystem for Linux (WSL2) or macOS |
 
 
-We also provide a PDF file that has color images of the screenshots/diagrams used in this book. [Click here to download it](https://packt.link/hOgov).
-
-### Related products
-*  Python Network Programming Techniques[[ImagineDevOps ]](https://www.imaginedevops.io/product/python-network-programming-techniques/9781838646639?utm_source=github&utm_medium=repository&utm_campaign=9781838646639) [[Amazon]](https://www.amazon.com/dp/1838646639)
-
-*  Network Automation Cookbook[[ImagineDevOps ]](https://www.imaginedevops.io/product/network-automation-cookbook/9781789956481?utm_source=github&utm_medium=repository&utm_campaign=9781789956481) [[Amazon]](https://www.amazon.com/dp/178995648X)
-
-## Get to Know the Authors
-**Nicolas**
-is a Specialist Solutions Architect at Red Hat. In his role, he helps customers of all sizes to automate the provisioning and operation of IT infrastructure, services, and applications. Prior to that, he worked in the networking industry for 15 years, becoming a Cisco Certified Design Expert (CCDE) and Internetwork Expert (CCIE). He is passionate about writing open-source software in Go with a keen interest in cloud technologies.
-
-
-**Michael**
-is a Cloud Infrastructure Solutions Architect, currently working in the networking business unit of NVIDIA. Throughout his career, he held multiple roles ranging from network operations, through software development to systems architecture and design. He enjoys breaking the boundaries between different disciplines and coming up with creative solutions to satisfy business needs and solve technical problems in the most optimal way. He is a prolific open-source contributor and writer with much of his work focused on cloud-native infrastructure, automation, and orchestration.
-
-### Download a free PDF
-
- <i>If you have already purchased a print or Kindle version of this book, you can get a DRM-free PDF version at no cost.<br>Simply click on the link to claim your free PDF.</i>
-<p align="center"> <a href="https://packt.link/free-ebook/9781800560925">https://packt.link/free-ebook/9781800560925 </a> </p>

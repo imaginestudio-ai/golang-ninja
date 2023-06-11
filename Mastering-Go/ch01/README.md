@@ -1,7 +1,7 @@
 
 # A Quick Introduction to Go
 
-ImagineDevOps  that you are a developer and you want to create a command-line utility. Similarly, imagine that you have a REST API and you want to create a RESTful server that implements that REST API. The first thought that will come to your mind will most likely be which programming language to use.
+Imagine that you are a developer and you want to create a command-line utility. Similarly, imagine that you have a REST API and you want to create a RESTful server that implements that REST API. The first thought that will come to your mind will most likely be which programming language to use.
 
 The most common answer to this question is to use the programming language you know best. However, this book is here to help you consider Go for all these and many more tasks and projects. In this chapter, we begin by explaining what Go is, and continue with the history of Go, and how to run Go code. We will explain some core characteristics of Go, such as how to define variables, control the flow of your programs, and get user input, and we will apply some of these concepts by creating a command-line phone book application.
 

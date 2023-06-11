@@ -294,7 +294,7 @@ The following is a list of important Go rules that will help you while reading t
 
 Go has more rules but these rules are the most important ones and will keep you going for most of the book. You are going to see all these rules in action in this chapter as well as other chapters. For now, let's consider the only way to format curly braces in Go because this rule applies everywhere.
 
-Look at the following Go program named `curly.go`:
+Look at the following Go program named `bad-curly.go`:
 
 ```markup
 package main
@@ -316,7 +316,7 @@ $ go run curly.go
 ./curly.go:8:1: syntax error: unexpected semicolon or newline before {
 ```
 
-The official explanation for this error message is that Go requires the use of semicolons as statement terminators in many contexts, and the compiler automatically inserts the required semicolons when it thinks that they are necessary. Therefore, putting the opening curly brace (`{`) in its own line will make the Go compiler insert a semicolon at the end of the previous line (`func main()`), which is the main cause of the error message. The correct way to write the previous code is the following:
+The official explanation for this error message is that Go requires the use of semicolons as statement terminators in many contexts, and the compiler automatically inserts the required semicolons when it thinks that they are necessary. Therefore, putting the opening curly brace (`{`) in its own line will make the Go compiler insert a semicolon at the end of the previous line (`func main()`), which is the main cause of the error message. The correct way to write the previous code is the following in `good-curly.go`:
 
 ```markup
 package main

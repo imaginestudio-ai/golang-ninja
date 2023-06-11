@@ -1,4 +1,4 @@
-# Building Modern CLI Applications in Go
+# Modern CLI Applications in Go
 
 
 This is the code repository for [Building Modern CLI Applications in Go](https://www.imaginedevops.io/product/building-modern-cli-applications-in-go/9781804611654?utm_source=github&utm_medium=repository&utm_campaign=9781804611654), published by ImagineDevOps .
